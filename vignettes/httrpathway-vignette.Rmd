@@ -1,0 +1,101 @@
+---
+title: "httrpathway-vignette"
+author: "Thomas Sheffield"
+date": "October 10, 2019"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{httrpathway-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(httrpathway)
+```
+
+# Introduction
+
+"httrpathway" is a set of functions that convert sample by gene matrices of log2(fold change) (l2fc) transcriptomics data into sample by pathway matrices of pathway scores. It also can generate null data in order to estimate noise for each pathway, perform concentration-response curve fitting on the pathway scores, and generate useful plots to analyze the output.
+
+# Inputs
+
+httrpathway assumes an existing file structure containing some key files in your working directory. There must be an input folder and an output folder. To perform pathway scoring, there should exist an FCMAT2 file storing the l2fc's and a CHEM_DICT file that stores information about each sample. FCMAT2 files should be stored in the input/fcdata/ folder and be named "FCMAT2_dataset.RData" where "dataset"" is replaced by a user-defined dataset name. This file should contain a matrix (not dataframe!) named "FCMAT2" of l2fc values where the column names are genes (should be compatible with your pathway definitions) and the rownames are sample identifiers (aka, the "sample_key"). The sample_key is typically formatted as "sampleid_concentration" where "sampleid" is replaced by an identifier that is unique for each concentration/response experiment and "concentration" is replaced by the concentration. These sample keys must be unique and match those in the CHEM_DICT file.
+
+CHEM_DICT files should also be stored in the input/fcdata/ folder and be named "CHEM_DICT_dataset.RData" where dataset is the user-defined dataset name. This file should contain a dataframe named "CHEM_DICT" with one row per sample_key. There should be seven columns: "sample_key", "sample_id", "conc" (concentration in regular, not log units), "time" (in hours, e.g. 6, 12, 24), "casrn", "name" (of the chemical), "dsstox_substance_id". Also, the rownames should be the same as the sample_key column.
+
+Furthermore, each pathway set ("pathset") requires PATHWAY_LIST and PATHWAYS files to be present in a folder named "input/processed_pathway_data/". bioplanet_builder() and pathwayBuilder_bhrr() are examples of functions used to create these files for the bioplanet and bhrr pathsets, respectively. The PATHWAY_LIST file should be named "PATHWAY_LIST_pathset.RData", where pathset is a user-defined name for the pathway set. It should contain a list named "pathway_data" with one element per pathway. Each element name should be a unique pathway name and each element should be a character vector of genes that correspond to the gene names used in FCMAT2. 
+
+The PATHWAYS file should be named "pathset_PATHWAYS.RData" and contain a dataframe named "pathset_PATHWAYS" where pathset is the user-defined pathset name. It should have one row per pathway and six columns: "pathway" (pathway name), "pathset" (name of the original pathway database it came from), "pathway_class" (optional identifier denoting which subset of the original database it came from), "path_info" (optional identifier containing keywords or phrases separated by |), "gene_list" (consituent genes separated by |, e.g. "ABC|DEF|GHI"), and "ngene" (number of genes in the pathway).
+
+pathwayConcRep_pval() also uses a pathway annotation file called "all_pathways_annotated.xlsx" that should be located in the input/ folder.
+
+
+# Pathway Scoring & Conc/Response
+
+Using a dataset containing 10 random chemicals called "10chems" and a pathset called "ENDOCRINE" we now demonstrate how to perform a full concentration response analysis. "FCMAT_10chems.RData" and "CHEM_DICT_10chems.RData" should be moved to the input/fcdata/ folder and "PATHWAY_LIST_ENDOCRINE.RData" and "ENDOCRINE_pathways.RData" should be present in the "input/processed_pathway_data/" folder.Then we can generate a null dataset by calling:
+
+```{r eval=FALSE}
+randomdata(dataset = "10chems", nchem = "5")
+```
+
+This creates an FCMAT2 and CHEM_DICT file for a null dataset called "10chems_RAND5". The naming convention for null datasets (or "nullsets") uses paste0("dataset",_RAND,"nchem"). Here, nchem was set to 5 for speed, though in practice you would want to use a much larger number. Each randomized chemical is associated with a random concentration pattern (chosen with replacement) from the data itself. This leads to a number of total samples approximately equal to eight times nchem for the pilot and phase 1 screens.
+
+Next, we would want to get pathway scores for the null dataset, which will be used to determine the cutoff for the actual dataset. Since we are going to generate BMD accumulation plots, we will also want to run the nullset through concentration response (otherwise, this is not necessary). For convenience, we'll use the same nullset to determine cutoffs as we are using to run the concentration/response:
+
+```{r eval=FALSE}
+runAllPathwayCR_pval(dataset = "10chems_RAND5",
+                     nullset = "10chems_RAND5", pathset = "ENDOCRINE",
+                     method = "fc", do.plot = F, mc.cores = c(3,3), 
+                     fitmodels = c("cnst", "hill"))
+```
+
+This will load the FCMAT2 and CHEM_DICT files for 10chems_RAND5 dataset and run them through pathwayScore(), then run pathwayConcResp_pval() using the "fc" (fold change) method without plotting. Each function are run with 3 cores apiece, but feel free to use as many cores as you have available. The CR models are restricted here to only "cnst" and "hill" for speed, but the default is to run all ten available  models. Note that all pathways in ENDOCRINE meet the default minimum pathway size of 10. Next, we'll want to run the actual data, and perhaps get some nice CR plots while we're at it:
+
+```{r eval=FALSE}
+runAllPathwayCR_pval(dataset = "10chems", 
+                     nullset = "10chems_RAND5", pathset = "ENDOCRINE",
+                     method = "fc", do.plot = T, mc.cores = c(3,3), 
+                     fitmodels = c("cnst", "hill"))
+```
+
+This should create a file in "output/pathway_Score_summary/" called "PATHSCOREMAT_ENDOCRINE_10chems_fc.RData" that holds the pathway scores and was generated internally by pathwayScore(). Another file should have been saved to "output/pathway_conc_resp_summary/" called "PATHWAY_CR_ENDOCRINE_10chems_fc_0.05_conthits.RData". This file stores all of the concentration response output in a dataframe. Note that "conthits" was automatically appended to the file name because the conthits option was set to TRUE (by default). pathwayConcResp_pval() has a nametag variable that is NULL by default, but automatically switches to "conthits" if conthits is used and no nametag is specified. This is done to prevent runs using discrete hitcalls from being overwritten by runs using continuous hitcalls and vice versa. In general, nametag can and should be used whenever a non-default option is selected in conc/response to ensure unique file names. As you can see, the pathset, dataset, method, and p-value are accounted for already and different choices of these parameters will not overwrite each other.
+
+Because we set do.plot = T, there should now be a folder called "output/pathway_conc_resp_plots/ENDOCRINE_10chems_fc_0.05/" that contains one .pdf file for each chemical in the dataset. Each pdf has one plot for every pathway in the pathset.
+
+# Plotting
+
+Now, to generate a BMD accumulation plot, we can run:
+
+```{r eval=FALSE}
+pathwayAccumNullPlot(pathset = "ENDOCRINE", dataset = "10chems", method = "fc", nullset = "10chems_RAND5", nametag = "conthits", mc.cores = 1)
+```
+
+This function has the option of choosing a new pvalue and recalculating hitcalls. Discrete hitcalls can only be changed from higher to lower p-values, while continuous hitcalls can go in either direction. The parallelization only applies to the recalcuation of hitcalls; since we're not doing this, it is not necessary here. A file should be saved to the folder "output/accumplots/" called "NULLACCUMPLOT_ENDOCRINE_10chems_0.05_conthits.pdf". It is not unusual or problematic for this function to throw a "no non-missing arguments to min" warning.
+
+We can also run the estrogen reference plot, which computes ER (or AR) accuracy against some existing results. This function looks for files named "S2 ER SuperMatrix 2015-03-24.xlsx" (for ER) and "AR_supermatrix_Kleinstreuer_etal_2017.xlsx" in the working directory. The function assumes certain properties of these files, so changing them would require the code to be overhauled. We can generate a plot using:
+
+```{r eval=FALSE}
+referenceAC50(method = "fc", dataset = "10chems", pathset = "ENDOCRINE", nullset = "10chems_RAND5",oldpval = .05, nametag = "conthits", conthits= T, pathclass = "DUT", aucclass = "erac50")
+```
+
+This function uses some preset groups of paths for comparison, and it happens that the DUTERTRE_ESTRADIOL_RESPONSE_^HR_UP pathway that is associated with the pathclass "DUT" is in the ENDOCRINE pathset. A plot should be saved to the file "output/refchems/refAC50_ENDOCRINE_10chems_fc_DUT_erac50_conthits.pdf". Note that the pathclass and aucclass are options that are part of the file name, while oldpval and newpvals are not. Note that most statistics in the top left are not calculated, because none of the chemicals in 10chems are considered ER "positives" according to this functions' criteria. One or more are considered ER "negative", however, which allows the TNR (true negative rate) to be calculated. RMSE and R2 are only calculated for true positives. The scatter plot plots both positives and "inconclusives", which are any chemicals that are not clearly either active or inactive. 
+
+The final plotting function plots the distribution of the actual and null data for some given pathways and then shows two kinds of cutoffs that were considered: p-value and FDR.
+
+```{r eval=FALSE}
+pathwayDistributionPlot(pathset = "ENDOCRINE", dataset = "10chems",
+                        nullset = "10chems_RAND5", samplepaths = NULL)
+```
+
+The samplepaths options allows the user to choose specific individual pathways to display. 10 additional pathways are also randomly chosen (with replacement) and added to the plo. The output file should be named "output/distplots/DISTPLOT_ENDOCRINE_10chems_fc_Null.pdf".
+
+# Replication Study
+
+Some functions were used specifically to perform the pilot/phase 1 replication study and are included as well. FCMATrepchems() was used to build FCMAT2 and CHEM_DICT files based on deseq2 output. The bygene option was used to choose between outputting FCMAT's with gene columns (for pathway scoring) and those with probe_id columns (for direct conc/response modeling). runAllRepChemCR() was used to run all pathway scoring and conc/resp for the gene version, and runAllRepChemPidCR() was used to run conc/resp for the probe id version. This used a modified version of pathwayConcResp_pval() called geneConcResp() that uses the lowest concentration to set its cutoff. Finally, the plotting functions repChemPathwayPlot() and repChemPidPlot() were used to generate the plots for that study.
