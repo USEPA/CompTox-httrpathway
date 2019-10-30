@@ -1,13 +1,13 @@
 #' Pathway Score
-#' 
+#'
 #' Computes and saves pathway scores.
-#' 
+#'
 #' pathwayScore is a driver for various scoring methods. The three that are
 #' currently available are "gsva", "mygsea", "fc", and "mygsea_norank" (a version
 #' of mygsea that uses fold changes instead of ranks as weights). Deprecated
-#' methods include the Fisher method and gsvae (gsva with empirical cdfs). 
+#' methods include the Fisher method and gsvae (gsva with empirical cdfs).
 #' Beware running out of memory on large runs with gsva, Linux, and many cores.
-#' Pathway size is counted according to number of genes in the pathway that are 
+#' Pathway size is counted according to number of genes in the pathway that are
 #' also in the column names of FCMAT2. However, each method performs a more
 #' rigorous size count internally that accounts for missing values and adds this
 #' to the output. This minpathsize is enforced when running pathwayConcResp_pval.
@@ -21,8 +21,8 @@
 #' @param method Name of desired scoring method.
 #' @param mc.cores Number of cores to use.
 #' @param minpathsize Minimum allowed pathway size BEFORE accounting for
-#'   missing values. 
-#' 
+#'   missing values.
+#'
 #' @import data.table
 #' @import parallel
 #' @import openxlsx
@@ -32,38 +32,38 @@
 pathwayScore <- function(FCMAT2,
                          CHEM_DICT,
                          pathset="bhrr",
-                         dataset="PlateEffect", 
+                         dataset="PlateEffect",
                          method="10chems",
                          mc.cores=1,
                          minpathsize = 10) {
-  
+
   starttime = proc.time()
-  dir.create("output/pathway_score_summary/", showWarnings = F)
-  
+  dir.create("../output/pathway_score_summary/", showWarnings = F)
+
   #get rid of columns filled with missing values
   nonempties = apply(FCMAT2,2,function(x){sum(!is.na(x))})
   FCMAT2 = FCMAT2[,nonempties > 0]
-  
+
   #load pathway data
-  file <- paste0("input/processed_pathway_data/PATHWAY_LIST_",pathset,".RData")
+  file <- paste0("../input/processed_pathway_data/PATHWAY_LIST_",pathset,".RData")
   load(file) #pathway_data
-  
+
   #sk.list could be used to choose a data subset, but here does nothing
   sk.list <-as.matrix(rownames(FCMAT2))
-  
-  #Enforce minimum pathway size 
+
+  #Enforce minimum pathway size
   plengths = sapply(pathway_data, function(x){sum(x %in% colnames(FCMAT2))})
-  cat("Removing", sum(plengths < minpathsize), "pathways under min size", minpathsize, ".", sum(plengths >= minpathsize), 
+  cat("Removing", sum(plengths < minpathsize), "pathways under min size", minpathsize, ".", sum(plengths >= minpathsize),
       "pathways remaining.\n")
   pathway_data = pathway_data[plengths >= minpathsize]
-  
+
   #now run the inner functions depending on method
   if(method=="fc") {
     if(mc.cores > 1){
       #split fcmat into mc.cores matrices and run them in parallel
-      splitseq = sort(rep(1:mc.cores, length.out = nrow(FCMAT2))) 
+      splitseq = sort(rep(1:mc.cores, length.out = nrow(FCMAT2)))
       fclist = split.data.frame(FCMAT2,splitseq, drop = F)
-      
+
       cl = makePSOCKcluster(mc.cores)
       clusterExport(cl, c("pathwayScoreCoreFC"))
       pscorelist = parLapply(cl = cl, X=fclist, fun=pathwayScoreCoreFC,
@@ -75,14 +75,14 @@ pathwayScore <- function(FCMAT2,
       #reform output
       pathscoremat = as.data.frame(rbindlist(pscorelist))
     } else {
-      pathscoremat = pathwayScoreCoreFC(fcdata = FCMAT2, pathset = pathset,dataset = dataset, 
+      pathscoremat = pathwayScoreCoreFC(fcdata = FCMAT2, pathset = pathset,dataset = dataset,
                                         chem_dict = CHEM_DICT,pathway_data = pathway_data )
     }
-    
+
     #save
-    file <- paste0("output/pathway_score_summary/PATHSCOREMAT_",pathset,"_",dataset,"_",method,".RData")
+    file <- paste0("../output/pathway_score_summary/PATHSCOREMAT_",pathset,"_",dataset,"_",method,".RData")
     save(pathscoremat,file=file)
-    
+
   }
   #call gsva scoring
   if(method=="gsva") {

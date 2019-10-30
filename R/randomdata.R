@@ -65,7 +65,7 @@ randomdata = function(basedir="../input/fcdata/",dataset="Phase1_6fixed", nchem 
   CHEM_DICT = data.frame(sample_key = rep(NA,n), sample_id = rep(paste0("Randomid", 1:nchem),times = clens),
                          conc = concs, time = rep(0,n), casrn = rep(paste0("Randomcasrn", 1:nchem), times = clens),
                          name = rep(paste0("Randomname", 1:nchem), times = clens),
-                         dsstox_substance_id = rep(paste0("Randomdtx", 1:nchem), times = clens),
+                         dtxsid = rep(paste0("Randomdtx", 1:nchem), times = clens),
                          stringsAsFactors = F)
   CHEM_DICT$sample_key = paste(CHEM_DICT$sample_id, CHEM_DICT$conc, sep = "_")
   save(CHEM_DICT, file = paste0(basedir,"CHEM_DICT_", dataset, "_RAND",nchem,".RData"))

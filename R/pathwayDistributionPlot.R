@@ -1,7 +1,7 @@
 #' Pathway Distribution Plot
-#' 
+#'
 #' Plots null and actual pdfs for given pathway and cutoffs.
-#' 
+#'
 #' This function requires that a PATHSCOREMAT file has already been generated
 #' for the given pathset/dataset/method using pathwayScore. There should also
 #' be PATHSCOREMAT file for the nullset if comparetype = "Null". This function
@@ -14,12 +14,12 @@
 #' @param nullset Name of null data set.
 #' @param perc 1-p-value for pvalue cutoff.
 #' @param fdr False discovery rate for FDR cutoff.
-#' @param comparetype Type of noise to use: "Null" for null data scores, 
+#' @param comparetype Type of noise to use: "Null" for null data scores,
 #'   "Low Conc" for lowest concentrations.
 #' @param samplepaths Vector of sample pathway names to plot.
 #' @param to.file If to.file = T, write plot to disk.
 #' @param seed Randomization seed to use to choose additional sample pathways.
-#' 
+#'
 #' @importFrom openxlsx read.xlsx
 #' @import grDevices
 #' @importFrom moments kurtosis
@@ -34,44 +34,44 @@ pathwayDistributionPlot <- function(pathset="bhrr",
                               fdr = .25,
                               comparetype = "Null",
                               samplepaths = c("HALLMARK_ESTROGEN_RESPONSE_EARLY", "DUTERTRE_ESTRADIOL_RESPONSE_6HR_UP",
-                                              "HALLMARK_CHOLESTEROL_HOMEOSTASIS", "Vitamin A and carotenoid metabolism", 
+                                              "HALLMARK_CHOLESTEROL_HOMEOSTASIS", "Vitamin A and carotenoid metabolism",
                                               "Cytochrome P450 pathway", "HALLMARK_ANDROGEN_RESPONSE"),
                               to.file = T,
                               seed = 12345) {
   set.seed(seed)
-  
+
   if(comparetype == "Null"){
     #load nullset scores
-    file <- paste0("output/pathway_score_summary/PATHSCOREMAT_",pathset,"_",nullset, "_",method,".RData")
+    file <- paste0("../output/pathway_score_summary/PATHSCOREMAT_",pathset,"_",nullset, "_",method,".RData")
     load(file)
     randoms = pathscoremat
-    
+
     #fill in pathset column. This might be deprecated.
-    pway.annotated = read.xlsx("input/all_pathways_annotated.xlsx")
+    pway.annotated = read.xlsx("../input/all_pathways_annotated.xlsx")
     pathscoremat$pathset = pway.annotated$pathset[match(pathscoremat$pathway, pway.annotated$pathway)]
     randoms$pathset = pway.annotated$pathset[match(randoms$pathway, pway.annotated$pathway)]
   }
-  
+
   #load dataset scores
-  file <- paste0("output/pathway_score_summary/PATHSCOREMAT_",pathset,"_",dataset,"_",method,".RData")
+  file <- paste0("../output/pathway_score_summary/PATHSCOREMAT_",pathset,"_",dataset,"_",method,".RData")
   load(file)
-  
+
   #open pdf
-  dir.create("output/distplots/", showWarnings = FALSE)
-  fname = paste0("output/distplots/DISTPLOT_",pathset,"_",dataset,"_",method,"_",comparetype,".pdf")
+  dir.create("../output/distplots/", showWarnings = FALSE)
+  fname = paste0("../output/distplots/DISTPLOT_",pathset,"_",dataset,"_",method,"_",comparetype,".pdf")
   if(to.file) pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
-  
+
   #get random 10 extra pathways and add to user-specified pathways
   samplepaths = c(samplepaths,sample(unique(pathscoremat$pathway),10, replace = T))
-  
+
   par(mfrow = c(2,1))
   cols = brewer.pal(6, "Set1")
-  
+
   #highscores are the scores for actual data, comparescores are the null or low conc data
   highscores = pathscoremat$pathway_score
   if(comparetype == "Low Conc") comparescores = pathscoremat$pathway_score[pathscoremat$conc < .2]
   if(comparetype == "Null") comparescores = randoms$pathway_score
-  
+
   #subtract comparescores median
   highscores = highscores - median(comparescores)
   comparescores = comparescores - median(comparescores)
@@ -81,13 +81,13 @@ pathwayDistributionPlot <- function(pathset="bhrr",
   pvals = 1-myecdf(abs(highscores))
   apvals = p.adjust(pvals, method = "BH")
   balfdrscore = min(abs(highscores)[apvals < fdr])
-  
+
   #get densities for both
   maxscore = max(abs(highscores), abs(comparescores))
   dlen = 1024
   sdens = density(highscores, n = 1024, from = -maxscore, to = maxscore)
   ndens =  density(comparescores, n = 1024, from = -maxscore, to = maxscore)
-  
+
   #plot densities
   ylims = c(0,max(c(sdens$y, ndens$y) ) )
   plot(sdens, xlab = "Pathway Score Probability Distribution",
@@ -103,12 +103,12 @@ pathwayDistributionPlot <- function(pathset="bhrr",
     lines(rep(balfdrscore, 2),ylims, col = cols[5])
     lines(rep(-balfdrscore, 2),ylims, col = cols[5])
   }
-  
+
   #get kurtosis for each and put in top left legend for densities
   label1 = paste0(comparetype, "(kurtosis = ", round(kurtosis(comparescores),1), ")")
   label2 = paste0("All Conc (kurtosis = ", round(kurtosis(highscores),1), ")")
   legend(x = "topleft", legend = c(label1, label2), col = c(cols[1],"black"), lwd = 2)
-  
+
   #show top right legend for cutoffs
   if(is.finite(balfdrscore)){
     legend(x = "topright", legend = c(paste0("P-Value: ", 1-perc),
@@ -123,20 +123,20 @@ pathwayDistributionPlot <- function(pathset="bhrr",
     highscores = pathscoremat$pathway_score[pathscoremat$pathway == samplepath]
     if(comparetype == "Low Conc") comparescores = pathscoremat$pathway_score[pathscoremat$pathway == samplepath & pathscoremat$conc < .2]
     if(comparetype == "Null") comparescores = randoms$pathway_score[randoms$pathway == samplepath]
-    
+
     highscores = highscores - median(comparescores)
     comparescores = comparescores - median(comparescores)
-    
+
     myecdf = ecdf(abs(comparescores))
     pvals = 1-myecdf(abs(highscores))
     apvals = p.adjust(pvals, method = "BH")
     balfdrscore = min(abs(highscores)[apvals < fdr])
-    
+
     maxscore = max(abs(highscores), abs(comparescores))
     dlen = 1024
     sdens = density(highscores, n = 1024, from = -maxscore, to = maxscore)
     ndens =  density(comparescores, n = 1024, from = -maxscore, to = maxscore)
-    
+
     ylims = c(0,max(c(sdens$y, ndens$y) ) )
     plot(sdens, xlab = paste(samplepath,"Probability Distribution"),
          main = paste("Method:", method),ylim = ylims)
@@ -144,7 +144,7 @@ pathwayDistributionPlot <- function(pathset="bhrr",
 
     label1 = paste0(comparetype)# (kurtosis = ", round(kurtosis(lowscores),1), ")")
     label2 = paste0("All Conc")# (kurtosis = ", round(kurtosis(highscores),1), ")")
-    
+
     lines(rep(quantile(abs(comparescores),perc), 2),ylims, col = cols[2])
     lines(rep(-quantile(abs(comparescores),perc), 2),ylims, col = cols[2])
 
@@ -154,15 +154,15 @@ pathwayDistributionPlot <- function(pathset="bhrr",
     }
 
     legend(x = "topleft", legend = c(label1, label2), col = c(cols[1],"black"), lwd = 2)
-    
+
     if(is.finite(balfdrscore)){
       legend(x = "topright", legend = c(paste0("P-Value: ", 1-perc),
                                         paste0("FDR: ", fdr)), col = cols[c(2,5)], lty = 1)
     } else {
-      legend(x = "topright", legend = c(paste0("P-Value: ", 1-perc), 
+      legend(x = "topright", legend = c(paste0("P-Value: ", 1-perc),
                                         paste0("FDR: ", fdr, " (infinite)")), col = cols[c(2,5)], lty = 1)
     }
   }
-  
+
   if(to.file) dev.off()
 }
