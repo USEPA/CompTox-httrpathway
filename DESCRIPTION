@@ -32,7 +32,10 @@ Imports: stats,
   openxlsx,
   parallel,
   RColorBrewer,
-  reshape2  
+  reshape2,
+  data.table,
+  openxlsx,
+  e1071
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
