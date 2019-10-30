@@ -15,7 +15,7 @@ cd existing-project
 git init
 git add --all
 git commit -m "Initial Commit"
-git remote add origin ssh://git@ncct-bitbucket.epa.gov:7999/toxval/toxvaldbv08.git
+git remote add origin ssh://git@ncct-bitbucket.epa.gov:7999/httrpat/httrpathway.git
 git push -u origin master
 
 https://ncct-bitbucket.epa.gov/projects/TOXVAL/repos/toxvaldbv08/browse
