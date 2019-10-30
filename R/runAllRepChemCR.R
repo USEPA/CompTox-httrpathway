@@ -1,7 +1,7 @@
 #' Run All Replicate Chemical Concentration Response
-#' 
+#'
 #' Runs pathway scoring and concentration response for replicate chemicals.
-#' 
+#'
 #' This function has hard-coded dataset names for the replicates. For each
 #' replicate, it computes pathway scores, generates a null dataset, runs
 #' pathway scores for the null dataset, and then runs concentration-response
@@ -19,14 +19,14 @@
 #'   number, but gsva scoring might require a smaller number to avoid memory
 #'   overflow.
 #' @param conthits conthits = T uses continuous hitcalls. Continuous hitcalls are
-#'   a prerequisitie for using repChemPathwayPlot(). 
+#'   a prerequisitie for using repChemPathwayPlot().
 #' @param nchem Number of null chemicals to use. The number of null samples is
 #'   approximately eight times this value, so nchem = 125 generates ~1000 null
 #'   samples.
 #'
 #' @return No output.
 #' @export
-runAllRepChemCR = function(basedir="input/fcdata/",pathset="bhrr", method = "fc", minpathsize = 10,
+runAllRepChemCR = function(basedir="../input/fcdata/",pathset="bhrr", method = "fc", minpathsize = 10,
                            do.plot = F, pval = .05, mc.cores = c(39,39), conthits = T, nchem = 125){
 
   #hard-coded dataset names
@@ -46,7 +46,7 @@ runAllRepChemCR = function(basedir="input/fcdata/",pathset="bhrr", method = "fc"
     load(file)
     rownames(CHEM_DICT) <- CHEM_DICT[,"sample_key"]
     pathwayScore(FCMAT2, CHEM_DICT, pathset,dataset,method=method,mc.cores=mc.cores[1], minpathsize = minpathsize)
-    
+
     #create randomized null data (only need to run this the first time)
     randomdata(dataset=dataset, nchem = nchem, seed = 12345)
     #score randomized data
@@ -57,15 +57,15 @@ runAllRepChemCR = function(basedir="input/fcdata/",pathset="bhrr", method = "fc"
     load(file)
     rownames(CHEM_DICT) <- CHEM_DICT[,"sample_key"]
     pathwayScore(FCMAT2, CHEM_DICT, pathset,nullname,method=method,mc.cores=mc.cores[1], minpathsize = minpathsize)
-    
+
     #regular CR
     pathwayConcResp_pval(pathset,dataset,method=method, nullset = nullname, mc.cores=mc.cores[2], do.plot = do.plot,
                          to.file=T, pval = pval, conthits= conthits, minpathsize = minpathsize)
-    
+
     # #NULL CR
     # pathwayConcResp_pval(pathset,dataset = nullname,method=method, nullset = nullname, mc.cores=mc.cores[2], do.plot = do.plot,
     #                      to.file=T, pval = pval, conthits= conthits, minpathsize = minpathsize)
-    
+
   }
 
 }
