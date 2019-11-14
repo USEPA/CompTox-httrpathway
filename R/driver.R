@@ -5,12 +5,13 @@ library(stringi)
 library(reshape2)
 #--------------------------------------------------------------------------------------
 #' Code to run all calculations
-#'
+#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
 #--------------------------------------------------------------------------------------
 driver <- function(dataset="DMEM_6hr_pilot_normal_pe_0",
                    pathset="PathwaySet_20191107",
                    nrandom.chems=1000,
                    mc.cores=30,
+                   method="fc",
                    do.build.fcmat1.all=F,
                    do.build.fcmat2.all=F,
                    do.build.random=F,
@@ -19,6 +20,7 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_0",
                    do.accumulation.plot=F,
                    do.pathway.summary.plot=F,
                    do.pathway.pod=F,
+                   do.pathway.pod.laneplot=F,
                    do.all=F) {
   printCurrentFunction(paste(dataset,":",pathset))
 
@@ -98,7 +100,7 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_0",
     runAllPathwayCR_pval(dataset=nullset,
                          nullset=nullset,
                          pathset=pathset,
-                         method = "fc",
+                         method = method,
                          do.plot = F,
                          mc.cores = c(mc.cores,mc.cores))
   }
@@ -106,7 +108,7 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_0",
     runAllPathwayCR_pval(dataset=dataset,
                          nullset=nullset,
                          pathset=pathset,
-                         method = "fc",
+                         method = method,
                          do.plot = T,
                          mc.cores = c(mc.cores,mc.cores))
     cat("Look for output in \n
@@ -118,19 +120,30 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_0",
   if(do.accumulation.plot) {
     pathwayAccumNullPlot(pathset=pathset,
                          dataset=dataset,
-                         method="fc",
+                         method=method,
                          nullset=nullset,
                          nametag="conthits",
                          mc.cores=mc.cores,
-                         to.file=T)
+                         to.file=T,
+                         hit.threshold=0.5,
+                         verbose=F)
     cat("Look for output in ../output/accumplots/ \n")
   }
   if(do.pathway.summary.plot) {
     pathwayClassSummaryPlot(to.file=T,dataset=dataset,
                             pathset=pathset,
-                            method = "fc")
+                            method = method)
   }
   if(do.pathway.pod) {
-    pathwayPOD(pathset=pathset,dataset=dataset)
+    pathwayPOD(pathset=pathset,
+               dataset=dataset,
+               method=method,
+               hit.threshold=0.5)
+  }
+  if(do.pathway.pod.laneplot) {
+    podLaneplot(to.file=T,
+                dataset=dataset,
+                pathset=pathset,
+                method=method)
   }
 }
