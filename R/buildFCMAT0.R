@@ -1,7 +1,6 @@
 #--------------------------------------------------------------------------------------
 #' Build the FCMAT0 data set
 #'
-#' @param catalog.file This is the name of the catalog file
 #' @param pathsetname THis is the name of the pathway set and will be used for the
 #' name of the output file
 #' @return No output.
