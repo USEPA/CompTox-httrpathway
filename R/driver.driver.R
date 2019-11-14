@@ -1,8 +1,12 @@
 #--------------------------------------------------------------------------------------
 #' Code to run all calculations
-#'
+#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
+
 #--------------------------------------------------------------------------------------
-driver.driver <- function() {
+driver.driver <- function(pathset="PathwaySet_20191107",
+                          method="fc",
+                          nrandom.chems=1000,
+                          mc.cores=30) {
   printCurrentFunction()
 
 
@@ -41,12 +45,13 @@ driver.driver <- function() {
   )
 
   for(dataset in dataset.list) {
-    #driver(dataset=dataset,do.build.random=T)
-    #driver(dataset=dataset,do.run.random=T)
-    #driver(dataset=dataset,do.run.all=T)
-    #driver(dataset=dataset,do.accumulation.plot=T)
-    #driver(dataset=dataset,do.pathway.summary.plot=T)
-    driver(dataset=dataset,do.pathway.pod=T)
+    driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.build.random=T)
+    driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.run.random=T)
+    driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.run.all=T)
+    driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.accumulation.plot=T)
+    driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.pathway.summary.plot=T)
+    driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.pathway.pod=T)
+    driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.pathway.pod.laneplot=T)
   }
 
 }
