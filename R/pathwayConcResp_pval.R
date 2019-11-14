@@ -12,7 +12,7 @@ library(openxlsx)
 #'
 #' @param pathset Name of the pathway set.
 #' @param dataset Name of the data set.
-#' @param method Name of the pathway scoring method.
+#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
 #' @param nullset Name of the null data set.
 #' @param mc.cores Number of cores to parallelize with.
 #' @param to.file to.file = T saves the output to a file; otherwise it's returned.

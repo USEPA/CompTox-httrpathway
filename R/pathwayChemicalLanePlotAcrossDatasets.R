@@ -2,6 +2,7 @@
 #'
 #' Build lane plots by chemical list and pathway class, across the datasets
 #' @param to.file If TRUE, write plots to a file
+#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
 #--------------------------------------------------------------------------------------
 pathwayChemicalLanePlotAcrossDatasets <- function(to.file=F,
                                                   chemical.target="ER",

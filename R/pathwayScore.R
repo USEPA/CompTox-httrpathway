@@ -18,7 +18,7 @@
 #'   sample_key, sample_id, conc, time, casrn, name, dsstox_substance_id.
 #' @param pathset Name of pathway set.
 #' @param dataset Name of data set.
-#' @param method Name of desired scoring method.
+#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
 #' @param mc.cores Number of cores to use.
 #' @param minpathsize Minimum allowed pathway size BEFORE accounting for
 #'   missing values.

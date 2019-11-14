@@ -13,7 +13,7 @@
 #'
 #' @param pathset Name of pathway set used to score null data.
 #' @param nullset Name of null data set.
-#' @param method Name of pathway scoring method used on nullset.
+#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
 #' @param pvals Vector of p-values to get cutoff for.
 #' @param numsds Vector of number of standard deviations to get cutoff for.
 #'   For instance, numsds = 1 will return cutoffs at 1 standard deviation.
