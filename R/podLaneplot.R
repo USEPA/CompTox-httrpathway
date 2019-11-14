@@ -3,7 +3,10 @@
 #' Build lane plots by chemical list and pathway class, across the datasets
 #' @param to.file If TRUE, write plots to a file
 #--------------------------------------------------------------------------------------
-podLaneplot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_0",pathset="PathwaySet_20191107") {
+podLaneplot <- function(to.file=F,
+                        dataset="DMEM_6hr_pilot_normal_pe_0",
+                        pathset="PathwaySet_20191107",
+                        method="fc") {
   printCurrentFunction()
   file <- "../input/chemicals/HTTR Pilot chemical annotation.xlsx"
   chems <- read.xlsx(file)
@@ -12,7 +15,7 @@ podLaneplot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_0",pathset="
   nchem <- length(dtxsid.list)
 
   if(to.file) {
-    fname <- paste0("../output/pod_laneplot/pod_laneplot_",dataset,"_",pathset,".pdf")
+    fname <- paste0("../output/pod_laneplot/pod_laneplot_",dataset,"_",pathset,"_",method,".pdf")
     pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
   }
   par(mfrow=c(1,1),mar=c(4,4,2,2))
@@ -22,7 +25,7 @@ podLaneplot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_0",pathset="
   pod.accum <- read.xlsx(file)
   rownames(pod.accum) <- pod.accum$dtxsid
 
-  file <- paste0("../output/pathway_pod/pathway_pod_",pathset,"_",dataset,"_fc.xlsx")
+  file <- paste0("../output/pathway_pod/pathway_pod_",pathset,"_",dataset,"_",method,".xlsx")
   print(file)
   pod.pathway <- read.xlsx(file)
   pod.pathway <- pod.pathway[order(pod.pathway$pathway_pod_95),]
