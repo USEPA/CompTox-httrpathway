@@ -10,7 +10,7 @@
 #'
 #--------------------------------------------------------------------------------------
 buildFCMAT2 <- function(dataset="DMEM_6hr_pilot_normal_00",dir="../input/fcdata/",
-                        method="gene",do.read=F,
+                        method="gene",do.read=T,
                         chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx") {
   printCurrentFunction()
   if(do.read) {
