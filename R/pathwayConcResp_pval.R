@@ -102,7 +102,7 @@ pathwayConcResp_pval <- function(pathset="bhrr",
   rm(pathscoremat)
 
   #add details to PATHWAY_CR
-  PATHWAY_CR$pathway_class <- pathway_annotations$pclass[match(PATHWAY_CR$pathway, pathway_annotations$pathway)]
+  PATHWAY_CR$pathway_class <- pathway_annotations$super_class[match(PATHWAY_CR$pathway, pathway_annotations$pathway)]
   PATHWAY_CR$pathset = pathway_annotations$pathset[match(PATHWAY_CR$pathway, pathway_annotations$pathway)]
   PATHWAY_CR$dataset = rep(dataset, nrow(PATHWAY_CR))
   PATHWAY_CR$method = rep(method, nrow(PATHWAY_CR))
