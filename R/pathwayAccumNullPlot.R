@@ -25,19 +25,62 @@
 #'
 #' @return No output.
 #' @export
-pathwayAccumNullPlot = function(pathset="bhrr", dataset="arer", method = "fc", nullset = "arer_RAND125",
-                                newpval = .05, oldpval = .05, to.file = T, usecont = T, nametag = NULL, mc.cores = 1){
+pathwayAccumNullPlot = function(pathset="PathwaySet_20191107",
+                                dataset="DMEM_6hr_pilot_normal_pe_0",
+                                method = "fc",
+                                nullset = "DMEM_6hr_pilot_normal_pe_0_RAND1000",
+                                newpval = .05,
+                                oldpval = .05,
+                                to.file = F,
+                                usecont = T,
+                                nametag = "conthits",
+                                mc.cores = 1,
+                                hit.threshold=0.5,
+                                verbose=F){
+  printCurrentFunction()
+  nullset <- paste0(dataset,"_RAND",1000)
+  step <- 0
+  tstart <- proc.time()
 
+  #---------------------------------------
+  tend <- proc.time()
+  delta <- tend-tstart
+  tstart <- tend
+  if(verbose) cat("Step:",1,":",delta,"\n");
+  #---------------------------------------
+
+
+  ##############################################
+  #if(!exists("PATHWAY_CR.0")) {
+  ##############################################
   #get pathway_Crs from regular data
   if(!is.null(nametag)) nametag = paste0("_",nametag)
   file <- paste0("../output/pathway_conc_resp_summary/PATHWAY_CR_" ,pathset,"_",dataset,"_",method , "_", oldpval,
                  nametag,".RData")
+  if(verbose) print(file)
   load(file)
+  ##############################################
+  #PATHWAY_CR.0 <<- PATHWAY_CR
+  #}
+  #PATHWAY_CR <<- PATHWAY_CR.0
+  ##############################################
+  #---------------------------------------
+  tend <- proc.time()
+  delta <- tend-tstart
+  tstart <- tend
+  if(verbose) cat("Step:",2,":",delta,"\n");
+  #---------------------------------------
 
   #remove missing bmd's and get cutoff for newpval
   PATHWAY_CR = PATHWAY_CR[!is.na(PATHWAY_CR$bmd10),]
   pvalkey = getpvalcutoff(pathset, nullset = nullset, method = method, pvals = newpval)
   newcutoff = pvalkey$cutoff[match(PATHWAY_CR$pathway, pvalkey$pathway)]
+  #---------------------------------------
+  tend <- proc.time()
+  delta <- tend-tstart
+  tstart <- tend
+  if(verbose) cat("Step:",3,":",delta,"\n");
+  #---------------------------------------
 
   #recalc hitcalls if newpval does not equal oldpval
   if(usecont){
@@ -47,12 +90,18 @@ pathwayAccumNullPlot = function(pathset="bhrr", dataset="arer", method = "fc", n
     if(oldpval != newpval) PATHWAY_CR$hitcall = hitlogic(PATHWAY_CR, newcutoff = newcutoff)
     hitmat = PATHWAY_CR[PATHWAY_CR$hitcall == 1,]
   }
-
+  hitmat <- hitmat[hitmat$hitcall>hit.threshold,]
   #get bottom, top, chems, order output by chemical name
   bottom = floor(min(log10(hitmat$bmd10 ) ) )
   top = 2
   hitmat = hitmat[order(hitmat$name),]
   sids = unique(hitmat$sample_id)
+  #---------------------------------------
+  tend <- proc.time()
+  delta <- tend-tstart
+  tstart <- tend
+  if(verbose) cat("Step:",4,":",delta,"\n");
+  #---------------------------------------
 
   #plotting points at every unique bmd up to two significant digits.
   pts = sort(unique(signif(hitmat$bmd10,2)))
@@ -60,11 +109,27 @@ pathwayAccumNullPlot = function(pathset="bhrr", dataset="arer", method = "fc", n
   #set colors
   cols = c("black", "blue", "red")
 
+  ##############################################
+  #if(!exists("PATHWAY_CR_NULL.0")) {
+  ##############################################
   #get null info
   file <- paste0("../output/pathway_conc_resp_summary/PATHWAY_CR_",pathset,"_",nullset,"_",method ,"_",oldpval, nametag,
                  ".RData")
+  if(verbose) print(file)
   load(file)
+  ##############################################
+  #PATHWAY_CR_NULL.0 <<- PATHWAY_CR
+  #}
+  #PATHWAY_CR <<- PATHWAY_CR_NULL.0
+  ##############################################
+
   PATHWAY_CR = PATHWAY_CR[!is.na(PATHWAY_CR$bmd10),]
+  #---------------------------------------
+  tend <- proc.time()
+  delta <- tend-tstart
+  tstart <- tend
+  if(verbose) cat("Step:",5,":",delta,"\n");
+  #---------------------------------------
 
   #recalc null hitcalls, if necessary
   pvalkey = getpvalcutoff(pathset, nullset = nullset, method = method, pvals = newpval)
@@ -76,6 +141,13 @@ pathwayAccumNullPlot = function(pathset="bhrr", dataset="arer", method = "fc", n
     if(oldpval != newpval) PATHWAY_CR$hitcall = hitlogic(PATHWAY_CR, newcutoff = newcutoff)
     nullmat = PATHWAY_CR[PATHWAY_CR$hitcall == 1,]
   }
+  nullmat <- nullmat[nullmat$hitcall>hit.threshold,]
+  #---------------------------------------
+  tend <- proc.time()
+  delta <- tend-tstart
+  tstart <- tend
+  if(verbose) cat("Step:",6,":",delta,"\n");
+  #---------------------------------------
 
   #this line is probably deprecated, not sure.
   PATHWAY_CR$method = rep(method, nrow(PATHWAY_CR))
@@ -94,6 +166,12 @@ pathwayAccumNullPlot = function(pathset="bhrr", dataset="arer", method = "fc", n
   quantl =  apply(outmat,1, quantile, probs = .95)
 
   maxnull = max(quantl)
+  #---------------------------------------
+  tend <- proc.time()
+  delta <- tend-tstart
+  tstart <- tend
+  if(verbose) cat("Step:",7,":",delta,"\n");
+  #---------------------------------------
 
   #open pdf
   if(to.file){
@@ -105,6 +183,16 @@ pathwayAccumNullPlot = function(pathset="bhrr", dataset="arer", method = "fc", n
 
   #get chem dict to show min conc for each chem
   load(paste0("../input/fcdata/CHEM_DICT_",dataset,".RData"))
+  result <- unique(CHEM_DICT[,c("dtxsid","casrn","name")])
+  result$bmd <- NA
+  rownames(result) <- result$dtxsid
+  result <<- result
+  #---------------------------------------
+  tend <- proc.time()
+  delta <- tend-tstart
+  tstart <- tend
+  if(verbose) cat("Step:",8,":",delta,"\n");
+  #---------------------------------------
 
   #plotting loops, outer is chems
   out = lapply(as.list(sids), function(x){
@@ -146,14 +234,20 @@ pathwayAccumNullPlot = function(pathset="bhrr", dataset="arer", method = "fc", n
       points(log10(pts) , quantl, type = "l", col = "red", lty = 2)
       points(log10(pts) , quantu, type = "l", col = "red", lty = 2)
 
+      text(-1,maxhits*0.95,paste("POD:",format(loc,digits=3)),pos=4)
+      dtxsid <- mymat$dtxsid[1]
+      result[dtxsid,"bmd"] <<- loc
     }
 
     legend("topleft", legend = c("BMD Smooth ECDF", "Null Mean", "Null 90% CI",
                                  "Overall BMD", "Overall BMD 90% CI", "Min Concentration"),
            col = c("black", "red", "red", "blue", NA, "black"), cex = .8, lty = c(1,1,2,1,NA, 2),
            fill = c(NA,NA,NA,NA,rgb(0,0,1,.2), NA), border = c(NA,NA,NA,NA,NA, NA))
+    if(!to.file) browser()
   })
   if(to.file) dev.off()
+  file = paste0("../output/accumplots/NULLACCUMPLOT_",pathset,"_",dataset,"_", newpval, nametag, ".xlsx")
+  write.xlsx(result,file)
 
 }
 
