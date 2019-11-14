@@ -11,7 +11,7 @@
 #' @param basedir Folder that stores FCMAT2 and CHEM_DICT files.
 #' @param dataset Name of data set.
 #' @param pathset Name of pathway set.
-#' @param method Name of pathway scoring method.
+#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
 #' @param minpathsize Minimum pathway size.
 #' @param conthits conthits = T uses continous hitcall; conthits = F uses discrete
 #'   hitcalls.

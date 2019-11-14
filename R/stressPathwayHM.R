@@ -6,7 +6,8 @@
 stressPathwayHM <- function(to.file=F,
                             dataset="DMEM_6hr_pilot_normal_pe_0",
                             pathset="PathwaySet_20191107",
-                            threshold=0.5) {
+                            threshold=0.5,
+                            method="fc") {
   printCurrentFunction()
   if(to.file) {
     fname <- paste0("../output/miscplots/stressPathwayHM ",dataset,"_",pathset,".pdf")
