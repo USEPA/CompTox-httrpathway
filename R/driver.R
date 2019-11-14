@@ -1,23 +1,93 @@
 library(openxlsx)
+library(tidyr)
+library(stringr)
+library(stringi)
+library(reshape2)
 #--------------------------------------------------------------------------------------
 #' Code to run all calculations
 #'
 #--------------------------------------------------------------------------------------
-driver <- function(dataset="DMEM_6hr_pilot_normal_00",
-                   pathset="PathwaySet_20191031",
+driver <- function(dataset="DMEM_6hr_pilot_normal_pe_0",
+                   pathset="PathwaySet_20191107",
                    nrandom.chems=1000,
                    mc.cores=30,
-                   do.build=F,
+                   do.build.fcmat1.all=F,
+                   do.build.fcmat2.all=F,
                    do.build.random=F,
                    do.run.random=F,
                    do.run.all=F,
                    do.accumulation.plot=F,
+                   do.pathway.summary.plot=F,
+                   do.pathway.pod=F,
                    do.all=F) {
-  printCurrentFunction()
+  printCurrentFunction(paste(dataset,":",pathset))
 
-  if(do.build) {
-    buildFCMAT1(dataset=dataset,dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_normal/DMEM_6/",filetype="tsv")
-    buildFCMAT2(dataset=dataset,dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+  if(do.build.fcmat1.all) {
+    buildFCMAT1(dataset="DMEM_6hr_pilot_normal_pe_0",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_normal/DMEM_6/",filetype="tsv")
+    buildFCMAT1(dataset="DMEM_12hr_pilot_normal_pe_0",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_normal/DMEM_12/",filetype="tsv")
+    buildFCMAT1(dataset="DMEM_24hr_pilot_normal_pe_0",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_normal/DMEM_24/",filetype="tsv")
+
+    buildFCMAT1(dataset="DMEM_6hr_pilot_normal_pe_1",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_1-shrinkage_normal/DMEM_6/",filetype="tsv")
+    buildFCMAT1(dataset="DMEM_12hr_pilot_normal_pe_1",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_1-shrinkage_normal/DMEM_12/",filetype="tsv")
+    buildFCMAT1(dataset="DMEM_24hr_pilot_normal_pe_1",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_1-shrinkage_normal/DMEM_24/",filetype="tsv")
+
+    buildFCMAT1(dataset="DMEM_6hr_pilot_none_pe_0",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_none/DMEM_6/",filetype="tsv")
+    buildFCMAT1(dataset="DMEM_12hr_pilot_none_pe_0",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_none/DMEM_12/",filetype="tsv")
+    buildFCMAT1(dataset="DMEM_24hr_pilot_none_pe_0",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_none/DMEM_24/",filetype="tsv")
+
+    buildFCMAT1(dataset="DMEM_6hr_pilot_none_pe_1",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_1-shrinkage_none/DMEM_6/",filetype="tsv")
+    buildFCMAT1(dataset="DMEM_12hr_pilot_none_pe_1",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_1-shrinkage_none/DMEM_12/",filetype="tsv")
+    buildFCMAT1(dataset="DMEM_24hr_pilot_none_pe_1",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_1-shrinkage_none/DMEM_24/",filetype="tsv")
+
+    buildFCMAT1(dataset="PRF_6hr_pilot_normal_pe_0",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_normal/PRF_6/",filetype="tsv")
+    buildFCMAT1(dataset="PRF_12hr_pilot_normal_pe_0",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_normal/PRF_12/",filetype="tsv")
+    buildFCMAT1(dataset="PRF_24hr_pilot_normal_pe_0",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_normal/PRF_24/",filetype="tsv")
+
+    buildFCMAT1(dataset="PRF_6hr_pilot_normal_pe_1",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_1-shrinkage_normal/PRF_6/",filetype="tsv")
+    buildFCMAT1(dataset="PRF_12hr_pilot_normal_pe_1",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_1-shrinkage_normal/PRF_12/",filetype="tsv")
+    buildFCMAT1(dataset="PRF_24hr_pilot_normal_pe_1",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_1-shrinkage_normal/PRF_24/",filetype="tsv")
+
+    buildFCMAT1(dataset="PRF_6hr_pilot_none_pe_0",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_none/PRF_6/",filetype="tsv")
+    buildFCMAT1(dataset="PRF_12hr_pilot_none_pe_0",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_none/PRF_12/",filetype="tsv")
+    buildFCMAT1(dataset="PRF_24hr_pilot_none_pe_0",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_none/PRF_24/",filetype="tsv")
+
+    buildFCMAT1(dataset="PRF_6hr_pilot_none_pe_1",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_1-shrinkage_none/PRF_6/",filetype="tsv")
+    buildFCMAT1(dataset="PRF_12hr_pilot_none_pe_1",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_1-shrinkage_none/PRF_12/",filetype="tsv")
+    buildFCMAT1(dataset="PRF_24hr_pilot_none_pe_1",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_1-shrinkage_none/PRF_24/",filetype="tsv")
+  }
+
+  if(do.build.fcmat2.all) {
+    buildFCMAT2(dataset="DMEM_6hr_pilot_normal_pe_0",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="DMEM_12hr_pilot_normal_pe_0",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="DMEM_24hr_pilot_normal_pe_0",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+
+    buildFCMAT2(dataset="DMEM_6hr_pilot_none_pe_0",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="DMEM_12hr_pilot_none_pe_0",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="DMEM_24hr_pilot_none_pe_0",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+
+    buildFCMAT2(dataset="DMEM_6hr_pilot_normal_pe_1",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="DMEM_12hr_pilot_normal_pe_1",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="DMEM_24hr_pilot_normal_pe_1",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+
+    buildFCMAT2(dataset="DMEM_6hr_pilot_none_pe_1",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="DMEM_12hr_pilot_none_pe_1",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="DMEM_24hr_pilot_none_pe_1",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+
+    buildFCMAT2(dataset="PRF_6hr_pilot_normal_pe_0",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="PRF_12hr_pilot_normal_pe_0",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="PRF_24hr_pilot_normal_pe_0",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+
+    buildFCMAT2(dataset="PRF_6hr_pilot_none_pe_0",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="PRF_12hr_pilot_none_pe_0",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="PRF_24hr_pilot_none_pe_0",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+
+    buildFCMAT2(dataset="PRF_6hr_pilot_normal_pe_1",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="PRF_12hr_pilot_normal_pe_1",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="PRF_24hr_pilot_normal_pe_1",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+
+    buildFCMAT2(dataset="PRF_6hr_pilot_none_pe_1",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="PRF_12hr_pilot_none_pe_1",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
+    buildFCMAT2(dataset="PRF_24hr_pilot_none_pe_1",dir="../input/fcdata/",method="gene",do.read=T,chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx")
   }
   if(do.build.random) {
     randomdata(dataset=dataset, nchem=nrandom.chems)
@@ -51,7 +121,16 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_00",
                          method="fc",
                          nullset=nullset,
                          nametag="conthits",
-                         mc.cores=mc.cores)
+                         mc.cores=mc.cores,
+                         to.file=T)
     cat("Look for output in ../output/accumplots/ \n")
+  }
+  if(do.pathway.summary.plot) {
+    pathwayClassSummaryPlot(to.file=T,dataset=dataset,
+                            pathset=pathset,
+                            method = "fc")
+  }
+  if(do.pathway.pod) {
+    pathwayPOD(pathset=pathset,dataset=dataset)
   }
 }
