@@ -45,7 +45,7 @@ pathwayScore <- function(FCMAT2,
   FCMAT2 = FCMAT2[,nonempties > 0]
 
   #load pathway data
-  file <- paste0("../input/processed_pathway_data/PATHWAY_LIST_",pathset,".RData")
+  file <- paste0("../input/processed_pathway_data/PATHWAY_GENE_LIST_",pathset,".RData")
   load(file) #pathway_data
 
   #sk.list could be used to choose a data subset, but here does nothing
