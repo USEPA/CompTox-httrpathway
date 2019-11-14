@@ -27,12 +27,14 @@
 #'   always be chosen.
 #'
 #' @return No output.
+#'
+#' remove gnls from default set
 #' @export
-runAllPathwayCR_pval = function(basedir="../input/fcdata/",dataset="arer",pathset="PathwaySet_20191025",
+runAllPathwayCR_pval = function(basedir="../input/fcdata/",dataset="arer",pathset="PathwaySet_20191031_random_500",
                                 method = "fc", minpathsize = 10, conthits = T,
                                 nullset = "arer_RAND125",do.plot = T, pval = .05,
                                 mc.cores = c(39,39),
-                                fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2",
+                                fitmodels = c("cnst", "hill",  "poly1", "poly2",
                                               "pow", "exp2", "exp3", "exp4", "exp5")){
   printCurrentFunction()
   # load fcmat, chemdict
@@ -47,8 +49,9 @@ runAllPathwayCR_pval = function(basedir="../input/fcdata/",dataset="arer",pathse
   pathwayScore(FCMAT2, CHEM_DICT, pathset,dataset,method=method,mc.cores=mc.cores[1], minpathsize = minpathsize)
   if(is.null(nullset)) return()
 
-  file <- "../input/processed_pathway_data/pathway_catalog 2019-10-31.xlsx"
-  pathway_annotations <- read.xlsx(file)
+  file = paste0("../input/processed_pathway_data/PATHWAY_CATALOG_",pathset,".RData")
+  load(file=file)
+  pathway_annotations <- pathway_catalog
   pathway_annotations = unique(pathway_annotations)
 
   file <- "../input/cytotoxicity summary wide allchems.xlsx"
