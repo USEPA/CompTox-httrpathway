@@ -17,6 +17,7 @@
 #' @return No output.
 #' @export
 randomdata = function(basedir="../input/fcdata/",dataset="Phase1_6fixed", nchem = 125, seed = 12345){
+  printCurrentFunction()
   set.seed(seed)
 
   #load chem_dict
