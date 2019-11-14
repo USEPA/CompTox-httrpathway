@@ -5,35 +5,48 @@
 driver.driver <- function() {
   printCurrentFunction()
 
-  ####driver(dataset="DMEM_6hr_pilot_normal_00",do.build.random=T)
-  ####driver(dataset="DMEM_12hr_pilot_normal_00",do.build.random=T)
-  ####driver(dataset="DMEM_24hr_pilot_normal_00",do.build.random=T)
-  ####driver(dataset="DMEM_6hr_pilot_none_00",do.build.random=T)
-  #driver(dataset="DMEM_12hr_pilot_none_00",do.build.random=T)
-  #driver(dataset="DMEM_24hr_pilot_none_00",do.build.random=T)
 
-  driver(dataset="DMEM_6hr_pilot_normal_00",do.run.random=T)
-  driver(dataset="DMEM_6hr_pilot_normal_00",do.run.all=T)
-  driver(dataset="DMEM_6hr_pilot_normal_00",do.accumulation.plot=T)
+  dataset.list = c(
+    "DMEM_6hr_pilot_normal_pe_0",
+    "DMEM_12hr_pilot_normal_pe_0",
+    "DMEM_24hr_pilot_normal_pe_0",
 
-  #driver(dataset="DMEM_12hr_pilot_normal_00",do.run.random=T)
-  #driver(dataset="DMEM_12hr_pilot_normal_00",do.run.all=T)
-  #driver(dataset="DMEM_12hr_pilot_normal_00",do.accumulation.plot=T)
+    "DMEM_6hr_pilot_none_pe_0",
+    "DMEM_12hr_pilot_none_pe_0",
+    "DMEM_24hr_pilot_none_pe_0",
 
-  #driver(dataset="DMEM_24hr_pilot_normal_00",do.run.random=T)
-  #driver(dataset="DMEM_24hr_pilot_normal_00",do.run.all=T)
-  #driver(dataset="DMEM_24hr_pilot_normal_00",do.accumulation.plot=T)
+    "DMEM_6hr_pilot_normal_pe_1",
+    "DMEM_12hr_pilot_normal_pe_1",
+    "DMEM_24hr_pilot_normal_pe_1",
 
-  #driver(dataset="DMEM_6hr_pilot_none_00",do.run.random=T)
-  #driver(dataset="DMEM_6hr_pilot_none_00",do.run.all=T)
-  #driver(dataset="DMEM_6hr_pilot_none_00",do.accumulation.plot=T)
+    "DMEM_6hr_pilot_none_pe_1",
+    "DMEM_12hr_pilot_none_pe_1",
+    "DMEM_24hr_pilot_none_pe_1"#,
 
-  #driver(dataset="DMEM_12hr_pilot_none_00",do.run.random=T)
-  #driver(dataset="DMEM_12hr_pilot_none_00",do.run.all=T)
-  #driver(dataset="DMEM_12hr_pilot_none_00",do.accumulation.plot=T)
+    #"PRF_6hr_pilot_normal_pe_0",
+    #"PRF_12hr_pilot_normal_pe_0",
+    #"PRF_24hr_pilot_normal_pe_0",
 
-  #driver(dataset="DMEM_24hr_pilot_none_00",do.run.random=T)
-  #driver(dataset="DMEM_24hr_pilot_none_00",do.run.all=T)
-  #driver(dataset="DMEM_24hr_pilot_none_00",do.accumulation.plot=T)
+    #"PRF_6hr_pilot_none_pe_0",
+    #"PRF_12hr_pilot_none_pe_0",
+    #"PRF_24hr_pilot_none_pe_0",
+
+    #"PRF_6hr_pilot_normal_pe_1",
+    #"PRF_12hr_pilot_normal_pe_1",
+    #"PRF_24hr_pilot_normal_pe_1",
+
+    #"PRF_6hr_pilot_none_pe_1",
+    #"PRF_12hr_pilot_none_pe_1",
+    #"PRF_24hr_pilot_none_pe_1"
+  )
+
+  for(dataset in dataset.list) {
+    #driver(dataset=dataset,do.build.random=T)
+    #driver(dataset=dataset,do.run.random=T)
+    #driver(dataset=dataset,do.run.all=T)
+    #driver(dataset=dataset,do.accumulation.plot=T)
+    #driver(dataset=dataset,do.pathway.summary.plot=T)
+    driver(dataset=dataset,do.pathway.pod=T)
+  }
 
 }
