@@ -43,19 +43,20 @@ pathwayHeatmap <- function(to.file=F,
   rownames(cindex) <- cindex$name
   ccolors <- cindex[nlist,"color"]
 
-  file <- "../input/processed_pathway_data/pathway_catalog 2019-10-31.xlsx"
-  pindex <- read.xlsx(file)
+  file = paste0("../input/processed_pathway_data/PATHWAY_CATALOG_",pathset,".RData")
+  load(file=file)
+  pindex <- pathway_catalog
   colors <- names(res)
   colors[] <- "white"
   for(i in 1:length(colors)) {
     pathway <- names(res)[i]
-    pclass <- pindex[is.element(pindex$pathway,pathway),"pclass"]
-    if(pclass=="estrogen") colors[i] <- "blue"
-    if(is.element(pclass,c("apoptosis","nfkb","oxidative stress","mitochondria","cytotoxicity",
+    super_class <- pindex[is.element(pindex$pathway,pathway),"super_class"]
+    if(super_class=="estrogen") colors[i] <- "blue"
+    if(is.element(super_class,c("apoptosis","nfkb","oxidative stress","mitochondria","cytotoxicity",
                            "hif1a","hypoxia","extracellular matrix","heat shock","microtubule","h1f2a"))) colors[i] <- "red"
-    if(pclass=="cell cycle") colors[i] <- "cyan"
-    if(pclass=="p450") colors[i] <- "green"
-    if(pclass=="steroid synthesis") colors[i] <- "brown"
+    if(super_class=="cell cycle") colors[i] <- "cyan"
+    if(super_class=="p450") colors[i] <- "green"
+    if(super_class=="steroid synthesis") colors[i] <- "brown"
 
   }
 
