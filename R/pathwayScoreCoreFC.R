@@ -11,14 +11,14 @@
 #' @param pathset Name of pathway set.
 #' @param dataset Name of data set.
 #' @param chem_dict Dataframe with one row per sample key and seven columns:
-#'   sample_key, sample_id, conc, time, casrn, name, dsstox_substance_id.
+#'   sample_key, sample_id, conc, time, casrn, name, dtxsid.
 #' @param pathway_data Named ist of gene name vectors. Each element is one
 #'   pathway, defined by the genes it contains.
 #'
 #' @import openxlsx
 #'
 #' @return Dataframe with one row per chemical/conc/pathway combination. Columns
-#'   are: sample_id, dsstox_substance_id, casrn, name, time, conc, pathset,
+#'   are: sample_id, dtxsid, casrn, name, time, conc, pathset,
 #'   pathway, size (pathway size accounting for missing values), mean_fc_scaled_in,
 #'   mean_fc_scaled_out, pathway_score.
 #' @export

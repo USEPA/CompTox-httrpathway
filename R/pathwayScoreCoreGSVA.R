@@ -1,10 +1,10 @@
 #' Pathway Score Core - GSVA
-#' 
+#'
 #' Computes GSVA pathway scores.
-#' 
+#'
 #' This function is a wrapper for GSVA with Gaussian cdf kernels. pathscoremat
 #' output is saved directly to disk.
-#' 
+#'
 #'
 #' @param sk.list Sample keys to use; should correspond to fcmat rownames.
 #' @param pathset Name of pathway set.
@@ -12,12 +12,12 @@
 #' @param fcmat Sample by gene matrix of log2(fold change)'s. Rownames are
 #'   sample keys and colnames are genes.
 #' @param chem_dict Dataframe with one row per sample key and seven columns:
-#'   sample_key, sample_id, conc, time, casrn, name, dsstox_substance_id.
-#' @param pathway_data Named ist of gene name vectors. Each element is one 
+#'   sample_key, sample_id, conc, time, casrn, name, dtxsid.
+#' @param pathway_data Named ist of gene name vectors. Each element is one
 #'   pathway, defined by the genes it contains.
-#' @param mc.cores Number of cores to use. Parallelization is performed 
+#' @param mc.cores Number of cores to use. Parallelization is performed
 #'   by gsva itself.
-#' 
+#'
 #' @import openxlsx
 #' @import GSVA
 #' @import parallel
@@ -31,7 +31,7 @@ pathwayScoreCoreGSVA <- function(sk.list,
                                    chem_dict,
                                    pathway_data,
                                    mc.cores=1) {
-  
+
   #keep only rows in sk.list and change NA's to 0's because gsva can't handle NA
   #This should cause NA's to cluster in the middle of the K-S statistic and have minimal effect
   #on the score. Ideally, GSVA would handle NA's internally.
@@ -61,7 +61,7 @@ pathwayScoreCoreGSVA <- function(sk.list,
     success <- F
   })
   cat("   finish gsva: ",dim(res),"\n")
-  
+
   #melt the gsva output
   res2 <- reshape2::melt(res,as.is=T)
   names(res2) <- c("pathway","sample_key","pathway_score")
@@ -73,35 +73,35 @@ pathwayScoreCoreGSVA <- function(sk.list,
   sizemelt = reshape2::melt(sizemat, varnames = c("sample_key", "pathway"), value.name = "size") #melt it so we can do a match
   res2$size = sizemelt$size[match(paste0(res2$sample_key, res2$pathway),
                                   paste0(sizemelt$sample_key, sizemelt$pathway))] #match pasted samplekey and pathway
-  
+
   #create skeleton of output data frame
   sk.list <- res2[,"sample_key"]
   n <- length(sk.list)
-  name.list <- c("sample_id","dsstox_substance_id","casrn","name","time","conc","pathset")
+  name.list <- c("sample_id","dtxsid","casrn","name","time","conc","pathset")
   nmat <- as.data.frame(matrix(nrow=n,ncol=length(name.list)))
   colnames(nmat) <- name.list
   cat("   start building output\n")
-  
+
   #fill in identifiers using chem_dict
   dictmatch = match(sk.list,chem_dict$sample_key)
   nmat[,"pathset"] <- pathset
   nmat[,"sample_id"] <- chem_dict$sample_id[dictmatch]
   nmat[,"conc"] <- chem_dict$conc[dictmatch]
   nmat[,"time"] <- chem_dict$time[dictmatch]
-  nmat[,"dsstox_substance_id"] <- chem_dict$dsstox_substance_id[dictmatch]
+  nmat[,"dtxsid"] <- chem_dict$dtxsid[dictmatch]
   nmat[,"casrn"] <- chem_dict$casrn[dictmatch]
   nmat[,"name"] <- chem_dict$name[dictmatch]
 
   #attach melted scores and strip unusued columns
   pathscoremat <- cbind(nmat,res2)
   cat("   finish building output\n")
-  name.list <- c("sample_id","dsstox_substance_id","casrn","name","time","conc","pathset","pathway","size","pathway_score")
+  name.list <- c("sample_id","dtxsid","casrn","name","time","conc","pathset","pathway","size","pathway_score")
   pathscoremat <- pathscoremat[,name.list]
   path.list <- sort(unique(pathscoremat[,"pathway"]))
-  
+
   #write output to disk
   method <- "gsva"
-  file <- paste("output/pathway_score_summary/PATHSCOREMAT_",pathset,"_",dataset,"_",method,".RData",sep="")
+  file <- paste("../output/pathway_score_summary/PATHSCOREMAT_",pathset,"_",dataset,"_",method,".RData",sep="")
   save(pathscoremat,file=file)
   cat("   output written\n")
 }

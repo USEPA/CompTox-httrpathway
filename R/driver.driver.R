@@ -44,13 +44,14 @@ driver.driver <- function(pathset="PathwaySet_20191107",
     #"PRF_24hr_pilot_none_pe_1"
   )
 
+  #dataset.list <- dataset.list[1]
   for(dataset in dataset.list) {
-    driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.build.random=T)
-    driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.run.random=T)
-    driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.run.all=T)
-    driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.accumulation.plot=T)
-    driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.pathway.summary.plot=T)
-    driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.pathway.pod=T)
+    #driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.build.random=T)
+    #driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.run.random=T)
+    #driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.run.all=T)
+    #driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.accumulation.plot=T)
+    #driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.pathway.summary.plot=T)
+    #driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.pathway.pod=T)
     driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.pathway.pod.laneplot=T)
   }
 

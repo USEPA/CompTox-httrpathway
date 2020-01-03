@@ -4,11 +4,11 @@
 #' @param to.file If TRUE, write plots to a file
 #--------------------------------------------------------------------------------------
 pathwayGeneHM <- function(to.file=F,
-                          dataset="DMEM_6hr_pilot_normal_pe_0",
+                          dataset="DMEM_6hr_pilot_normal_pe_1",
                           chemical.target="ER",
                           pathway.super_class="estrogen",
                           pathset="PathwaySet_20191107",
-                          method = "fc",
+                          method = "gsva",
                           threshold=0.5) {
   printCurrentFunction()
   file <- "../input/chemicals/HTTR Pilot chemical annotation.xlsx"
@@ -30,8 +30,20 @@ pathwayGeneHM <- function(to.file=F,
   }
 
   file <- paste0("../input/fcdata/FCMAT2_",dataset,".RData")
+  print(file)
   load(file=file)
-  mat <- FCMAT2
+  fcmat2 <- FCMAT2
+
+  file <- paste0("../input/fcdata/FCMAT2.PV.",dataset,".RData")
+  print(file)
+  load(file=file)
+  fcmat2.pv <- FCMAT2.PV
+
+  file <- paste0("../input/fcdata/FCMAT2.FCoverSE.",dataset,".RData")
+  print(file)
+  load(file=file)
+  fcmat2.fcoverse <- FCMAT2.FCoverSE
+
   file <- paste0("../input/fcdata/CHEM_DICT_",dataset,".RData")
   load(file=file)
   chems <- CHEM_DICT
@@ -45,56 +57,61 @@ pathwayGeneHM <- function(to.file=F,
 
   for(pathway in pathway.list) {
     cat(pathway,"\n")
+
     gene.list <- pathway_data[pathway][[1]]
     gene.list <- unique(gene.list)
-    gene.list <- gene.list[is.element(gene.list,colnames(mat))]
+    gene.list <- gene.list[is.element(gene.list,colnames(fcmat2))]
 
-    mat2 <- mat[,gene.list]
-    mat2[is.na(mat2)] <- 0
-    #mat2[abs(mat2)<threshold] <- 0
-    #cs <- colSums(mat2)
-    #mat2 <- mat2[,cs>0]
+    for(mode in c("fc","fcse","pv")) {
+      if(mode=="fc") mat <- fcmat2
+      else if(mode=="pv") mat <- -log10(fcmat2.pv)
+      else if(mode=="fcse") mat <- fcmat2.fcoverse
 
-    mat3 <- mat2[chems$sample_key,]
-    print(dim(mat3))
+      mat2 <- mat[,gene.list]
+      mat2[is.na(mat2)] <- 0
 
-    cutoff <- 2
-    mat3[mat3>cutoff] <- cutoff
-    mat3[mat3< -cutoff] <- -cutoff
-    rowsep <- NULL
-    lastname <- ""
-    for(i in 1:nrow(chems)) {
-      if(chems[i,"name"]!=lastname) {
-        lastname <- chems[i,"name"]
-        rowsep <- c(rowsep,i)
+      mat3 <- mat2[chems$sample_key,]
+      print(dim(mat3))
+      if(mode=="fc") cutoff <- 2
+      if(mode=="fcse") cutoff <- 5
+      if(mode=="pv") cutoff <- 4
+      mat3[mat3>cutoff] <- cutoff
+      mat3[mat3< -cutoff] <- -cutoff
+      rowsep <- NULL
+      lastname <- ""
+      for(i in 1:nrow(chems)) {
+        if(chems[i,"name"]!=lastname) {
+          lastname <- chems[i,"name"]
+          rowsep <- c(rowsep,i)
+        }
       }
+      rowsep <- rowsep-1
+      if(is.element(mode,c("fc","fcse"))) colset <- brewer.pal(9,"RdBu")
+      else colset <- brewer.pal(9,"Reds")
+      result <- heatmap.2(as.matrix(mat3),
+                          margins=c(5,5),
+                          scale="none",
+                          main=paste(mode,"\n",pathway),
+                          xlab="",
+                          ylab="",
+                          cexCol=0.1,
+                          cexRow=0.3,
+                          col=colset,
+                          Rowv=F,
+                          Colv=T,
+                          dendrogram="column",
+                          trace="none",
+                          hclustfun=function(x) hclust(d=dist(x),method="ward.D"),
+                          key=T,
+                          key.title="Key",
+                          key.xlab="l2fc",
+                          labRow=chemnames,
+                          rowsep=rowsep,
+                          sepcolor="gray",
+                          cex.main=1)
+
+      if(!to.file) browser()
     }
-    rowsep <- rowsep-1
-
-    result <- heatmap.2(as.matrix(mat3),
-                        margins=c(5,5),
-                        scale="none",
-                        main=pathway,
-                        xlab="",
-                        ylab="",
-                        cexCol=0.1,
-                        cexRow=0.3,
-                        col=brewer.pal(9,"RdBu"),
-                        Rowv=F,
-                        Colv=T,
-                        dendrogram="column",
-                        trace="none",
-                        hclustfun=function(x) hclust(d=dist(x),method="ward.D"),
-                        key=T,
-                        key.title="Key",
-                        key.xlab="l2fc",
-                        labRow=chemnames,
-                        rowsep=rowsep,
-                        sepcolor="gray",
-                        cex.main=1)
-
-    if(!to.file) browser()
-
   }
   if(to.file) dev.off()
 }

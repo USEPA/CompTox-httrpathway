@@ -15,7 +15,7 @@
 #' @param FCMAT2 Sample by gene matrix of log2(fold change)'s. Rownames are
 #'   sample keys and colnames are genes.
 #' @param CHEM_DICT Dataframe with one row per sample key and seven columns:
-#'   sample_key, sample_id, conc, time, casrn, name, dsstox_substance_id.
+#'   sample_key, sample_id, conc, time, casrn, name, dtxsid.
 #' @param pathset Name of pathway set.
 #' @param dataset Name of data set.
 #' @param method Pathway scoring method in c("fc", "gsva", "mygsea")

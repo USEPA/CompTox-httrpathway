@@ -4,8 +4,8 @@
 #' @param to.file If TRUE, write plots to a file
 #--------------------------------------------------------------------------------------
 pathwayPOD <- function(pathset="PathwaySet_20191107",
-                       dataset="DMEM_6hr_pilot_normal_pe_0",
-                       method = "fc",
+                       dataset="DMEM_6hr_pilot_normal_pe_1",
+                       method = "gsva",
                        hit.threshold=0.5) {
   printCurrentFunction()
 
@@ -17,15 +17,28 @@ pathwayPOD <- function(pathset="PathwaySet_20191107",
   result <- unique(mat[,c("dtxsid","casrn","name")])
   result <- result[order(result$name),]
   result$pathway_pod_min <- NA
+  result$pathway_pod_min.lci <- NA
+  result$pathway_pod_min.uci <- NA
   result$pathway_pod_95 <- NA
+  result$pathway_pod_95.lci <- NA
+  result$pathway_pod_95.uci <- NA
   rownames(result) <- result$dtxsid
   for(dtxsid in result$dtxsid) {
     temp <- mat[is.element(mat$dtxsid,dtxsid),]
     temp <- temp[temp$hitcall>hit.threshold,]
     npath <- nrow(temp)
     temp <- temp[order(temp$bmd10),]
+    bmdl <- temp$bmdl
+    bmdu <- temp$bmdu
+    ratio <- bmdu/bmdl
+    ratio [is.na(ratio)] <- 100
+    temp <- temp[ratio<40,]
     result[dtxsid,"pathway_pod_min"] <- temp[1,"bmd10"]
+    result[dtxsid,"pathway_pod_min.lci"] <- temp[1,"bmdl"]
+    result[dtxsid,"pathway_pod_min.uci"] <- temp[1,"bmdu"]
     result[dtxsid,"pathway_pod_95"] <- temp[0.05*npath+1,"bmd10"]
+    result[dtxsid,"pathway_pod_95.lci"] <- temp[0.05*npath+1,"bmdl"]
+    result[dtxsid,"pathway_pod_95.uci"] <- temp[0.05*npath+1,"bmdu"]
   }
   x <- result$pathway_pod_min
   x[is.na(x)] <- 1000

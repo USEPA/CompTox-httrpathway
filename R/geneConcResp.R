@@ -63,7 +63,7 @@ geneConcResp <- function(dataset="ph1_100normal_pid",
 
   #aggregate genemat by unique sample/pathway per row; data table is considerably faster than aggregate
   genemat = setDT(genemat)[, list(conc = list(conc),resp = list(l2fc)),
-                                     by = list(sample_id, dsstox_substance_id, casrn, name, time, gene, bmed, cutoff, onesd)]
+                                     by = list(sample_id, dtxsid, casrn, name, time, gene, bmed, cutoff, onesd)]
 
   ordering = order(tolower(genemat$name), tolower(genemat$gene))
   genemat = genemat[ordering,]

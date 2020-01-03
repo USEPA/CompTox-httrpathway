@@ -40,7 +40,7 @@ pathwayConcRespCore_pval <- function(row,
                                      conthits = T, aicc = F) {
 
   #row needs to include cutoff and bmed
-  #unpack row into the local environment, for ease: sample_id, dsstox_substance_id, casrn, name, time, pathway, size, con, resp
+  #unpack row into the local environment, for ease: sample_id, dtxsid, casrn, name, time, pathway, size, con, resp
   list2env(row,envir=environment())
   resp = unlist(resp)
   conc = unlist(conc)

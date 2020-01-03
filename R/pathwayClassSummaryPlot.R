@@ -3,15 +3,19 @@
 #' Build summary plots by pathway class
 #' @param to.file If TRUE, write plots to a file
 #--------------------------------------------------------------------------------------
-pathwayClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_0",
+pathwayClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_1",
                                     pathset="PathwaySet_20191107",
-                                    method = "fc",
+                                    method = "mygsea",
                                     hitcall.threshold=0.5) {
   printCurrentFunction()
 
   file <- paste0("../output/pathway_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_",method,"_0.05_conthits.RData")
   load(file=file)
   PCRDATA <<- PATHWAY_CR
+
+  file <- "../input/chemicals/HTTR Pilot chemical annotation.xlsx"
+  achems <- read.xlsx(file)
+  rownames(achems) <- achems$dtxsid
 
   mat <- PCRDATA
   #x <- mat[is.element(mat$dtxsid,"DTXSID4022369"),]
@@ -36,6 +40,26 @@ pathwayClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_
     pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
   }
   par(mfrow=c(3,2),mar=c(4,4,2,2))
+
+  file <-  file <- "../input/pathway_dictionary.xlsx"
+  dict <- read.xlsx(file)
+
+  #######################################################
+  # make the legend
+  #top <- 1
+  #plot(c(0,0),main="Legend",cex.axis=1.2,cex.lab=1.2,type="n",
+  #     xlim=c(0,1),ylim=c(0,top),xlab="",ylab="",xaxt="n",yaxt="n")
+  #temp <- unique(dict[,c("pathway_superclass","color")])
+  #temp <- temp[order(temp$pathway_superclass),]
+  #delta <- top/nrow(temp)
+  #yval <- top
+  #for(i in 1:nrow(temp)) {
+  #  points(0,yval,pch=22,bg=temp[i,"color"],cex=2)
+  #  text(0,yval,temp[i,"pathway_superclass"],pos=4,cex=1.5)
+  #  yval <- yval-delta
+  #}
+  #######################################################
+
   delta <- 0.25
   grid <- seq(from=-5,to=4,by=delta)
 
@@ -48,9 +72,7 @@ pathwayClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_
   mat$logbmd10 <- x
   mat$bmd10index <- ix
 
-  file <-  file <- "../input/pathway_dictionary.xlsx"
-  dict <- read.xlsx(file)
-  x <- mat$pathway_class
+   x <- mat$pathway_class
   color <- x
   color[] <- "white"
   for(super_class in unique(x)) color[is.element(x,super_class)] <- dict[is.element(dict$pathway_class,super_class),"color"]
@@ -67,6 +89,7 @@ pathwayClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_
   mat <- mat[mask==1,]
   #x <- mat[is.element(mat$dtxsid,"DTXSID4022369"),]
   #cat("nrow(mat) 5:",nrow(mat),nrow(x),"\n")
+
 
   file <- "../input/chemicals/HTTR Pilot chemical annotation.xlsx"
   chem.annotations <- read.xlsx(file)
@@ -90,7 +113,17 @@ pathwayClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_
 
     temp <- mat[is.element(mat$dtxsid,dtxsid),]
     cat("initial pathways",nrow(temp),"\n")
-    temp <- mat[is.element(mat$dtxsid,dtxsid),c("bmd10index","top","color")]
+    temp <- mat[is.element(mat$dtxsid,dtxsid),c("bmd10index","top","color","pathway_class")]
+
+
+    target_class <- achems[dtxsid,"pathway_class"]
+    target.list <- str_split(target_class,"\\|")[[1]]
+    color.list <- temp$color
+    color.list[!is.element(color.list,c("red","black"))] <- "gray"
+    color.list[is.element(temp$pathway_class,target.list)] <- "green"
+    temp$color <- color.list
+    #browser()
+
     temp <- temp[order(temp$color),]
     #temp <- temp[!is.element(temp$color,"gray"),]
     cat(name,nrow(temp),"\n")
@@ -105,8 +138,7 @@ pathwayClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_
       color <- temp[j,"color"]
       rect(x,y,x+delta,y+top,col=color,border=color)
       itop[index] <- itop[index]+top
-      #print(itop)
-      #browser()
+
     }
     cclass <- chem.annotations[dtxsid,"target_annotation"]
     text(-4,ymax*0.95,cclass,pos=4,cex=0.95)

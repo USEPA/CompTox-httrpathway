@@ -7,20 +7,20 @@ library(reshape2)
 #' Code to run all calculations
 #' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
 #--------------------------------------------------------------------------------------
-driver <- function(dataset="DMEM_6hr_pilot_normal_pe_0",
+driver <- function(dataset="DMEM_6hr_pilot_none_pe_0",
                    pathset="PathwaySet_20191107",
                    nrandom.chems=1000,
                    mc.cores=30,
-                   method="fc",
+                   method="mygsea",
                    do.build.fcmat1.all=F,
                    do.build.fcmat2.all=F,
                    do.build.random=F,
-                   do.run.random=F,
-                   do.run.all=F,
+                   do.run.random=T,
+                   do.run.all=T,
                    do.accumulation.plot=F,
-                   do.pathway.summary.plot=F,
-                   do.pathway.pod=F,
-                   do.pathway.pod.laneplot=F,
+                   do.pathway.summary.plot=T,
+                   do.pathway.pod=T,
+                   do.pathway.pod.laneplot=T,
                    do.all=F) {
   printCurrentFunction(paste(dataset,":",pathset))
 

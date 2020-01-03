@@ -53,15 +53,15 @@ repChemPidPlot = function(oldpval = .05, nametag = "conthits", mc.cores = 3){
 
     pilot = GENE_CR
 
-    pilotid = paste0(pilot$dsstox_substance_id, "_", pilot$gene)
-    ph1id = paste0(ph1$dsstox_substance_id, "_", ph1$gene)
+    pilotid = paste0(pilot$dtxsid, "_", pilot$gene)
+    ph1id = paste0(ph1$dtxsid, "_", ph1$gene)
     commonid = intersect(pilotid, ph1id)
     pilot = pilot[pilotid %in% commonid,]
     ph1 = ph1[ph1id %in% commonid,]
 
     #order, so both are one-to-one
-    pilot = pilot[order(pilot$dsstox_substance_id, pilot$gene),]
-    ph1 = ph1[order(ph1$dsstox_substance_id, ph1$gene),]
+    pilot = pilot[order(pilot$dtxsid, pilot$gene),]
+    ph1 = ph1[order(ph1$dtxsid, ph1$gene),]
 
     hitcor = cor(ph1$hitcall, pilot$hitcall)
     hitcor2 = cor(ph1$hitcall, pilot$hitcall, method = "spearman")
