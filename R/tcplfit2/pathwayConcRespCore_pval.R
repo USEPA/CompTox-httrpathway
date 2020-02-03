@@ -55,7 +55,7 @@ pathwayConcRespCore_pval <- function(row,
   params <- httrFit(conc, resp, cutoff, force.fit = conthits, bidirectional = T, fitmodels = fitmodels)
 
   #initialize parameters to NA
-  a = b = tp = p = q = ga = la = er = top = ac50 = ac50_loss = ac5 = ac10 = ac20 = acc = ac1sd = bmd10 = NA_real_
+  a = b = tp = p = q = ga = la = er = top = ac50 = ac50_loss = ac5 = ac10 = ac20 = acc = ac1sd = bmd = NA_real_
   bmdl = bmdu = caikwt = mll = NA_real_
   #get aics and degrees of freedom
   aics = sapply(params$modelnames, function(x){params[[x]][["aic"]]})
@@ -123,13 +123,13 @@ pathwayConcRespCore_pval <- function(row,
     ac20 = acy(.2*top, modpars, type = fit_method)
     acc = acy(sign(top)*cutoff, modpars, type = fit_method)
     ac1sd = acy(sign(top)*onesd, modpars, type = fit_method)
-    bmd10 = acy(sign(top)*bmr, modpars, type = fit_method)
+    bmd = acy(sign(top)*bmr, modpars, type = fit_method)
 
     #get bmdl and bmdu
     bmdl = bmdbounds(fit_method, bmr = sign(top)*bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-                                bmd = bmd10, which.bound = "lower")
+                                bmd = bmd, which.bound = "lower")
     bmdu = bmdbounds(fit_method, bmr = sign(top)*bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-                                  bmd = bmd10, which.bound = "upper")
+                                  bmd = bmd, which.bound = "upper")
   }
 
   top_over_cutoff <- abs(top)/cutoff
@@ -141,7 +141,7 @@ pathwayConcRespCore_pval <- function(row,
   identifiers = row[!names(row) %in% c("conc", "resp", "bmed", "onesd", "cutoff")]
   name.list <- c("n_gt_cutoff","cutoff", "fit_method",
                  "top_over_cutoff", "rmse", "a", "b", "tp", "p", "q", "ga", "la", "er", "bmr", "bmdl", "bmdu", "caikwt",
-                 "mll","hitcall", "ac50","ac50_loss","top", "ac5","ac10","ac20", "acc", "ac1sd", "bmd10", "conc", "resp")
+                 "mll","hitcall", "ac50","ac50_loss","top", "ac5","ac10","ac20", "acc", "ac1sd", "bmd", "conc", "resp")
    row = as.data.frame(c(identifiers, mget(name.list)), stringsAsFactors = F)
   return(row)
 }
