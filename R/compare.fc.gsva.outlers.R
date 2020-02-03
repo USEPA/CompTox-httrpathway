@@ -32,9 +32,9 @@ compare.fc.gsva.outlers <- function(to.file=F,
   rownames(gsva) <- paste(gsva$dtxsid,fc$pathway)
 
   temp1 <- fc[fc$hitcall>0.5,]
-  temp1 <- temp1[temp1$bmd10<1,]
+  temp1 <- temp1[temp1$bmd<1,]
   temp2 <- gsva[gsva$hitcall>0.5,]
-  temp2 <- temp2[temp2$bmd10<1,]
+  temp2 <- temp2[temp2$bmd<1,]
 
   rn1 <- rownames(temp1)
   rn2 <- rownames(temp2)
@@ -43,18 +43,18 @@ compare.fc.gsva.outlers <- function(to.file=F,
   gsva <- gsva[rn,]
 
   mat <- fc[,c("dtxsid","casrn","name","pathway")]
-  mat$bmd10.fc <- fc$bmd10
+  mat$bmd.fc <- fc$bmd
   mat$hitcall.fc <- fc$hitcall
-  mat$bmd10.gsva <- gsva$bmd10
+  mat$bmd.gsva <- gsva$bmd
   mat$hitcall.gsva <- gsva$hitcall
-  x <- mat$bmd10.fc
+  x <- mat$bmd.fc
   x[is.na(x)] <- 1000
-  mat$bmd10.fc <- x
-  x <- mat$bmd10.gsva
+  mat$bmd.fc <- x
+  x <- mat$bmd.gsva
   x[is.na(x)] <- 1000
-  mat$bmd10.gsva <- x
+  mat$bmd.gsva <- x
 
-  mat$delta <- abs(mat$bmd10.fc-mat$bmd10.gsva)
+  mat$delta <- abs(mat$bmd.fc-mat$bmd.gsva)
 
   file <- paste0("../output/pod_fc_gsva_compare/pod_fc_gsva_compare_outliers_",dataset,"_",pathset,"_",method2,".xlsx")
   write.xlsx(mat,file)
@@ -69,8 +69,8 @@ compare.fc.gsva.outlers <- function(to.file=F,
       gsva1 <- gsva[rn,]
 
       name <- temp[1,"name"]
-      x1 <- temp$bmd10.fc
-      x2 <- temp$bmd10.gsva
+      x1 <- temp$bmd.fc
+      x2 <- temp$bmd.gsva
 
       y1 <- temp$hitcall.fc
       y2 <- temp$hitcall.gsva

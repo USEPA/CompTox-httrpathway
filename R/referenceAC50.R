@@ -133,7 +133,7 @@ referenceAC50 = function(method = "fc", dataset = "user_wneg", pathset = "bhrr",
     for(newhit in newhits){
       #fill in predicted values to compare
       par(xpd = F)
-      if(aucclass == "bmd") newpcr$nlac50 = -log10(newpcr$bmd10) else newpcr$nlac50 = -log10(newpcr$ac50)
+      if(aucclass == "bmd") newpcr$nlac50 = -log10(newpcr$bmd) else newpcr$nlac50 = -log10(newpcr$ac50)
       newpcr$nlac50[newpcr$hitcall < newhit] = NA
 
       pathsymbs = 21:24

@@ -79,7 +79,7 @@ allGeneBMD <- function(to.file=F,basedir="../input/fcdata/",dataset="DMEM_6hr_pi
   }
 
   dtxsid.list <- unique(mat$dtxsid)
-  name.list <- c("dtxsid","casrn","name","bmd10","bmdu","bmdl","top","hitcall")
+  name.list <- c("dtxsid","casrn","name","bmd","bmdu","bmdl","top","hitcall")
   result <- as.data.frame(matrix(nrow=length(dtxsid.list),ncol=length(name.list)))
   names(result) <- name.list
   counter <- 0
@@ -106,7 +106,7 @@ allGeneBMD <- function(to.file=F,basedir="../input/fcdata/",dataset="DMEM_6hr_pi
     ##################################################
 
     #initialize parameters to NA
-    a = b = tp = p = q = ga = la = er = top = ac50 = ac50_loss = ac5 = ac10 = ac20 = acc = ac1sd = bmd10 = NA_real_
+    a = b = tp = p = q = ga = la = er = top = ac50 = ac50_loss = ac5 = ac10 = ac20 = acc = ac1sd = bmd = NA_real_
     bmdl = bmdu = caikwt = mll = NA_real_
 
     #get aics and degrees of freedom
@@ -182,13 +182,13 @@ allGeneBMD <- function(to.file=F,basedir="../input/fcdata/",dataset="DMEM_6hr_pi
       ac20 = acy(.2*top, modpars, type = fit_method)
       acc = acy(sign(top)*cutoff, modpars, type = fit_method)
       ac1sd = acy(sign(top)*onesd, modpars, type = fit_method)
-      bmd10 = acy(sign(top)*bmr, modpars, type = fit_method)
+      bmd = acy(sign(top)*bmr, modpars, type = fit_method)
 
       #get bmdl and bmdu
       bmdl = bmdbounds(fit_method, bmr = sign(top)*bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-                       bmd = bmd10, which.bound = "lower")
+                       bmd = bmd, which.bound = "lower")
       bmdu = bmdbounds(fit_method, bmr = sign(top)*bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-                       bmd = bmd10, which.bound = "upper")
+                       bmd = bmd, which.bound = "upper")
     }
     top_over_cutoff <- abs(top)/cutoff
     conc.plot <- paste(conc,collapse="|")
@@ -200,16 +200,16 @@ allGeneBMD <- function(to.file=F,basedir="../input/fcdata/",dataset="DMEM_6hr_pi
     name.list <- c("onesd", "cutoff",
                    "n_gt_cutoff","cutoff", "fit_method",
                    "top_over_cutoff", "rmse", "a", "b", "tp", "p", "q", "ga", "la", "er", "bmr", "bmdl", "bmdu", "caikwt",
-                   "mll","hitcall", "ac50","ac50_loss","top", "ac5","ac10","ac20", "acc", "ac1sd", "bmd10", "conc.plot", "resp.plot")
+                   "mll","hitcall", "ac50","ac50_loss","top", "ac5","ac10","ac20", "acc", "ac1sd", "bmd", "conc.plot", "resp.plot")
     row = as.data.frame(c(mget(name.list)), stringsAsFactors = F)
 
     ##################################################
 
-    bmd10 <- log10(bmd10)
+    bmd <- log10(bmd)
     bmdl <- log10(bmdl)
     bmdu <- log10(bmdu)
 
-    #cat("bmd: ",row$bmd10,"\n")
+    #cat("bmd: ",row$bmd,"\n")
     plot(resp~logc,main=paste(name),cex.lab=1.2,cex.axis=1.2,xlab="log(conc uM)",ylab=paste("Fraction L2fc>",l2fc.limit),
          ylim=c(ymin,ymax),xlim=c(-2,2),pch=21,cex=1,bg="black")
 
@@ -243,7 +243,7 @@ allGeneBMD <- function(to.file=F,basedir="../input/fcdata/",dataset="DMEM_6hr_pi
     }
 
     plotrange <- c(-3,2)
-    lines(c(bmd10,bmd10),c(ymin/2,ymax/2),col="green",lwd=2, lty = isTRUE(bmd10<min(conc)) + 1)
+    lines(c(bmd,bmd),c(ymin/2,ymax/2),col="green",lwd=2, lty = isTRUE(bmd<min(conc)) + 1)
     if(is.na(bmdl)) xleft = plotrange[1]/10 else xleft = bmdl
     if(is.na(bmdu)) xright = plotrange[2]*10 else xright = bmdu
 
@@ -264,7 +264,7 @@ allGeneBMD <- function(to.file=F,basedir="../input/fcdata/",dataset="DMEM_6hr_pi
     #lines(c(limit2,limit2),c(-50,50),col="red",lwd=2)
 
     result[counter,"fit_method"] <- fit_method
-    result[counter,"bmd10"] <- bmd10
+    result[counter,"bmd"] <- bmd
     result[counter,"bmdu"] <- bmdu
     result[counter,"bmdl"] <- bmdl
     result[counter,"top"] <- top

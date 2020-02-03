@@ -37,27 +37,31 @@ pathwayScore <- function(FCMAT2,
                          mc.cores=1,
                          minpathsize = 10) {
 
+  printCurrentFunction(paste(dataset,pathset,method))
   starttime = proc.time()
+  cat("   create directory\n")
   dir.create("../output/pathway_score_summary/", showWarnings = F)
 
   #get rid of columns filled with missing values
   nonempties = apply(FCMAT2,2,function(x){sum(!is.na(x))})
   FCMAT2 = FCMAT2[,nonempties > 0]
 
-  #load pathway data
+  cat("   load pathway data\n")
   file <- paste0("../input/processed_pathway_data/PATHWAY_GENE_LIST_",pathset,".RData")
+  cat("   ",file,"\n")
   load(file) #pathway_data
-
+  #pathway_data <- pathway_data[1:10]
+#browser()
   #sk.list could be used to choose a data subset, but here does nothing
   sk.list <-as.matrix(rownames(FCMAT2))
 
   #Enforce minimum pathway size
   plengths = sapply(pathway_data, function(x){sum(x %in% colnames(FCMAT2))})
-  cat("Removing", sum(plengths < minpathsize), "pathways under min size", minpathsize, ".", sum(plengths >= minpathsize),
+  cat("   Removing", sum(plengths < minpathsize), "pathways under min size", minpathsize, ".", sum(plengths >= minpathsize),
       "pathways remaining.\n")
   pathway_data = pathway_data[plengths >= minpathsize]
 
-  #now run the inner functions depending on method
+  cat("   now run the inner functions depending on method\n")
   if(method=="fc") {
     if(mc.cores > 1){
       #split fcmat into mc.cores matrices and run them in parallel
@@ -79,10 +83,10 @@ pathwayScore <- function(FCMAT2,
                                         chem_dict = CHEM_DICT,pathway_data = pathway_data )
     }
 
-    #save
+    cat("   save pathscoremat\n")
     file <- paste0("../output/pathway_score_summary/PATHSCOREMAT_",pathset,"_",dataset,"_",method,".RData")
+    cat("   ",file,"\n")
     save(pathscoremat,file=file)
-
   }
   #call gsva scoring
   if(method=="gsva") {

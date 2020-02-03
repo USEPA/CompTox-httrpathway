@@ -27,7 +27,7 @@ pathwayClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_
   #x <- mat[is.element(mat$dtxsid,"DTXSID4022369"),]
   #cat("nrow(mat) 2:",nrow(mat),nrow(x),"\n")
 
-  mat <- mat[!is.na(mat$bmd10),]
+  mat <- mat[!is.na(mat$bmd),]
   #x <- mat[is.element(mat$dtxsid,"DTXSID4022369"),]
   #cat("nrow(mat) 3:",nrow(mat),nrow(x),"\n")
 
@@ -63,14 +63,14 @@ pathwayClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_
   delta <- 0.25
   grid <- seq(from=-5,to=4,by=delta)
 
-  x <- log10(mat$bmd10)
+  x <- log10(mat$bmd)
   ix <- x
   ix[] <- 0
   for(i in 1:length(grid)) {
     ix[x>grid[i]] <- i
   }
-  mat$logbmd10 <- x
-  mat$bmd10index <- ix
+  mat$logbmd <- x
+  mat$bmdindex <- ix
 
    x <- mat$pathway_class
   color <- x
@@ -79,12 +79,12 @@ pathwayClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_
   mat$color <- color
   #x <- mat[is.element(mat$dtxsid,"DTXSID4022369"),]
   #cat("nrow(mat) 4:",nrow(mat),nrow(x),"\n")
-  mask <- mat$bmd10
+  mask <- mat$bmd
   mask[] <- 0
   mask1 <- mask
   mask1[mat$fit_method=="gnls"] <- 1
   mask2 <- mask
-  mask2[mat$bmd10< 0.1] <- 1
+  mask2[mat$bmd< 0.1] <- 1
   mask <- 1- mask1*mask2
   mat <- mat[mask==1,]
   #x <- mat[is.element(mat$dtxsid,"DTXSID4022369"),]
@@ -108,12 +108,12 @@ pathwayClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_
     ymax <- 60
     if(is.element(name,c("4-Nonylphenol, branched","Amiodarone hydrochloride","Cyproterone acetate","Maneb","Ziram"))) ymax <- 100
     plot(c(0,0),main=name,cex.axis=1.2,cex.lab=1.2,type="n",
-         xlim=c(-4,2),ylim=c(0,ymax),xlab="log(BMD10 uM)",ylab="Pathway Efficacy")
+         xlim=c(-4,2),ylim=c(0,ymax),xlab="log(bmd uM)",ylab="Pathway Efficacy")
     #lines(c(-5,5),c(0,0))
 
     temp <- mat[is.element(mat$dtxsid,dtxsid),]
     cat("initial pathways",nrow(temp),"\n")
-    temp <- mat[is.element(mat$dtxsid,dtxsid),c("bmd10index","top","color","pathway_class")]
+    temp <- mat[is.element(mat$dtxsid,dtxsid),c("bmdindex","top","color","pathway_class")]
 
 
     target_class <- achems[dtxsid,"pathway_class"]
@@ -130,7 +130,7 @@ pathwayClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_
     itop <- grid
     itop[] <- 0
     for(j in 1:nrow(temp)) {
-      index <- temp[j,"bmd10index"]
+      index <- temp[j,"bmdindex"]
       x <- grid[index]
       y <- itop[index]
       top <- abs(temp[j,"top"])

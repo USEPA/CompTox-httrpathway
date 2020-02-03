@@ -13,62 +13,62 @@ pathwayClassHM <- function(to.file=F,
   chems <- read.xlsx(file)
   dtxsid.list <- chems$dtxsid
   nchem <- length(dtxsid.list)
-  
+
   if(to.file) {
     fname <- paste0("../output/pod_laneplot/pathwayClassHM_",dataset,"_",pathset,"_",method,".pdf")
     pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
   }
-  
+
   file <- paste0("../output/pathway_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_",method,"_0.05_conthits.RData")
   print(file)
   load(file=file)
   mat <- PATHWAY_CR
-  
+
   pathclass.list <- sort(unique(mat$pathway_class))
-  
+
   pathclass.list <- c(
     "Amiodarone",
-    "androgen",            
-    "apoptosis", 
+    "androgen",
+    "apoptosis",
     "cell cycle",
     "conazole",
-    "Cyproterone",         
+    "Cyproterone",
     "cytotoxicity",
-    "dna damage",           
+    "dna damage",
     "estrogen",
     "fibrate",
-    "Flutamide", 
+    "Flutamide",
     "glitazone",
     "gpcr",
     "hdac",
-    "hypoxia",             
+    "hypoxia",
     "ion channel",
     "microtubule",
     "mitochondria",
     "nfkb",
     "Nilutamide",
     "other",
-    "oxidative stress",    
+    "oxidative stress",
     "p450",
     "ppar",
     "random",
     "statin",
-    "steroid synthesis",   
+    "steroid synthesis",
     "sterol processing",
     "Tamoxifen",
     "Testosterone",
     "thyroid",
-    "tnf"    
+    "tnf"
   )
-  
+
   npathclass <- length(pathclass.list)
-  
+
   for(pathclass in pathclass.list) {
     temp <- mat[is.element(mat$pathway_class,pathclass),]
     n <- length(unique(temp$pathway))
     cat(pathclass,n,"\n")
   }
-  
+
   res <- as.data.frame(matrix(nrow=nchem,ncol=npathclass))
   rownames(res) <- dtxsid.list
   names(res) <- pathclass.list
@@ -103,7 +103,7 @@ pathwayClassHM <- function(to.file=F,
                       key.title="Key",
                       key.xlab="l2fc",
                       cex.main=1)
-  
+
   if(!to.file) browser()
 
   # low conc version
@@ -120,14 +120,14 @@ pathwayClassHM <- function(to.file=F,
         mask <- temp2$hitcall
         mask[] <- 1
         mask[temp2$hitcall<threshold] <- 0
-        mask[temp2$bmd10>10] <- 0
+        mask[temp2$bmd>10] <- 0
         top <- sum(mask)
         res[dtxsid,pathclass]  <- top/bot
       }
     }
   }
   rownames(res) <- chems$name
-  
+
   result <- heatmap.2(as.matrix(res),
                       margins=c(10,10),
                       scale="none",
@@ -145,9 +145,9 @@ pathwayClassHM <- function(to.file=F,
                       key.title="Key",
                       key.xlab="l2fc",
                       cex.main=1)
-  
+
   if(!to.file) browser()
-  
+
     if(to.file) dev.off()
 }
 

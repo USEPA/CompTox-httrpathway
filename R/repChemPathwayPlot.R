@@ -94,7 +94,7 @@ repChemPathwayPlot = function(oldpval = .05, nametag = "conthits", method = "fc"
 
     #Same for BMDs
     qrmsebmd = sapply(quants, function(x){
-      return(WRMSE(rep(log10(pilot$bmd10),2), rep(log10(ph1$bmd10),2), w = (c(pilot$hitcall,ph1$hitcall) > x)))
+      return(WRMSE(rep(log10(pilot$bmd),2), rep(log10(ph1$bmd),2), w = (c(pilot$hitcall,ph1$hitcall) > x)))
     })
     names(qrmsebmd) = quants
 
@@ -106,7 +106,7 @@ repChemPathwayPlot = function(oldpval = .05, nametag = "conthits", method = "fc"
 
     #same for bmds
     qrmsebmdboth = sapply(quants, function(x){
-      return(WRMSE(log10(pilot$bmd10), log10(ph1$bmd10), w = ((pilot$hitcall > x) & (ph1$hitcall > x)) ))
+      return(WRMSE(log10(pilot$bmd), log10(ph1$bmd), w = ((pilot$hitcall > x) & (ph1$hitcall > x)) ))
     })
     names(qrmsebmdboth) = quants
 

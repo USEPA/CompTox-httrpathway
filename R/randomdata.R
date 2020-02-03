@@ -16,13 +16,14 @@
 #'
 #' @return No output.
 #' @export
-randomdata = function(basedir="../input/fcdata/",dataset="Phase1_6fixed", nchem = 125, seed = 12345){
+randomdata = function(basedir="../input/fcdata/",dataset="DMEM_6hr_pilot_normal_pe_1", nchem = 10, seed = 12345){
   printCurrentFunction()
   set.seed(seed)
 
   #load chem_dict
   file <- paste0(basedir,"CHEM_DICT_",dataset,".RData")
   load(file)
+  chem_dict_0 <- CHEM_DICT
 
   #get all the concentration vectors and sample nchem of them with replacement
   concpats = lapply(CHEM_DICT$sample_id, function(x){CHEM_DICT$conc[CHEM_DICT$sample_id == x]}) #get concentration patterns
@@ -36,6 +37,7 @@ randomdata = function(basedir="../input/fcdata/",dataset="Phase1_6fixed", nchem 
   #load fcmat
   file <- paste0(basedir,"FCMAT2_",dataset,".RData")
   load(file)
+  fcmat2_0 <- FCMAT2
 
   FCMAT2 = apply(FCMAT2, 2, function(x){
     #if all are NA, keep it that way
@@ -74,5 +76,5 @@ randomdata = function(basedir="../input/fcdata/",dataset="Phase1_6fixed", nchem 
   #save fcmat to disk
   rownames(FCMAT2) = CHEM_DICT$sample_key
   save(FCMAT2, file = paste0(basedir,"FCMAT2_", dataset, "_RAND",nchem,".RData"))
-
+  #browser()
 }

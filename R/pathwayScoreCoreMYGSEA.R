@@ -42,6 +42,7 @@ pathwayScoreCoreMYGSEA <- function(sk.list,
                                    normalization = T,
                                    useranks = T) {
 
+  printCurrentFunction(paste(dataset,pathset,method))
   #change NA to zero, although this is no longer necessary; MYGSEA can handle NA now
   data <- fcmat[sk.list,]
   data[is.na(data)] <- 0
@@ -126,6 +127,7 @@ pathwayScoreCoreMYGSEA <- function(sk.list,
 
   #write to disk
   file <- paste("../output/pathway_score_summary/PATHSCOREMAT_",pathset,"_",dataset,"_",method,".RData",sep="")
+  cat("   savging file ... ",file,"\n")
   save(pathscoremat,file=file)
   cat("   output written\n")
 }

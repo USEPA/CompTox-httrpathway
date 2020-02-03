@@ -29,8 +29,8 @@ FC.vs.GSVA.plot <- function(to.file=F,
     dtxsid <- chems[i,"dtxsid"]
     name <- chems[i,"name"]
 
-    tempfc <- fc[is.element(fc$dtxsid,dtxsid),c("pathway","hitcall","bmd10")]
-    tempgsva <- gsva[is.element(gsva$dtxsid,dtxsid),c("pathway","hitcall","bmd10")]
+    tempfc <- fc[is.element(fc$dtxsid,dtxsid),c("pathway","hitcall","bmd")]
+    tempgsva <- gsva[is.element(gsva$dtxsid,dtxsid),c("pathway","hitcall","bmd")]
     rownames(tempfc) <- tempfc$pathway
     rownames(tempgsva) <- tempgsva$pathway
     pathlist <- tempfc$pathway
@@ -39,12 +39,12 @@ FC.vs.GSVA.plot <- function(to.file=F,
     tempgsva <- tempgsva[pathlist,]
 
     xfc <- tempfc$hitcall
-    yfc <- tempfc$bmd10
+    yfc <- tempfc$bmd
     yfc[xfc<cutoff] <- 1000
     yfc[is.na(yfc)] <- 1000
 
     xgsva <- tempgsva$hitcall
-    ygsva <- tempgsva$bmd10
+    ygsva <- tempgsva$bmd
     ygsva[xgsva<cutoff] <- 1000
     ygsva[is.na(ygsva)] <- 1000
 

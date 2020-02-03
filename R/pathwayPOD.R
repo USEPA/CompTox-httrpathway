@@ -27,16 +27,16 @@ pathwayPOD <- function(pathset="PathwaySet_20191107",
     temp <- mat[is.element(mat$dtxsid,dtxsid),]
     temp <- temp[temp$hitcall>hit.threshold,]
     npath <- nrow(temp)
-    temp <- temp[order(temp$bmd10),]
+    temp <- temp[order(temp$bmd),]
     bmdl <- temp$bmdl
     bmdu <- temp$bmdu
     ratio <- bmdu/bmdl
     ratio [is.na(ratio)] <- 100
     temp <- temp[ratio<40,]
-    result[dtxsid,"pathway_pod_min"] <- temp[1,"bmd10"]
+    result[dtxsid,"pathway_pod_min"] <- temp[1,"bmd"]
     result[dtxsid,"pathway_pod_min.lci"] <- temp[1,"bmdl"]
     result[dtxsid,"pathway_pod_min.uci"] <- temp[1,"bmdu"]
-    result[dtxsid,"pathway_pod_95"] <- temp[0.05*npath+1,"bmd10"]
+    result[dtxsid,"pathway_pod_95"] <- temp[0.05*npath+1,"bmd"]
     result[dtxsid,"pathway_pod_95.lci"] <- temp[0.05*npath+1,"bmdl"]
     result[dtxsid,"pathway_pod_95.uci"] <- temp[0.05*npath+1,"bmdu"]
   }

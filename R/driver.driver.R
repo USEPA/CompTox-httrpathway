@@ -3,25 +3,28 @@
 #' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
 
 #--------------------------------------------------------------------------------------
-driver.driver <- function(pathset="PathwaySet_20191107",
-                          method="fc",
+driver.driver <- function(pathset="PathwaySet_20200108",
+                          method="mygsea",
                           nrandom.chems=1000,
-                          mc.cores=30) {
+                          mc.cores=30,
+                          step1=F,
+                          step2=F,
+                          step3=F,
+                          do.log=F) {
   printCurrentFunction()
 
-
   dataset.list = c(
-    "DMEM_6hr_pilot_normal_pe_0",
-    "DMEM_12hr_pilot_normal_pe_0",
-    "DMEM_24hr_pilot_normal_pe_0",
+    #"DMEM_6hr_pilot_normal_pe_1"#,
+    #"DMEM_12hr_pilot_normal_pe_1",
+    #"DMEM_24hr_pilot_normal_pe_1",
 
-    "DMEM_6hr_pilot_none_pe_0",
-    "DMEM_12hr_pilot_none_pe_0",
+    #"DMEM_6hr_pilot_normal_pe_0",
+    #"DMEM_12hr_pilot_normal_pe_0",
+    #"DMEM_24hr_pilot_normal_pe_0",
+
+    #"DMEM_6hr_pilot_none_pe_0",
+    #"DMEM_12hr_pilot_none_pe_0",
     "DMEM_24hr_pilot_none_pe_0",
-
-    "DMEM_6hr_pilot_normal_pe_1",
-    "DMEM_12hr_pilot_normal_pe_1",
-    "DMEM_24hr_pilot_normal_pe_1",
 
     "DMEM_6hr_pilot_none_pe_1",
     "DMEM_12hr_pilot_none_pe_1",
@@ -45,14 +48,21 @@ driver.driver <- function(pathset="PathwaySet_20191107",
   )
 
   #dataset.list <- dataset.list[1]
-  for(dataset in dataset.list) {
-    #driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.build.random=T)
-    #driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.run.random=T)
-    #driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.run.all=T)
-    #driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.accumulation.plot=T)
-    #driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.pathway.summary.plot=T)
-    #driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.pathway.pod=T)
-    driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.pathway.pod.laneplot=T)
-  }
+  # rebuild the FC1MAt and FC2MAT files
+  if(step1) driver(mc.cores=mc.cores,do.build.fcmat1.all=T,do.build.fcmat2.all=T)
 
+  # build the random data files
+  if(step2) {
+    for(dataset in dataset.list) driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.build.random=T,do.log)
+  }
+  if(step3) {
+    for(dataset in dataset.list) {
+      driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.run.random=T,do.log)
+      driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.run.all=T,do.log)
+      driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.accumulation.plot=T,do.log)
+      driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.pathway.summary.plot=T,do.log)
+      driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.pathway.pod=T,do.log)
+      driver(dataset=dataset,pathset=pathset,method=method,nrandom.chems=nrandom.chems,mc.cores=mc.cores,do.pathway.pod.laneplot=T,do.log)
+    }
+  }
 }

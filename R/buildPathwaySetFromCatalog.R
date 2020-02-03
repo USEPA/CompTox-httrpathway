@@ -8,8 +8,8 @@
 #' @return No output.
 #' @export
 #--------------------------------------------------------------------------------------
-buildPathwaySetFromCatalog = function(catalog.file="../input/processed_pathway_data/pathway_catalog 2019-11-07.xlsx",
-                                      pathset="PathwaySet_20191107",
+buildPathwaySetFromCatalog = function(catalog.file="../input/processed_pathway_data/pathway_catalog 2020-01-08.xlsx",
+                                      pathset="PathwaySet_20200108",
                                       dataset="DMEM_6hr_pilot_normal_pe_0",
                                       do.filter=T,
                                       nrandom=500,
@@ -24,23 +24,14 @@ buildPathwaySetFromCatalog = function(catalog.file="../input/processed_pathway_d
   all_pathways <- rbind(bioplanet_PATHWAYS,msigdb_PATHWAYS,RYAN_PATHWAYS,CMAP_PATHWAYS)
   rownames(all_pathways) <- all_pathways$pathway
   catalog <- read.xlsx(catalog.file)
-  rownames(catalog) <- catalog$pathway
   if(do.filter) catalog <- catalog[catalog$useme>0,]
+  rownames(catalog) <- catalog$pathway
   pathway.list <- catalog$pathway
   pathways <- all_pathways[pathway.list,]
   pathways$super_class <- catalog$super_class
 
   load(file=paste0("../input/fcdata/FCMAT2_",dataset,".RData"))
   gene.list <- colnames(FCMAT2)
-
-  #for(i in 1:nrow(pathways)) {
-  #  pathway <- pathways[i,"pathway"]
-  #  glist <- all_pathways[pathway,"gene_list"]
-  #  glist <- str_split(glist,"\\|")[[1]]
-  #  ng <- length(glist[is.element(glist,gene.list)])
-  #  pathways[i,"ngene_in_data"] <- ng
-  #  pathways[i,"pclass"] <- catalog[pathway,"pclass"]
-  #}
 
   if(nrandom>0) {
     name.list <- names(pathways)
@@ -72,4 +63,14 @@ buildPathwaySetFromCatalog = function(catalog.file="../input/processed_pathway_d
   name.list <- name.list[!is.element(name.list,"gene_list")]
   pathway_catalog <- pathways[,name.list]
   save(pathway_catalog, file = paste0("../input/processed_pathway_data/PATHWAY_CATALOG_",pathset,".RData"))
+
+  catalog <- catalog[catalog$useme==3,]
+  pathway.list <- catalog$pathway
+  pdsmall <- pathway_data[pathway.list]
+  pcsmall <- pathway_catalog[is.element(pathway_catalog$pathway,pathway.list),]
+
+  pathway_catalog <- pcsmall
+  pathway_data <- pdsmall
+  save(pathway_data, file = paste0("../input/processed_pathway_data/PATHWAY_GENE_LIST_",pathset,"_sample.RData"))
+  save(pathway_catalog, file = paste0("../input/processed_pathway_data/PATHWAY_CATALOG_",pathset,"_sample.RData"))
 }

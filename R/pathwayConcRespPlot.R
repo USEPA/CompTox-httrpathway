@@ -15,7 +15,7 @@
 #'     \item er - fitted error term for plotting error bars
 #'     \item a, tp, b, ga, p, la, q - other model parameters for fit curve
 #'     \item fit_method - curve fit method
-#'     \item bmd10, bmdl, bmdu - bmd, bmd lower bound, and bmd upper bound
+#'     \item bmd, bmdl, bmdu - bmd, bmd lower bound, and bmd upper bound
 #'     \item ac50, acc - curve value at 50% of top, curve value at cutoff
 #'     \item top - curve top
 #'     \item time, pathway, pathway_class, pathway_size - other identifiers
@@ -126,7 +126,7 @@ pathwayConcRespPlot <- function(row,CYTOTOX) {
   text(xplot[2],yplot,fit_method,pos=4)
   text(xplot[3],yplot,format(ac50,digits=2),pos=4, col = "red")
   text(xplot[4],yplot,format(top,digits=2),pos=4)
-  text(xplot[5],yplot,format(bmd10,digits=2),pos=4, col = "green")
+  text(xplot[5],yplot,format(bmd,digits=2),pos=4, col = "green")
   text(xplot[6],yplot,format(acc,digits=2),pos=4, col = "blue")
 
   #Bottom left info
@@ -144,7 +144,7 @@ pathwayConcRespPlot <- function(row,CYTOTOX) {
 
   #plot green bmd with range
   if(hitcall>0) {
-    lines(c(bmd10,bmd10),c(ymin/2,ymax/2),col="green",lwd=2, lty = isTRUE(bmd10<min(conc)) + 1)
+    lines(c(bmd,bmd),c(ymin/2,ymax/2),col="green",lwd=2, lty = isTRUE(bmd<min(conc)) + 1)
     if(is.na(bmdl)) xleft = plotrange[1]/10 else xleft = bmdl
     if(is.na(bmdu)) xright = plotrange[2]*10 else xright = bmdu
 

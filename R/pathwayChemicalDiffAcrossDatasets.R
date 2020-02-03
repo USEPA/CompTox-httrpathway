@@ -78,9 +78,9 @@ pathwayChemicalDiffAcrossDatasets <- function(to.file=F,
     temp$dataset <- dataset
     mat <- rbind(mat,temp)
   }
-  x <- mat$bmd10
+  x <- mat$bmd
   x[is.na(x)] <- 1000
-  mat$bmd10 <- x
+  mat$bmd <- x
 
   mat$shrinkage <- NA
   mat$pe <- NA
@@ -109,7 +109,7 @@ pathwayChemicalDiffAcrossDatasets <- function(to.file=F,
     res <- NULL
     for(pathway in pathway.list) {
       #cat(pathway,"\n")
-      temp2 <- temp1[is.element(temp1$pathway,pathway),c("time","shrinkage","pe","bmd10")]
+      temp2 <- temp1[is.element(temp1$pathway,pathway),c("time","shrinkage","pe","bmd")]
 
       condition <- "normal-none"
       for(i in 1:nrow(temp2)) {
@@ -118,9 +118,9 @@ pathwayChemicalDiffAcrossDatasets <- function(to.file=F,
             if(temp2[i,"time"]==temp2[j,"time"] && temp2[i,"pe"]==temp2[j,"pe"]) {
               row[1,"condition"] <- condition
               row[1,"pathway"] <- pathway
-              row[1,"bmd.i"] <- log10(temp2[i,"bmd10"])
-              row[1,"bmd.j"] <- log10(temp2[j,"bmd10"])
-              row[1,"delta"] <- log10(temp2[i,"bmd10"])-log10(temp2[j,"bmd10"])
+              row[1,"bmd.i"] <- log10(temp2[i,"bmd"])
+              row[1,"bmd.j"] <- log10(temp2[j,"bmd"])
+              row[1,"delta"] <- log10(temp2[i,"bmd"])-log10(temp2[j,"bmd"])
               res <- rbind(res,row)
             }
           }
@@ -137,9 +137,9 @@ pathwayChemicalDiffAcrossDatasets <- function(to.file=F,
               #browser()
               row[1,"condition"] <- condition
               row[1,"pathway"] <- pathway
-              row[1,"bmd.i"] <- log10(temp2[i,"bmd10"])
-              row[1,"bmd.j"] <- log10(temp2[j,"bmd10"])
-              row[1,"delta"] <- log10(temp2[i,"bmd10"])-log10(temp2[j,"bmd10"])
+              row[1,"bmd.i"] <- log10(temp2[i,"bmd"])
+              row[1,"bmd.j"] <- log10(temp2[j,"bmd"])
+              row[1,"delta"] <- log10(temp2[i,"bmd"])-log10(temp2[j,"bmd"])
               res <- rbind(res,row)
             }
           }

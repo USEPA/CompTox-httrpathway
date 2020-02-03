@@ -83,7 +83,7 @@ pathwayChemicalLanePlotAcrossDatasets <- function(to.file=F,
   xmax <- 3
   for(pathway in pathway.list) {
     cat(pathway,"\n")
-    plot(c(1,1),type="n",main=pathway,cex.axis=1.2,cex.lab=1.2,xlab="log(BMD10 uM)",ylab="",yaxt="n",
+    plot(c(1,1),type="n",main=pathway,cex.axis=1.2,cex.lab=1.2,xlab="log(BMD uM)",ylab="",yaxt="n",
          xlim=c(xmin,xmax),ylim=c(0,nchem+1))
     points(-5,0,pch=21,bg="red")
     text(-5,0,"normal",pos=4,cex=1.2)
@@ -103,11 +103,11 @@ pathwayChemicalLanePlotAcrossDatasets <- function(to.file=F,
       lines(c(xmin,xmax),c(counter+0.5,counter+0.5),col="gray")
       text(-4,counter,name,pos=2,cex=1.2)
       temp2 <- temp1[is.element(temp1$dtxsid,dtxsid),]
-      x <- temp2$bmd10
+      x <- temp2$bmd
       y <- temp2$hitcall
       x[is.na(x)] <- 1000
       x[y<0.5] <- 1000
-      temp2$bmd10 <- x
+      temp2$bmd <- x
       for(dataset in dataset.list) {
         offset <- 0
         if(contains(dataset,"6h")) offset <- -0.3
@@ -117,7 +117,7 @@ pathwayChemicalLanePlotAcrossDatasets <- function(to.file=F,
         if(contains(dataset,"none")) color <- "cyan"
         pch <- 21
         if(contains(dataset,"pe_1")) pch <- 24
-        bmd <- temp2[is.element(temp2$dataset,dataset),"bmd10"]
+        bmd <- temp2[is.element(temp2$dataset,dataset),"bmd"]
         #cat(dataset,pch,bmd,"\n")
         if(bmd==1000) bmd <- 1000+rnorm(1,0,50)
         bmd <- log10(bmd)

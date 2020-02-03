@@ -27,7 +27,7 @@ pathwayRank.DESEQ2 <- function(to.file=F,
   print(file)
   load(file)
   deseq1 <- PATHWAY_CR
-  drank <- abs(deseq1$hitcall * log10(deseq1$bmd10))
+  drank <- abs(deseq1$hitcall * log10(deseq1$bmd))
   deseq1$drank <- drank
   deseq1 <- deseq1[order(deseq1$drank,decreasing=T),]
 
@@ -35,7 +35,7 @@ pathwayRank.DESEQ2 <- function(to.file=F,
   print(file)
   load(file)
   deseq2 <- PATHWAY_CR
-  drank <- abs(deseq2$hitcall * log10(deseq2$bmd10))
+  drank <- abs(deseq2$hitcall * log10(deseq2$bmd))
   deseq2$drank <- drank
   deseq2 <- deseq2[order(deseq2$drank,decreasing=T),]
 
@@ -96,7 +96,7 @@ pathwayRank.DESEQ2 <- function(to.file=F,
       result[dtxsid,"deseq1.first.ontarget.pathway"] <- temp[index,"pathway"]
       result[dtxsid,"deseq1.first.ontarget.pathway.rank"] <- index
       result[dtxsid,"deseq1.first.ontarget.pathway.score"] <- temp[index,"drank"]
-      result[dtxsid,"deseq1.first.ontarget.pathway.pod"] <- temp[index,"bmd10"]
+      result[dtxsid,"deseq1.first.ontarget.pathway.pod"] <- temp[index,"bmd"]
       result[dtxsid,"deseq1.first.ontarget.pathway.top_over_cutoff"] <- temp[index,"top_over_cutoff"]
     }
 
@@ -139,7 +139,7 @@ pathwayRank.DESEQ2 <- function(to.file=F,
       result[dtxsid,"deseq2.first.ontarget.pathway"] <- temp[index,"pathway"]
       result[dtxsid,"deseq2.first.ontarget.pathway.rank"] <- index
       result[dtxsid,"deseq2.first.ontarget.pathway.score"] <- temp[index,"drank"]
-      result[dtxsid,"deseq2.first.ontarget.pathway.pod"] <- temp[index,"bmd10"]
+      result[dtxsid,"deseq2.first.ontarget.pathway.pod"] <- temp[index,"bmd"]
       result[dtxsid,"deseq2.first.ontarget.pathway.top_over_cutoff"] <- temp[index,"top_over_cutoff"]
 
     }

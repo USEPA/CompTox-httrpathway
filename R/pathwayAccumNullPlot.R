@@ -72,7 +72,7 @@ pathwayAccumNullPlot = function(pathset="PathwaySet_20191107",
   #---------------------------------------
 
   #remove missing bmd's and get cutoff for newpval
-  PATHWAY_CR = PATHWAY_CR[!is.na(PATHWAY_CR$bmd10),]
+  PATHWAY_CR = PATHWAY_CR[!is.na(PATHWAY_CR$bmd),]
   pvalkey = getpvalcutoff(pathset, nullset = nullset, method = method, pvals = newpval)
   newcutoff = pvalkey$cutoff[match(PATHWAY_CR$pathway, pvalkey$pathway)]
   #---------------------------------------
@@ -92,7 +92,7 @@ pathwayAccumNullPlot = function(pathset="PathwaySet_20191107",
   }
   hitmat <- hitmat[hitmat$hitcall>hit.threshold,]
   #get bottom, top, chems, order output by chemical name
-  bottom = floor(min(log10(hitmat$bmd10 ) ) )
+  bottom = floor(min(log10(hitmat$bmd ) ) )
   top = 2
   hitmat = hitmat[order(hitmat$name),]
   sids = unique(hitmat$sample_id)
@@ -104,7 +104,7 @@ pathwayAccumNullPlot = function(pathset="PathwaySet_20191107",
   #---------------------------------------
 
   #plotting points at every unique bmd up to two significant digits.
-  pts = sort(unique(signif(hitmat$bmd10,2)))
+  pts = sort(unique(signif(hitmat$bmd,2)))
 
   #set colors
   cols = c("black", "blue", "red")
@@ -123,7 +123,7 @@ pathwayAccumNullPlot = function(pathset="PathwaySet_20191107",
   #PATHWAY_CR <<- PATHWAY_CR_NULL.0
   ##############################################
 
-  PATHWAY_CR = PATHWAY_CR[!is.na(PATHWAY_CR$bmd10),]
+  PATHWAY_CR = PATHWAY_CR[!is.na(PATHWAY_CR$bmd),]
   #---------------------------------------
   tend <- proc.time()
   delta <- tend-tstart
@@ -253,22 +253,22 @@ pathwayAccumNullPlot = function(pathset="PathwaySet_20191107",
 
 #' Smooth ECDF
 #'
-#' Converts a data frame containing bmd10, bmdl, bmu, to a smooth ecdf.
+#' Converts a data frame containing bmd, bmdl, bmu, to a smooth ecdf.
 #'
-#' Models each bmd as a gaussian with mean bmd10 uses bmdl (bmdu if bmdl is na)
+#' Models each bmd as a gaussian with mean bmd uses bmdl (bmdu if bmdl is na)
 #' to compute sd. Each gaussian is scaled by the hitcall.
 #'
 #' @param x ECDF plotting location x-values.
-#' @param mymat Dataframe containing bmd10, bmdu, bmdl, and hitcall columns.
+#' @param mymat Dataframe containing bmd, bmdu, bmdl, and hitcall columns.
 #' @param verbose verbose = F suppresses both bounds NA warning.
-#' @param bmdrange Maximum expected BMD range. The farthest value from the bmd10
+#' @param bmdrange Maximum expected BMD range. The farthest value from the bmd
 #'  is used to compute standard deviation of gaussian when both bounds are missing.
 #' @return Outputs a vector corresponding to the locations in x.
 #' @export
 #'
 #' @examples
 #' x = 10^(-50:50/30)
-#' mymat =data.frame(list(bmd10 = c(.1,1,10), bmdl = c(.05,NA,NA),
+#' mymat =data.frame(list(bmd = c(.1,1,10), bmdl = c(.05,NA,NA),
 #'   bmdu = c(.6,1.5,NA), hitcall = c(1,1,1)))
 #' out = smoothecdf(x, mymat)
 #' plot(log10(x),out, type = "l")
@@ -280,7 +280,7 @@ smoothecdf = function(x, mymat, verbose = F, bmdrange = c(.001,100)){
   output = rep(0,length(x))
   for(i in 1:nrow(mymat)){
     row = mymat[i,]
-    mymean = row$bmd10
+    mymean = row$bmd
     if(is.na(mymean)) next #skip if bmd is NA
     #try to use bmdl, then try bmdu, then use bmdrange to get gaussian sd
     if(!is.na(row$bmdl)){

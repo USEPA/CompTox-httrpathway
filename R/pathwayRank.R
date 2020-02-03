@@ -28,7 +28,7 @@ pathwayRank <- function(to.file=F,
   print(file)
   load(file)
   deseq <- PATHWAY_CR
-  drank <- abs(deseq$hitcall * log10(deseq$bmd10))
+  drank <- abs(deseq$hitcall * log10(deseq$bmd))
   deseq$drank <- drank
   deseq <- deseq[order(deseq$drank,decreasing=T),]
 
@@ -83,7 +83,7 @@ pathwayRank <- function(to.file=F,
       result[dtxsid,"deseq.first.ontarget.pathway"] <- temp[index,"pathway"]
       result[dtxsid,"deseq.first.ontarget.pathway.rank"] <- index
       result[dtxsid,"deseq.first.ontarget.pathway.score"] <- temp[index,"drank"]
-      result[dtxsid,"deseq.first.ontarget.pathway.pod"] <- temp[index,"bmd10"]
+      result[dtxsid,"deseq.first.ontarget.pathway.pod"] <- temp[index,"bmd"]
 
       #BMDS
       temp2 <- bmds[is.element(bmds$chem_name,result[dtxsid,"name"]),]
