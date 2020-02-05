@@ -18,18 +18,18 @@ compare.fc.gsva.outlers <- function(to.file=F,
   rownames(CYTOTOX) <- CYTOTOX$dtxsid
 
   method <- "fc"
-  file <- paste0("../output/pathway_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_",method,"_0.05_conthits.RData")
+  file <- paste0("../output/signature_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_",method,"_0.05_conthits.RData")
   print(file)
   load(file)
   fc <- PATHWAY_CR
   method <- method2
-  file <- paste0("../output/pathway_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_",method,"_0.05_conthits.RData")
+  file <- paste0("../output/signature_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_",method,"_0.05_conthits.RData")
   print(file)
   load(file)
   gsva <- PATHWAY_CR
 
-  rownames(fc) <- paste(fc$dtxsid,fc$pathway)
-  rownames(gsva) <- paste(gsva$dtxsid,fc$pathway)
+  rownames(fc) <- paste(fc$dtxsid,fc$signature)
+  rownames(gsva) <- paste(gsva$dtxsid,fc$signature)
 
   temp1 <- fc[fc$hitcall>0.5,]
   temp1 <- temp1[temp1$bmd<1,]
@@ -42,7 +42,7 @@ compare.fc.gsva.outlers <- function(to.file=F,
   fc <- fc[rn,]
   gsva <- gsva[rn,]
 
-  mat <- fc[,c("dtxsid","casrn","name","pathway")]
+  mat <- fc[,c("dtxsid","casrn","name","signature")]
   mat$bmd.fc <- fc$bmd
   mat$hitcall.fc <- fc$hitcall
   mat$bmd.gsva <- gsva$bmd
@@ -92,8 +92,8 @@ compare.fc.gsva.outlers <- function(to.file=F,
     rn <- rownames(mat)[i]
     row.fc <- fc[rn,]
     row.gsva <- gsva[rn,]
-    pathwayConcRespPlot(row.fc,CYTOTOX)
-    pathwayConcRespPlot(row.gsva,CYTOTOX)
+    signatureConcRespPlot(row.fc,CYTOTOX)
+    signatureConcRespPlot(row.gsva,CYTOTOX)
     if(!to.file) browser()
   }
   if(to.file) dev.off()

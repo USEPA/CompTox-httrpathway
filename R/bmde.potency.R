@@ -1,6 +1,6 @@
 #--------------------------------------------------------------------------------------
 #'
-#' Export the most potent BMDExpress pathways
+#' Export the most potent BMDExpress signatures
 #--------------------------------------------------------------------------------------
 bmde.potency <- function(to.file=F) {
   printCurrentFunction()
@@ -14,7 +14,7 @@ bmde.potency <- function(to.file=F) {
   rownames(chems) <- chems$dtxsid
   file <- "../input/BMDExpress/BMDExpress_Pathway_Results_Pilot_6h_DMEM.RData"
   load(file=file)
-  bmds <- all_pathway_bmds
+  bmds <- all_signature_bmds
   
   allx <- NULL
   ally <- NULL

@@ -1,6 +1,6 @@
 #--------------------------------------------------------------------------------------
 #'
-#' Plot the difference between the FC and GSVA analysis at hte pathway level
+#' Plot the difference between the FC and GSVA analysis at hte signature level
 #' @param to.file If TRUE, write plots to a file
 #--------------------------------------------------------------------------------------
 FC.vs.GSVA.plot <- function(to.file=F,
@@ -13,12 +13,12 @@ FC.vs.GSVA.plot <- function(to.file=F,
     pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
   }
   par(mfrow=c(3,2),mar=c(4,4,2,2))
-  file <- paste0("../output/pathway_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_fc_0.05_conthits.RData")
+  file <- paste0("../output/signature_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_fc_0.05_conthits.RData")
   print(file)
   load(file)
   fc <- PATHWAY_CR
 
-  file <- paste0("../output/pathway_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_gsva_0.05_conthits.RData")
+  file <- paste0("../output/signature_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_gsva_0.05_conthits.RData")
   print(file)
   load(file)
   gsva <- PATHWAY_CR
@@ -29,12 +29,12 @@ FC.vs.GSVA.plot <- function(to.file=F,
     dtxsid <- chems[i,"dtxsid"]
     name <- chems[i,"name"]
 
-    tempfc <- fc[is.element(fc$dtxsid,dtxsid),c("pathway","hitcall","bmd")]
-    tempgsva <- gsva[is.element(gsva$dtxsid,dtxsid),c("pathway","hitcall","bmd")]
-    rownames(tempfc) <- tempfc$pathway
-    rownames(tempgsva) <- tempgsva$pathway
-    pathlist <- tempfc$pathway
-    pathlist <- pathlist[is.element(pathlist,tempgsva$pathway)]
+    tempfc <- fc[is.element(fc$dtxsid,dtxsid),c("signature","hitcall","bmd")]
+    tempgsva <- gsva[is.element(gsva$dtxsid,dtxsid),c("signature","hitcall","bmd")]
+    rownames(tempfc) <- tempfc$signature
+    rownames(tempgsva) <- tempgsva$signature
+    pathlist <- tempfc$signature
+    pathlist <- pathlist[is.element(pathlist,tempgsva$signature)]
     tempfc <- tempfc[pathlist,]
     tempgsva <- tempgsva[pathlist,]
 

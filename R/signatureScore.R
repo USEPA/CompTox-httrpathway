@@ -54,7 +54,8 @@ signatureScore <- function(FCMAT2,
   file = paste0("../input/signatures/",sigcatalog,".xlsx")
   catalog <- read.xlsx(file)
   catalog <- catalog[catalog[,sigset]==1,]
-  catalog <- catalog[is.element(catalog$signature,names(genelists))]
+
+  catalog <- catalog[is.element(catalog$signature,names(genelists)),]
   signature_data <- genelists[catalog$signature]
 
   #sk.list could be used to choose a data subset, but here does nothing

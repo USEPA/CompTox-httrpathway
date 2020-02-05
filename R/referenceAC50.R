@@ -1,9 +1,9 @@
 #' Reference AC50 Plot
 #'
-#' Scatter plot and accuracy statistics of pathways vs. reference values.
+#' Scatter plot and accuracy statistics of signatures vs. reference values.
 #'
 #' Saves a plot to disk. Plot is a scatter plot of actual values (based on
-#' ER model) vs. predicted values (using some given pathways). For discrete
+#' ER model) vs. predicted values (using some given signatures). For discrete
 #' hitcalls, only true positive are plotted and colors indicate model used.
 #' Continuous hitcalls plots all positives with colors indicating the hitcall.
 #' Other statistics assume that all chemicals that are not positives (defined
@@ -17,12 +17,12 @@
 #' @param pathset Pathway set name.
 #' @param nullset Null data set name.
 #' @param newpvals Vector of p-values to make plots for.
-#' @param oldpval P-value used when running pathwayConcResp.
-#' @param nametag Additional file identifier added during pathwayConcResp.
+#' @param oldpval P-value used when running signatureConcResp.
+#' @param nametag Additional file identifier added during signatureConcResp.
 #' @param conthits Set conthits = T when using continuous hits.
-#' @param pathclass Some pre-defined sets of pathways to plot and run statistics
-#'   on. "ER" is a group of ER pathways, "AR" is a group of AR pathways, and "DUT"
-#'   is just the DUTERTRE_ESTRADIOL_RESPONSE_6HR_UP pathway.
+#' @param pathclass Some pre-defined sets of signatures to plot and run statistics
+#'   on. "ER" is a group of ER signatures, "AR" is a group of AR signatures, and "DUT"
+#'   is just the DUTERTRE_ESTRADIOL_RESPONSE_6HR_UP signature.
 #' @param aucclass Which type of reference value to compare against. "erac50" uses
 #'   the pseudo.AC50.median, "bmd" uses the pseudo.ACB.median, "AR" uses the
 #'   maximum AR AUC, and "ER" uses the maximum ER AUC. AR, ER, and bmd might no
@@ -38,7 +38,7 @@ referenceAC50 = function(method = "fc", dataset = "user_wneg", pathset = "bhrr",
                          newpvals = c(.2,.1,.05,.01,.005,.001), oldpval = .2,
                          nametag = NULL, conthits = F, pathclass = "DUT", aucclass = "erac50"){
 
-  #preset pathway classes
+  #preset signature classes
   if(pathclass == "ER") {
     keeppaths = c("DUTERTRE_ESTRADIOL_RESPONSE_6HR_UP", "HALLMARK_ESTROGEN_RESPONSE_EARLY",
                   "HALLMARK_ESTROGEN_RESPONSE_LATE", "RYAN_ESTROGEN_RECEPTOR_ALPHA_UP")
@@ -64,11 +64,11 @@ referenceAC50 = function(method = "fc", dataset = "user_wneg", pathset = "bhrr",
   #nametag formatting
   if(!is.null(nametag)) nametag = paste0("_", nametag)
 
-  #load pathway_CR
-  file <- paste0("../output/pathway_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_",method ,"_",oldpval,nametag,
+  #load signature_CR
+  file <- paste0("../output/signature_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_",method ,"_",oldpval,nametag,
                  ".RData")
   load(file)
-  PATHWAY_CR = PATHWAY_CR[PATHWAY_CR$pathway %in% keeppaths,]
+  PATHWAY_CR = PATHWAY_CR[PATHWAY_CR$signature %in% keeppaths,]
 
   #open output pdf
   dir.create("../output/refchems/", showWarnings = F)
@@ -96,7 +96,7 @@ referenceAC50 = function(method = "fc", dataset = "user_wneg", pathset = "bhrr",
 
     #recompute hitcalls for new pvalue
     pvalkey = getpvalcutoff(pathset, nullset = nullset, method = method, pvals = newpval)
-    newcutoff = pvalkey$cutoff[match(newpcr$pathway, pvalkey$pathway)]
+    newcutoff = pvalkey$cutoff[match(newpcr$signature, pvalkey$signature)]
     if(conthits) newpcr$hitcall = hitcont(newpcr, newcutoff = newcutoff) else {
       newpcr$hitcall = hitlogic(newpcr, newcutoff = newcutoff)
     }
@@ -147,7 +147,7 @@ referenceAC50 = function(method = "fc", dataset = "user_wneg", pathset = "bhrr",
       xrange[2] = max(2.5,xrange[2])
       if(aucclass == "erac50" || aucclass == "bmd") xrange = yrange = c(-2,3)
 
-      #P/N by pathway for discrete hitcalls
+      #P/N by signature for discrete hitcalls
       P = sum(newpcr$casrn %in% ers)
       TP =  sum(newpcr$casrn %in% ers & (!is.na(newpcr$nlac50)))
       N = sum(!newpcr$casrn %in% ers)
@@ -178,12 +178,12 @@ referenceAC50 = function(method = "fc", dataset = "user_wneg", pathset = "bhrr",
         hitbnds = c(1,.99,.9,.5,.1,.01,.001,.0001,.00001)
         newpcr$contcol = sapply(newpcr$hitcall, function(x){allcols[max(which(x < hitbnds))]})
         plot(newpcr$nlac50, newpcr$maxer, col = "black",
-             bg = newpcr$contcol, pch = pathsymbs[as.factor(newpcr$pathway)],
+             bg = newpcr$contcol, pch = pathsymbs[as.factor(newpcr$signature)],
              xlab = xname, ylab = yname, ylim = yrange, xlim = xrange)
       } else {
         #discrete hitcall plot setup
         plot(newpcr$nlac50, newpcr$maxer, col = "black",
-           bg = methcols[newpcr$fit_method], pch = pathsymbs[as.factor(newpcr$pathway)],
+           bg = methcols[newpcr$fit_method], pch = pathsymbs[as.factor(newpcr$signature)],
            xlab = xname, ylab = yname, ylim = yrange, xlim = xrange)
       }
 

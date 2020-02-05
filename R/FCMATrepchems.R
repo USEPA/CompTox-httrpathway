@@ -10,7 +10,7 @@
 #' @param study Which replicate? "ph1" or "pilot"
 #' @param floor Which flooring for input? 5 or 10
 #' @param bygene If bygene is TRUE, output will be chemical/concentration by
-#'   gene, to be used for pathway analysis; otherwise, it will output
+#'   gene, to be used for signature analysis; otherwise, it will output
 #'   chemical/concentration by probe id for probe concentration response
 #'   modeling.
 #'

@@ -13,8 +13,8 @@ signatureBuildMsigDB <- function(){
   mat <- msigdb_PATHWAYS
 
   names(mat) <- c("signature","source","subsource","description","gene.list","ngene")
-  mat$direction <- "both"
-  mat$type <- "unidirectional"
+  mat$direction <- "nondirectional"
+  mat$type <- "nondirectional"
   mat$parent <- mat$signature
   x <- mat$signature
   for(i in 1:length(x)) {
@@ -23,12 +23,12 @@ signatureBuildMsigDB <- function(){
     #if(contains(sig,"_UP")) browser()
     if(substr(sig,len-2,len)=="_UP") {
       mat[i,"direction"] <- "up"
-      mat[i,"type"] <- "bidirectional"
+      mat[i,"type"] <- "directional"
       mat[i,"parent"] <- substr(sig,1,len-3)
     }
     if(substr(sig,len-2,len)=="_DN") {
       mat[i,"direction"] <- "dn"
-      mat[i,"type"] <- "bidirectional"
+      mat[i,"type"] <- "directional"
       mat[i,"parent"] <- substr(sig,1,len-3)
     }
   }

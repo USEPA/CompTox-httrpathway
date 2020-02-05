@@ -28,8 +28,8 @@ signatureBuildCMAP <- function(){
 
   mat.up$parent <- mat.up$signature
   mat.dn$parent <- mat.dn$signature
-  mat.up$type <- "bidirectional"
-  mat.dn$type <- "bidirectional"
+  mat.up$type <- "directional"
+  mat.dn$type <- "directional"
   mat.up$direction <- "up"
   mat.dn$direction <- "dn"
   mat.up$source <- "CMAP"

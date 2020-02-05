@@ -15,8 +15,8 @@ signatureBuildBioplanet <- function(){
   names(mat) <- c("signature","source","class","description","gene.list","ngene")
   mat$parent <- mat$signature
   mat$source <- "Bioplanet"
-  mat$type <- "unidirectional"
-  mat$direction <- "both"
+  mat$type <- "nondirectional"
+  mat$direction <- "nondirectional"
   mat$subsource <- "-"
   name.list <- c("signature","parent","source","type","direction","description","subsource","ngene","gene.list")
   mat <- mat[,name.list]

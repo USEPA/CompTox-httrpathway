@@ -5,7 +5,7 @@
 #' If conthits = T and nametag is NULL, nametag will be set to "conthits". Loads
 #' an FCMAT2 and CHEM_DICT corresponding to given dataset. FCMAT should be
 #' chem/conc by gene or chem/conc by probe. Uses two lowest concentration of each
-#' column to estimate noise cutoff (as opposed to pathway CR). Also, doesn't
+#' column to estimate noise cutoff (as opposed to signature CR). Also, doesn't
 #' currently contain a plotting option.
 #'
 #' @param dataset String that identifies data set.
@@ -61,7 +61,7 @@ geneConcResp <- function(dataset="ph1_100normal_pid",
   genemat$bmed = stats$bmed[match(genemat$gene, stats$gene)]
   genemat$onesd = stats$onesd[match(genemat$gene, stats$gene)]
 
-  #aggregate genemat by unique sample/pathway per row; data table is considerably faster than aggregate
+  #aggregate genemat by unique sample/signature per row; data table is considerably faster than aggregate
   genemat = setDT(genemat)[, list(conc = list(conc),resp = list(l2fc)),
                                      by = list(sample_id, dtxsid, casrn, name, time, gene, bmed, cutoff, onesd)]
 
@@ -70,17 +70,17 @@ geneConcResp <- function(dataset="ph1_100normal_pid",
 
   genemat = as.list(as.data.frame(t(genemat), stringsAsFactors = F))
 
-  #loop through pathwayConcRespcore_pval, which is generic for any conc/resp
+  #loop through signatureConcRespcore_pval, which is generic for any conc/resp
   if(mc.cores > 1){
     cl = makePSOCKcluster(mc.cores)
     clusterExport(cl, c("acy", "acgnlsobj", "bmdbounds", "bmdobj", "cnst", "exp2", "exp3", "exp4", "exp5", "fitcnst", "fithill", "fitgnls",
                         "fitcnst", "fitpoly1", "fitpoly2", "fitpow", "fitexp2", "fitexp3","fitexp4", "fitexp5",
                         "gnls" , "gnlsderivobj", "hillfn", "hitcontinner","hitloginner","httrFit", "loggnls", "loghill", "nestselect",
                         "poly1", "poly2", "pow", "tcplObj", "toplikelihood"))
-    GENE_CR = parLapplyLB(cl = cl, X=genemat, fun=pathwayConcRespCore_pval, fitmodels = fitmodels,
+    GENE_CR = parLapplyLB(cl = cl, X=genemat, fun=signatureConcRespCore_pval, fitmodels = fitmodels,
                              conthits =conthits, aicc = aicc, chunk.size = ceiling(length(genemat)/5/mc.cores) )
   } else {
-    GENE_CR = lapply(X=genemat, FUN = pathwayConcRespCore_pval, fitmodels = fitmodels, conthits= conthits, aicc = aicc)
+    GENE_CR = lapply(X=genemat, FUN = signatureConcRespCore_pval, fitmodels = fitmodels, conthits= conthits, aicc = aicc)
   }
 
   #reformat and save

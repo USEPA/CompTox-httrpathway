@@ -3,18 +3,18 @@
 #' Performs tweaked version of single sample GSEA.
 #' 
 #' Based on the GSVA ssGSEA code. Main changes are: NAs are now handled correctly
-#' and rank is now centered on zero instead of beginning at one. Since pathway
+#' and rank is now centered on zero instead of beginning at one. Since signature
 #' sizes are undercounted here due to missing values, they are
-#' assessed more accurately in pathwayScoreCoreMYGSEA and limits are enforced
+#' assessed more accurately in signatureScoreCoreMYGSEA and limits are enforced
 #' after scoring.
 #'
 #' @param X Transposed FCMAT2; i.e a gene by sample matrix of l2fc's including 
 #'   rownames and colnames. Equivalent to expr in gsva.
-#' @param geneSets Named list of pathway definitions. Each element is a vector
-#'   of gene names. Each element name is a pathway name.E quivalent to 
+#' @param geneSets Named list of signature definitions. Each element is a vector
+#'   of gene names. Each element name is a signature name.E quivalent to 
 #'   gset.idx.list in gsva.
-#' @param min.sz Minimum pathway size (deprecated).
-#' @param max.sz Maximum pathway size (deprecated)
+#' @param min.sz Minimum signature size (deprecated).
+#' @param max.sz Maximum signature size (deprecated)
 #' @param alpha Power of R to use. Higher alpha will upweight more extreme
 #'   ranks relative to middle ranks.
 #' @param verbose verbose = T prints gene set length message.
@@ -23,11 +23,11 @@
 #' 
 #' @importFrom GSVA filterGeneSets
 #'
-#' @return Outputs pathway by sample matrix of pathway scores.
+#' @return Outputs signature by sample matrix of signature scores.
 #' @export
 #'
 #' @examples
-#' geneSets = list(pathway1 = c("ABC", "DEF"), pathway2 = c("ABC", "GHI"))
+#' geneSets = list(signature1 = c("ABC", "DEF"), signature2 = c("ABC", "GHI"))
 #' X = matrix(c(1:3,3:1), nrow = 3)
 #' colnames(X) = c("Sample1", "Sample2")
 #' rownames(X) = c("ABC", "DEF", "GHI")

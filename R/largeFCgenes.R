@@ -39,13 +39,13 @@ largeFCgenes<- function(to.file=F,basedir="../input/fcdata/",dataset="DMEM_6hr_p
   rownames(result)[nrow(result)] <- "total"
   result <- t(result)
   result <- result[order(result[,"total"],decreasing=T),]
-  file <- paste0("../output/pathway_conc_resp_summary/largeFCgenes_ ",dataset," ",l2fc.limit,".xlsx")
+  file <- paste0("../output/signature_conc_resp_summary/largeFCgenes_ ",dataset," ",l2fc.limit,".xlsx")
   write.xlsx(result,file,row.names=T)
   result <- result[1:50,]
 
   result <- result[sort(rownames(result)),]
   if(to.file) {
-    fname <- paste0("../output/pathway_conc_resp_summary/largeFCgenes_ ",dataset," ",l2fc.limit,".pdf")
+    fname <- paste0("../output/signature_conc_resp_summary/largeFCgenes_ ",dataset," ",l2fc.limit,".pdf")
     pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
   }
   result <- heatmap.2(as.matrix(result),

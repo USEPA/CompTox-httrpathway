@@ -30,8 +30,8 @@ repChemPidPlot = function(oldpval = .05, nametag = "conthits", mc.cores = 3){
   erscores = read.xlsx("S2 ER SuperMatrix 2015-03-24.xlsx")
   pos = erscores$CASRN[erscores$AUC.Antagonist >= .1 | erscores$AUC.Agonist >=.1]
   neg = erscores$CASRN[erscores$pseudo.AC50.median == 1000000]
-  load("../input/processed_pathway_data/PATHWAY_LIST_bhrr.RData")
-  genes = pathway_data[["DUTERTRE_ESTRADIOL_RESPONSE_6HR_UP"]]
+  load("../input/processed_signature_data/PATHWAY_LIST_bhrr.RData")
+  genes = signature_data[["DUTERTRE_ESTRADIOL_RESPONSE_6HR_UP"]]
 
   cl = makePSOCKcluster(mc.cores)
   clusterExport(cl, c("RMSE", "WRMSE", "auc"))

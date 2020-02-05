@@ -14,7 +14,7 @@ signatureBuildRyan <- function(){
   names(mat) <- c("signature","set","class","description","gene.list","ngene")
   mat$parent <- " RYAN_ESTROGEN_RECEPTOR_ALPHA" #mat$signature
   mat$source <- "Ryan"
-  mat$type <- "bidirectional"
+  mat$type <- "directional"
   mat[1,"direction"] <- "up"
   mat[2,"direction"] <- "dn"
   mat$subsource <- "-"

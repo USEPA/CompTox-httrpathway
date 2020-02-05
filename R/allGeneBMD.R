@@ -10,7 +10,7 @@
 #----------------------------------------------------------------------------------------
 allGeneBMD <- function(to.file=F,basedir="../input/fcdata/",dataset="DMEM_6hr_pilot_normal_00",metric="z",l2fc.limit=1.2) {
   if(to.file) {
-    fname <- paste0("../output/pathway_conc_resp_summary/AllGeneBMD_ ",dataset," ",metric," ",l2fc.limit,".pdf")
+    fname <- paste0("../output/signature_conc_resp_summary/AllGeneBMD_ ",dataset," ",metric," ",l2fc.limit,".pdf")
     pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
   }
   par(mfrow=c(3,2),mar=c(4,4,2,2))
@@ -195,7 +195,7 @@ allGeneBMD <- function(to.file=F,basedir="../input/fcdata/",dataset="DMEM_6hr_pi
     resp.plot <- paste(resp,collapse="|")
 
     #PATHWAY_CR contains the specified columns and any identifying, unused columns
-    #that were in pathscoremat/
+    #that were in signaturescoremat/
     #identifiers = row[!names(row) %in% c("conc", "resp", "bmed", "onesd", "cutoff")]
     name.list <- c("onesd", "cutoff",
                    "n_gt_cutoff","cutoff", "fit_method",
@@ -272,7 +272,7 @@ allGeneBMD <- function(to.file=F,basedir="../input/fcdata/",dataset="DMEM_6hr_pi
     print(result[counter,])
     if(!to.file) browser()
   }
-  file <- paste0("../output/pathway_conc_resp_summary/AllGeneBMD_ ",dataset," ",metric," ",l2fc.limit,".xlsx")
+  file <- paste0("../output/signature_conc_resp_summary/AllGeneBMD_ ",dataset," ",metric," ",l2fc.limit,".xlsx")
   write.xlsx(result,file)
   if(to.file) dev.off()
 }

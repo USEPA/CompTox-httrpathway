@@ -5,12 +5,12 @@ library(stringi)
 library(reshape2)
 #--------------------------------------------------------------------------------------
 #' Code to run all calculations
-#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
+#' @param method signature scoring method in c("fc", "gsva", "mygsea")
 #--------------------------------------------------------------------------------------
 driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
-                   sigcatalog="signatureDB_master_catalog 2020-01-31.xlsx",
+                   sigcatalog="signatureDB_master_catalog 2020-01-31",
                    sigset="pilot_small",
-                   nrandom.chems=100,
+                   nrandom.chems=1000,
                    mc.cores=1,
                    method="mygsea",
                    do.build.fcmat1.all=F,
@@ -19,17 +19,13 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
                    do.run.random=F,
                    do.run.all=F,
                    do.accumulation.plot=F,
-                   do.pathway.summary.plot=F,
-                   do.pathway.pod=F,
-                   do.pathway.pod.laneplot=F,
-                   do.all=F,
-                   do.log=F) {
-  printCurrentFunction(paste(dataset,":",pathset))
+                   do.signature.summary.plot=F,
+                   do.signature.pod=F,
+                   do.signature.pod.laneplot=F,
+                   do.all=F) {
+  printCurrentFunction(paste(dataset,":",sigset))
 
-  if(do.log) {
-    file <- paste0("../log/log_",dataset,"_",pathset,"_",Sys.Date(),".log")
-    sink(file=file,split=T,type="output")
-  }
+
   if(do.build.fcmat1.all) {
     buildFCMAT1(dataset="DMEM_6hr_pilot_normal_pe_0",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_normal/DMEM_6/",filetype="tsv")
     buildFCMAT1(dataset="DMEM_12hr_pilot_normal_pe_0",dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_normal/DMEM_12/",filetype="tsv")
@@ -103,53 +99,55 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
 
   nullset <- paste0(dataset,"_RAND",nrandom.chems)
   if(do.run.random){
-    runAllPathwayCR_pval(dataset=nullset,
-                         nullset=nullset,
-                         pathset=pathset,
-                         method = method,
-                         do.plot = F,
-                         mc.cores = c(mc.cores,mc.cores))
+    runAllSignatureCR(dataset=nullset,
+                      nullset=nullset,
+                      sigset=sigset,
+                      sigcatalog=sigcatalog,
+                      method = method,
+                      do.plot = F,
+                      mc.cores = c(mc.cores,mc.cores))
   }
   if(do.run.all){
-    runAllPathwayCR_pval(dataset=dataset,
-                         nullset=nullset,
-                         pathset=pathset,
-                         method = method,
-                         do.plot = T,
-                         mc.cores = c(mc.cores,mc.cores))
+    runAllSignatureCR(dataset=dataset,
+                      nullset=nullset,
+                      sigset=sigset,
+                      sigcatalog=sigcatalog,
+                      method = method,
+                      do.plot = T,
+                      mc.cores = c(mc.cores,mc.cores))
     cat("Look for output in \n
-        ../output/pathway_score_summary/\n
-        ../output/pathway_conc_resp_plots/\n
-        ../output/pathway_conc_resp_summary/\n
+        ../output/signature_score_summary/\n
+        ../output/signature_conc_resp_plots/\n
+        ../output/signature_conc_resp_summary/\n
         \n")
   }
   if(do.accumulation.plot) {
-    pathwayAccumNullPlot(pathset=pathset,
-                         dataset=dataset,
-                         method=method,
-                         nullset=nullset,
-                         nametag="conthits",
-                         mc.cores=mc.cores,
-                         to.file=T,
-                         hit.threshold=0.5,
-                         verbose=F)
+    signatureAccumNullPlot(sigset=sigset,
+                           dataset=dataset,
+                           method=method,
+                           nullset=nullset,
+                           nametag="conthits",
+                           mc.cores=mc.cores,
+                           to.file=T,
+                           hit.threshold=0.5,
+                           verbose=F)
     cat("Look for output in ../output/accumplots/ \n")
   }
-  if(do.pathway.summary.plot) {
-    pathwayClassSummaryPlot(to.file=T,dataset=dataset,
-                            pathset=pathset,
-                            method = method)
+  if(do.signature.summary.plot) {
+    signatureClassSummaryPlot(to.file=T,dataset=dataset,
+                              sigset=sigset,
+                              method = method)
   }
-  if(do.pathway.pod) {
-    pathwayPOD(pathset=pathset,
-               dataset=dataset,
-               method=method,
-               hit.threshold=0.5)
+  if(do.signature.pod) {
+    signaturePOD(sigset=sigset,
+                 dataset=dataset,
+                 method=method,
+                 hit.threshold=0.5)
   }
-  if(do.pathway.pod.laneplot) {
-    podLaneplot(to.file=T,
+  if(do.signature.pod.laneplot) {
+    podLaneplot(to.file=F,
                 dataset=dataset,
-                pathset=pathset,
+                sigset=sigset,
                 method=method)
   }
 }

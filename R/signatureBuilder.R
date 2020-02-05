@@ -1,50 +1,48 @@
 #--------------------------------------------------------------------------------------
-#' Create the fiels needed for the signature calculations
+#' Create the files needed for the signature calculations before adding random genes
 #'
-#' @param catalog.file This is the name of the catalog file
-#' @param pathsetname THis is the name of the pathway set and will be used for the
-#' name of the output file
+#' @param min.ngene Signatures will only be saved if the number of genes is >= this value
+#' @param max.ngene Signatures will only be saved if the number of genes is <= this value
 #' @return No output.
 #' @export
 #--------------------------------------------------------------------------------------
-signatureBuilder = function(nrandom=1000){
+signatureBuilder = function(min.ngene=20,max.ngene=1000){
   printCurrentFunction()
   load("../input/signatures/MsigDB_signatures.RData")
   load("../input/signatures/Ryan_signatures.RData")
   load("../input/signatures/Bioplanet_signatures.RData")
   load("../input/signatures/CMAP_signatures.RData")
-
-  sigdb <- rbind(Bioplanet_signatures,MsigDB_signatures,Ryan_signatures,CMAP_signatures)
-  rownames(sigdb) <- sigdb$signature
+  load("../input/signatures/DisGeNET_signatures.RData")
 
   name.list <- c("signature","parent","source","subsource","type","direction","ngene","description","gene.list")
+
+  sigdb <- rbind(Bioplanet_signatures,MsigDB_signatures,Ryan_signatures,CMAP_signatures)
+
+  temp <- DisGeNET_signatures
+  names(temp)[2] <- "source"
+  temp$subsource <- temp$source
+  temp$type <- "nondirectional"
+  temp$direction <- "nondirectional"
+  temp$parent <- temp$signature
+  temp <- temp[,name.list]
+
   sigdb <- sigdb[,name.list]
 
-  x <- sigdb$gene.list
-  y <- paste(x,collapse="|")
-  genedist <- strsplit(y, "\\|")[[1]]
+  x <- temp$signature
+  y <- sigdb$signature
+  z <- x[is.element(x,y)]
+  temp <- temp[!is.element(temp$signature,z),]
+  sigdb <- rbind(sigdb,temp)
+  rownames(sigdb) <- sigdb$signature
 
-  nmean <- floor(mean(sigdb$ngene))
-  nsd <- floor(sd(sigdb$ngene))
-  nsd <- 50
+  x <- sigdb$type
+  x[is.element(x,"unidirectional")] <- "nondirectional"
+  x[is.element(x,"bidirectional")] <- "directional"
+  sigdb$type <- x
 
-  sigrand <- as.data.frame(matrix(nrow=nrandom,ncol=ncol(sigdb)))
-  names(sigrand) <- names(sigdb)
-  sigrand$source <- "Random"
-  sigrand$type <- "unidirectional"
-  sigrand$direction <- "both"
-  sigrand$description <- "Random"
-  sigrand$subsource <- "-"
-  for(i in 1:nrandom) {
-    sigrand[i,"signature"] <- paste0("Random_",i)
-    sigrand[i,"parent"] <- paste0("Random_",i)
-    ngene <- floor(rnorm(1,nmean,nsd))
-    if(ngene<10) ngene <- 10
-    gene.list <- sample(genedist,ngene)
-    sigrand[i,"ngene"] <- ngene
-    sigrand[i,"gene.list"] <- paste(gene.list,collapse="|")
-  }
-  sigdb <- rbind(sigdb,sigrand)
+  x <- sigdb$direction
+  x[is.element(x,"both")] <- "nondirectional"
+  sigdb$direction <- x
 
   genelists = strsplit(sigdb$gene.list, "\\|")
   print(length(genelists))
@@ -67,14 +65,19 @@ signatureBuilder = function(nrandom=1000){
   for(i in 1:nrow(refchem)) {
     desc <- refchem[i,"description"]
     target <- refchem[i,"target"]
-    catalog[is.element(catalog$description,desc),"target"] <- target
+    catalog[is.element(catalog$description,desc),"target_class"] <- target
   }
 
-  file <- "../input/signatures/signatureDB.RData"
-  save(sigdb,file=file)
-  file <- paste0("../input/signatures/signatureDB_genelists.RData")
-  save(genelists,file=file)
+  sigdb <- sigdb[sigdb$ngene>=min.ngene,]
+  sigdb <- sigdb[sigdb$ngene<=max.ngene,]
+  catalog <- catalog[catalog$ngene>=min.ngene,]
+  catalog <- catalog[catalog$ngene<=max.ngene,]
+  genelists <- genelists[sigdb$signature]
 
-  file <- paste0("../input/signatures/signatureDB_master_catalog.xlsx")
+  file <- "../input/signatures/signatureDB no rand.RData"
+  save(sigdb,file=file)
+  file <- paste0("../input/signatures/signatureDB_genelists no rand.RData")
+  save(genelists,file=file)
+  file <- paste0("../input/signatures/signatureDB_master_catalog no rand.xlsx")
   write.xlsx(catalog,file)
 }
