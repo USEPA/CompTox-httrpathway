@@ -12,16 +12,16 @@
 #'
 #' @return nothing
 #' @export
-signatureScoreMerge <- function(sigset="smallset",
+signatureScoreMerge <- function(sigset="pilot_small",
                               sigcatalog="signatureDB_master_catalog 2020-01-31",
-                              dataset="DMEM_6hr_pilot_normal_pe_1_RAND10",
+                              dataset="DMEM_6hr_pilot_normal_pe_1_RAND1000",
                               method="mygsea",
-                              nullset="DMEM_6hr_pilot_normal_pe_1_RAND10") {
+                              nullset="DMEM_6hr_pilot_normal_pe_1_RAND1000") {
 
   printCurrentFunction(paste(dataset,sigset,method))
   starttime = proc.time()
 
-  # get signaturescoremat
+  cat("> get signaturescoremat\n")
   file <- paste0("../output/signature_score_summary/signaturescoremat_",sigset,"_",dataset,"_",method,"_bidirectional.RData")
   print(file)
   load(file)
@@ -35,30 +35,47 @@ signatureScoreMerge <- function(sigset="smallset",
   sig.updn <- annotations[is.element(annotations$type,"bidirectional"),"signature"]
   par.updn <- unique(annotations[is.element(annotations$type,"bidirectional"),"parent"])
 
+  cat("> split the directional from the nondirectional\n")
   seta <- signaturescoremat[is.element(signaturescoremat$signature,sig.nondir),]
   setb <- signaturescoremat[is.element(signaturescoremat$signature,sig.updn),]
-  setb2 <- NULL
-  for(parent in par.updn) {
-    sigpar <- annotations[is.element(annotations$parent,parent),]
-    sigup <- sigpar[is.element(sigpar$direction,"up"),"signature"]
-    sigdn <- sigpar[is.element(sigpar$direction,"dn"),"signature"]
 
-    for(dtxsid in unique(signaturescoremat$dtxsid)) {
-      temp1 <- signaturescoremat[is.element(signaturescoremat$dtxsid,dtxsid),]
-      temp1up <- temp1[is.element(temp1$signature,sigup),]
-      temp1dn <- temp1[is.element(temp1$signature,sigdn),]
-      for(conc in unique(temp1up$conc)) {
-        temp1upc <- temp1up[temp1up$conc==conc,]
-        temp1dnc <- temp1dn[temp1dn$conc==conc,]
+  seta$parent <- seta$signature
 
-        temp <- temp1upc
-        temp[1,"signature"] <- parent
-        temp[1,"signature_score"] <- temp1upc[1,"signature_score"]-temp1dnc[1,"signature_score"]
-        setb2 <- rbind(setb2,temp)
-      }
-    }
-  }
-  signaturescoremat <- rbind(seta,setb2)
+  cat("> split the up and down from the signature to get the parent\n")
+  x <- setb$signature
+  y <- stri_replace(x,replacement="",mode="last",fixed=" up")
+  y <- stri_replace(y,replacement="",mode="last",fixed=" dn")
+  y <- stri_replace(y,replacement="",mode="last",fixed="_UP")
+  y <- stri_replace(y,replacement="",mode="last",fixed="_DN")
+  setb$parent <- y
+  setb$index <- paste(setb$dtxsid,setb$conc,setb$parent)
+  cat("> order the table\n")
+  setc <- setb[order(setb$index),]
+
+  cat("> split the table\n")
+  top <- nrow(setc)
+  index1 <- seq(from=1,to=(top-1),by=2)
+  index2 <- index1+1
+
+  setc1 <- setc[index1,] #dn
+  setc2 <- setc[index2,] #up
+  cat("rows in setc1 and set c2 before double check",nrow(setc1),nrow(setc2),"\n")
+  rownames(setc1) <- setc1$index
+  rownames(setc2) <- setc2$index
+  index <- setc1$index
+  index <- index[is.element(index,setc2$index)]
+  setd1 <- setc1[index,]
+  setd2 <- setc2[index,]
+  cat("rows in setc1 and set c2 after double check",nrow(setc1),nrow(setc2),"\n")
+
+  pc1 <- unique(setc1$parent)
+  pd1 <- unique(setd1$parent)
+  plost <- pc1[!is.element(pc1,pd1)]
+  sete <- setd2
+  sete$signature_score <- setd2$signature_score - setd1$signature_score
+  sete$signature <- sete$parent
+  sete <- sete[,names(seta)]
+  signaturescoremat <- rbind(seta,sete)
   file <- paste0("../output/signature_score_summary/signaturescoremat_",sigset,"_",dataset,"_",method,".RData")
   cat("   ",file,"\n")
   save(signaturescoremat,file=file)
