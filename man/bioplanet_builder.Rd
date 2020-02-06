@@ -4,11 +4,12 @@
 \alias{bioplanet_builder}
 \title{BioPlanet Builder}
 \usage{
-
-  bioplanet_builder(pathfile = "input/processed_pathway_data/bioplanet_pathway.csv",
-  catfile = "input/processed_pathway_data/bioplanet_pathway_category.csv",
-  pwayout = "input/processed_pathway_data/bioplanet_PATHWAYS.RData",
-  pdataout = "input/processed_pathway_data/PATHWAY_LIST_bioplanet.RData")
+bioplanet_builder(
+  pathfile = "../input/processed_pathway_data/bioplanet_pathway.csv",
+  catfile = "../input/processed_pathway_data/bioplanet_pathway_category.csv",
+  pwayout = "../input/processed_pathway_data/bioplanet_PATHWAYS.RData",
+  pdataout = "../input/processed_pathway_data/PATHWAY_LIST_bioplanet.RData"
+)
 }
 \arguments{
 \item{pathfile}{File name of bioplanet_pathway.csv.}
@@ -27,8 +28,8 @@ Converts BioPlanet data into usable pathway data.
 }
 \details{
 This function shows how BioPlanet data was converted to usable pathway files.
-As BioPlanet is updated, this function will have to be updated. It requires 
+As BioPlanet is updated, this function will have to be updated. It requires
 two downloaded .csv files with location specified by pathfile and catfile.
-It saves usable pathway files with location specified by pwayout and 
+It saves usable pathway files with location specified by pwayout and
 pdataout to disk.
 }

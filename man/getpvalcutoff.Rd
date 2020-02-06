@@ -7,32 +7,32 @@
 getpvalcutoff(pathset, nullset, method, pvals = NULL, numsds = NULL)
 }
 \arguments{
-\item{pathset}{Name of pathway set used to score null data.}
+\item{pathset}{Name of signature set used to score null data.}
 
 \item{nullset}{Name of null data set.}
 
-\item{method}{Name of pathway scoring method used on nullset.}
+\item{method}{Pathway scoring method in c("fc", "gsva", "mygsea")}
 
 \item{pvals}{Vector of p-values to get cutoff for.}
 
-\item{numsds}{Vector of number of standard deviations to get cutoff for. 
+\item{numsds}{Vector of number of standard deviations to get cutoff for.
 For instance, numsds = 1 will return cutoffs at 1 standard deviation.}
 }
 \value{
-Dataframe with 4 or 5 columns: pathway, cutoff, bmed (median of
-  all samples for that pathway), pvalue (pvalue corresponding to each cutoff),
+Dataframe with 4 or 5 columns: signature, cutoff, bmed (median of
+  all samples for that signature), pvalue (pvalue corresponding to each cutoff),
   numsd (number of sds corresponding to each cutoff).
 }
 \description{
-Retrieves pathway cutoffs for a given null dataset.
+Retrieves signature cutoffs for a given null dataset.
 }
 \details{
-Calculates median of all scores for a given pathway as well as a cutoff 
+Calculates median of all scores for a given signature as well as a cutoff
 based on the specified null dataset.
 P-values represent the percentage of scores that are greater in distance
 from the median than the cutoff. Numsd gives a cutoff that is the given
-number of standard deviations from the median. Each row of the output 
-corresponds to one pathway and one pvalue or numsd. If both pvals and numsds
-are specified, the output contains a column for each, and the unused 
+number of standard deviations from the median. Each row of the output
+corresponds to one signature and one pvalue or numsd. If both pvals and numsds
+are specified, the output contains a column for each, and the unused
 identifier(pvalue or numsd) in each row will contain NA.
 }

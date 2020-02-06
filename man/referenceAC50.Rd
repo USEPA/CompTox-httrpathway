@@ -4,10 +4,18 @@
 \alias{referenceAC50}
 \title{Reference AC50 Plot}
 \usage{
-referenceAC50(method = "fc", dataset = "user_wneg", pathset = "bhrr",
-  nullset = "user_wneg_RAND125", newpvals = c(0.2, 0.1, 0.05, 0.01,
-  0.005, 0.001), oldpval = 0.2, nametag = NULL, conthits = F,
-  pathclass = "DUT", aucclass = "erac50")
+referenceAC50(
+  method = "fc",
+  dataset = "user_wneg",
+  pathset = "bhrr",
+  nullset = "user_wneg_RAND125",
+  newpvals = c(0.2, 0.1, 0.05, 0.01, 0.005, 0.001),
+  oldpval = 0.2,
+  nametag = NULL,
+  conthits = F,
+  pathclass = "DUT",
+  aucclass = "erac50"
+)
 }
 \arguments{
 \item{method}{Pathway scoring method name.}
@@ -20,15 +28,15 @@ referenceAC50(method = "fc", dataset = "user_wneg", pathset = "bhrr",
 
 \item{newpvals}{Vector of p-values to make plots for.}
 
-\item{oldpval}{P-value used when running pathwayConcResp.}
+\item{oldpval}{P-value used when running signatureConcResp.}
 
-\item{nametag}{Additional file identifier added during pathwayConcResp.}
+\item{nametag}{Additional file identifier added during signatureConcResp.}
 
 \item{conthits}{Set conthits = T when using continuous hits.}
 
-\item{pathclass}{Some pre-defined sets of pathways to plot and run statistics
-on. "ER" is a group of ER pathways, "AR" is a group of AR pathways, and "DUT"
-is just the DUTERTRE_ESTRADIOL_RESPONSE_6HR_UP pathway.}
+\item{pathclass}{Some pre-defined sets of signatures to plot and run statistics
+on. "ER" is a group of ER signatures, "AR" is a group of AR signatures, and "DUT"
+is just the DUTERTRE_ESTRADIOL_RESPONSE_6HR_UP signature.}
 
 \item{aucclass}{Which type of reference value to compare against. "erac50" uses
 the pseudo.AC50.median, "bmd" uses the pseudo.ACB.median, "AR" uses the
@@ -39,16 +47,16 @@ longer function correctly.}
 No output.
 }
 \description{
-Scatter plot and accuracy statistics of pathways vs. reference values.
+Scatter plot and accuracy statistics of signatures vs. reference values.
 }
 \details{
-Saves a plot to disk. Plot is a scatter plot of actual values (based on 
-ER model) vs. predicted values (using some given pathways). For discrete
+Saves a plot to disk. Plot is a scatter plot of actual values (based on
+ER model) vs. predicted values (using some given signatures). For discrete
 hitcalls, only true positive are plotted and colors indicate model used.
 Continuous hitcalls plots all positives with colors indicating the hitcall.
 Other statistics assume that all chemicals that are not positives (defined
 by AUC >= .1) are negatives, so care must be taken not to include chemicals
-with borderline activity in the dataset. RMSE is only shown for true 
-positives. Continuous hitcalls weights all statistics by the hitcall. 
+with borderline activity in the dataset. RMSE is only shown for true
+positives. Continuous hitcalls weights all statistics by the hitcall.
 oldpval should be >= newpvals when using discrete hitcalls.
 }

@@ -12,7 +12,7 @@ FCMATrepchems(study = "ph1", floor = 10, bygene = T)
 \item{floor}{Which flooring for input? 5 or 10}
 
 \item{bygene}{If bygene is TRUE, output will be chemical/concentration by
-gene, to be used for pathway analysis; otherwise, it will output 
+gene, to be used for signature analysis; otherwise, it will output
 chemical/concentration by probe id for probe concentration response
 modeling.}
 }

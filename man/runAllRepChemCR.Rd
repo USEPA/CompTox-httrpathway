@@ -4,25 +4,33 @@
 \alias{runAllRepChemCR}
 \title{Run All Replicate Chemical Concentration Response}
 \usage{
-runAllRepChemCR(basedir = "input/fcdata/", pathset = "bhrr",
-  method = "fc", minpathsize = 10, do.plot = F, pval = 0.05,
-  mc.cores = c(39, 39), conthits = T, nchem = 125)
+runAllRepChemCR(
+  basedir = "../input/fcdata/",
+  pathset = "bhrr",
+  method = "fc",
+  minpathsize = 10,
+  do.plot = F,
+  pval = 0.05,
+  mc.cores = c(39, 39),
+  conthits = T,
+  nchem = 125
+)
 }
 \arguments{
 \item{basedir}{Folder that the FCMAT2's are stored in.}
 
-\item{pathset}{Name of pathway set.}
+\item{pathset}{Name of signature set.}
 
-\item{method}{Name of pathway scoring method.}
+\item{method}{Name of signature scoring method.}
 
-\item{minpathsize}{Minimum pathway size.}
+\item{minpathsize}{Minimum signature size.}
 
-\item{do.plot}{do.plot = T generates plots for every chemical/pathway/replicate
+\item{do.plot}{do.plot = T generates plots for every chemical/signature/replicate
 combination. Adds a significant amount to the runtime.}
 
 \item{pval}{P-value to use for noise estimation.}
 
-\item{mc.cores}{Vector with two values: number of cores to use for pathway
+\item{mc.cores}{Vector with two values: number of cores to use for signature
 scoring and number of cores to use for CR. CR can usually handle the maximum
 number, but gsva scoring might require a smaller number to avoid memory
 overflow.}
@@ -38,11 +46,11 @@ samples.}
 No output.
 }
 \description{
-Runs pathway scoring and concentration response for replicate chemicals.
+Runs signature scoring and concentration response for replicate chemicals.
 }
 \details{
 This function has hard-coded dataset names for the replicates. For each
-replicate, it computes pathway scores, generates a null dataset, runs
-pathway scores for the null dataset, and then runs concentration-response
+replicate, it computes signature scores, generates a null dataset, runs
+signature scores for the null dataset, and then runs concentration-response
 on the actual data. Pathway scores and CR are written to disk.
 }

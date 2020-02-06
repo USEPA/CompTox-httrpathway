@@ -4,8 +4,12 @@
 \alias{randomdata}
 \title{Randomized Null Data}
 \usage{
-randomdata(basedir = "input/fcdata/", dataset = "Phase1_6fixed",
-  nchem = 125, seed = 12345)
+randomdata(
+  basedir = "../input/fcdata/",
+  dataset = "DMEM_6hr_pilot_normal_pe_1",
+  nchem = 10,
+  seed = 12345
+)
 }
 \arguments{
 \item{basedir}{Directory that holds FCMAT2 and CHEM_DICT files.}

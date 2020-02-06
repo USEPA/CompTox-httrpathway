@@ -4,10 +4,17 @@
 \alias{geneConcResp}
 \title{Gene Concentration Response}
 \usage{
-geneConcResp(dataset = "ph1_100normal_pid", mc.cores = 1,
-  to.file = F, pval = 0.05, nametag = NULL, conthits = F,
-  aicc = F, fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2",
-  "pow", "exp2", "exp3", "exp4", "exp5"))
+geneConcResp(
+  dataset = "ph1_100normal_pid",
+  mc.cores = 1,
+  to.file = F,
+  pval = 0.05,
+  nametag = NULL,
+  conthits = F,
+  aicc = F,
+  fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4",
+    "exp5")
+)
 }
 \arguments{
 \item{dataset}{String that identifies data set.}
@@ -25,7 +32,7 @@ is used to signify that an unusual option was used.}
 \item{conthits}{If conthits = T, continuous hitcalls are calculated; otherwise
 discrete hitcalls are used.}
 
-\item{aicc}{If aicc = T, corrected AIC is used insstead of first order 
+\item{aicc}{If aicc = T, corrected AIC is used insstead of first order
 (regular) AIC.}
 
 \item{fitmodels}{Vector of models names to be used. Default is all of them.}
@@ -38,8 +45,8 @@ Wrapper that performs concentration response modeling for gene or probe l2fc's
 }
 \details{
 If conthits = T and nametag is NULL, nametag will be set to "conthits". Loads
-an FCMAT2 and CHEM_DICT corresponding to given dataset. FCMAT should be 
+an FCMAT2 and CHEM_DICT corresponding to given dataset. FCMAT should be
 chem/conc by gene or chem/conc by probe. Uses two lowest concentration of each
-column to estimate noise cutoff (as opposed to pathway CR). Also, doesn't
+column to estimate noise cutoff (as opposed to signature CR). Also, doesn't
 currently contain a plotting option.
 }
