@@ -6,7 +6,7 @@
 #' @return No output.
 #' @export
 #--------------------------------------------------------------------------------------
-signatureBuilder = function(min.ngene=20,max.ngene=1000){
+signatureBuilder = function(min.ngene=10,max.ngene=100000){
   printCurrentFunction()
   load("../input/signatures/MsigDB_signatures.RData")
   load("../input/signatures/Ryan_signatures.RData")
@@ -34,15 +34,6 @@ signatureBuilder = function(min.ngene=20,max.ngene=1000){
   temp <- temp[!is.element(temp$signature,z),]
   sigdb <- rbind(sigdb,temp)
   rownames(sigdb) <- sigdb$signature
-
-  x <- sigdb$type
-  x[is.element(x,"unidirectional")] <- "nondirectional"
-  x[is.element(x,"bidirectional")] <- "directional"
-  sigdb$type <- x
-
-  x <- sigdb$direction
-  x[is.element(x,"both")] <- "nondirectional"
-  sigdb$direction <- x
 
   genelists = strsplit(sigdb$gene.list, "\\|")
   print(length(genelists))

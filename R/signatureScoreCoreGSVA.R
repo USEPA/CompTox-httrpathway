@@ -101,7 +101,7 @@ signatureScoreCoreGSVA <- function(sk.list,
 
   #write output to disk
   method <- "gsva"
-  file <- paste("../output/signature_score_summary/signaturescoremat_",sigset,"_",dataset,"_",method,"_bidirectional.RData",sep="")
+  file <- paste("../output/signature_score_summary/signaturescoremat_",sigset,"_",dataset,"_",method,"_directional.RData",sep="")
   save(signaturescoremat,file=file)
   cat("   output written\n")
 }

@@ -56,9 +56,7 @@ signatureConcResp <- function(sigset,
   printCurrentFunction(paste(dataset,sigset,method))
   starttime = proc.time()
 
-  file = paste0("../input/signatures/",sigcatalog,".xlsx")
-  annotations <- read.xlsx(file)
-  annotations <- annotations[annotations[,sigset]==1,]
+  annotations <- signatureCatalogLoader(sigset,sigcatalog)
 
   #automatically add conthits nametag, then add _ to nametag if it exists
   if(is.null(nametag) && conthits) nametag = "conthits"

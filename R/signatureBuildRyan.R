@@ -9,8 +9,9 @@ signatureBuildRyan <- function(){
 
   file <- "../input/signatures/RYAN_PATHWAYS.RData"
   load(file)
-
   mat <- RYAN_PATHWAYS
+  mat[1,"pathway"] <- "RYAN_ESTROGEN_RECEPTOR_ALPHA_up"
+  mat[2,"pathway"] <- "RYAN_ESTROGEN_RECEPTOR_ALPHA_dn"
   names(mat) <- c("signature","set","class","description","gene.list","ngene")
   mat$parent <- " RYAN_ESTROGEN_RECEPTOR_ALPHA" #mat$signature
   mat$source <- "Ryan"

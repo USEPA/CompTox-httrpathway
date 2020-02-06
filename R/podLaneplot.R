@@ -229,7 +229,7 @@ podLaneplot <- function(to.file=F,
   if(!to.file) browser()
   else dev.off()
 
-  file <- paste0("../output/pod_laneplot/pod_laneplot_",dataset,"_",sigset,"_",method,"_no_signature_min.xlsx")
+  file <- paste0("../output/signature_pod/pod_laneplot_",dataset,"_",sigset,"_",method,"_no_signature_min.xlsx")
   write.xlsx(result,file)
 
 }

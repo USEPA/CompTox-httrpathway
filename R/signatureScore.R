@@ -51,9 +51,7 @@ signatureScore <- function(FCMAT2,
   file <- paste0("../input/signatures/signatureDB_genelists.RData")
   cat("   ",file,"\n")
   load(file) #genelists
-  file = paste0("../input/signatures/",sigcatalog,".xlsx")
-  catalog <- read.xlsx(file)
-  catalog <- catalog[catalog[,sigset]==1,]
+  catalog <- signatureCatalogLoader(sigset,sigcatalog)
 
   catalog <- catalog[is.element(catalog$signature,names(genelists)),]
   signature_data <- genelists[catalog$signature]
@@ -65,8 +63,13 @@ signatureScore <- function(FCMAT2,
   plengths = sapply(signature_data, function(x){sum(x %in% colnames(FCMAT2))})
   cat("   Removing", sum(plengths < minsigsize), "signatures under min size", minsigsize, ".", sum(plengths >= minsigsize),
       "signatures remaining.\n")
+  signature_data0 <- signature_data
   signature_data = signature_data[plengths >= minsigsize]
 
+  sig.list.0 <- sort(unique(names(signature_data0)))
+  sig.list <- sort(unique(names(signature_data)))
+  slost <- sig.list.0[!is.element(sig.list.0,sig.list)]
+  if(length(slost)>0) for(i in 1:length(slost)) cat("   ",slost[i],"\n")
   cat("   now run the inner functions depending on method\n")
   if(method=="fc") {
     if(mc.cores > 1){
@@ -90,7 +93,7 @@ signatureScore <- function(FCMAT2,
     }
 
     cat("   save signaturescoremat\n")
-    file <- paste0("../output/signature_score_summary/signaturescoremat_",sigset,"_",dataset,"_",method,"_bidirectional.RData")
+    file <- paste0("../output/signature_score_summary/signaturescoremat_",sigset,"_",dataset,"_",method,"_directional.RData")
     cat("   ",file,"\n")
     save(signaturescoremat,file=file)
   }

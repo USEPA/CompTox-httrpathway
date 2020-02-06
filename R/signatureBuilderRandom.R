@@ -16,29 +16,34 @@ signatureBuilderRandom = function(nrandom=1000,mc.cores=1){
 
   file <- paste0("../input/signatures/signatureDB_master_catalog no rand.xlsx")
   catalog <- read.xlsx(file)
-
   file <- "../input/signatures/signatureDB no rand.RData"
   load(file=file)
   #sigdb
+  temp <- sigdb[sigdb$ngene<=500,]
+  temp <- temp[temp$ngene>=10,]
 
-  cat("files read in:",nrow(sigdb),"\n")
-  fl <- sigdb$gene.list
-  #fl <- fl[1:100]
+  cat("> files read in:",nrow(temp)," signatures \n")
+  mask <- vector(mode="integer",length=nrow(temp))
+  mask[] <- 0
+  index <- sample(seq(from=1,to=nrow(temp),by=1),5000)
+  mask[index] <- 1
+  temp <- temp[mask==1,]
+  fl <- temp$gene.list
   nn <- length(fl)
   pairs <- NULL
-   pairs <- mclapply(fl,FUN=pairit,mc.cores=mc.cores)
+  pairs <- mclapply(fl,FUN=pairit,mc.cores=mc.cores)
 
   pairs <- unlist(pairs)
-  cat("pairs created: ",length(pairs),"\n")
+  cat("> pairs created: ",length(pairs),"\n")
 
-  nmean <- floor(mean(sigdb$ngene))
-  nsd <- floor(sd(sigdb$ngene))
+  nmean <- floor(mean(temp$ngene))
+  nsd <- floor(sd(temp$ngene))
   nsd <- 50
 
-  sigrand <- as.data.frame(matrix(nrow=nrandom,ncol=ncol(sigdb)))
-  names(sigrand) <- names(sigdb)
+  sigrand <- as.data.frame(matrix(nrow=nrandom,ncol=ncol(temp)))
+  names(sigrand) <- names(temp)
   sigrand$source <- "Random"
-  sigrand$type <- "unidirectional"
+  sigrand$type <- "nondirectional"
   sigrand$direction <- "both"
   sigrand$description <- "Random"
   sigrand$subsource <- "-"
@@ -55,9 +60,9 @@ signatureBuilderRandom = function(nrandom=1000,mc.cores=1){
     sigrand[i,"gene.list"] <- paste(gene.list,collapse="|")
   }
   sigdb <- rbind(sigdb,sigrand)
-  cat("random lists created:",nrow(sigrand),nrow(sigdb),"\n")
+  cat("> random lists created:",nrow(sigrand),nrow(sigdb),"\n")
   genelists = strsplit(sigdb$gene.list, "\\|")
-  cat("length of gene lists:",length(genelists),"\n")
+  cat("> length of gene lists:",length(genelists),"\n")
   names(genelists) = sigdb$signature
 
   file <- "../input/signatures/signatureDB.RData"
@@ -74,10 +79,10 @@ signatureBuilderRandom = function(nrandom=1000,mc.cores=1){
   rcatalog$set4 <- 0
   rcatalog$set5 <- 0
   catalog <- rbind(catalog,rcatalog)
-  cat("new catalog created:",nrow(catalog),"\n")
+  cat("> new catalog created:",nrow(catalog),"\n")
   file <- paste0("../input/signatures/signatureDB_master_catalog.xlsx")
   write.xlsx(catalog,file)
-  cat("file written out\n")
+  cat("> file written out\n")
 }
 pairit <- function(x) {
   gl <- sort(strsplit(x,"\\|")[[1]])

@@ -48,7 +48,7 @@ signatureScoreCoreMYGSEA <- function(sk.list,
   data[is.na(data)] <- 0
 
   success <- F
-  cat("   start MYGSEA:",dim(data),"\n")
+  cat("   start MYGSEA:",dim(data),":",mc.cores,"\n")
   tryCatch({
     #call MYGSEA for scoring
     if(mc.cores <= 1){
@@ -56,22 +56,28 @@ signatureScoreCoreMYGSEA <- function(sk.list,
                     geneSets =signature_data,
                     min.sz=1,
                     max.sz=Inf,
-                    verbose=T,
+                    verbose=F,
                     useranks = useranks)
     } else {
       starts = (0:(mc.cores-1)*nrow(data))%/%mc.cores+1
       ends = (1:mc.cores*nrow(data))%/%mc.cores
+      cat("   make datalist\n")
       datalist = lapply(1:length(starts), function(i){t(data)[,seq(starts[i], ends[i]), drop = F ] } )
       # reslist = mclapply(datalist, MYGSEA, geneSets =signature_data, min.sz=10, max.sz=Inf, verbose=T, useranks = useranks,
       #                    mc.cores= mc.cores)
 
 
+      cat("   make cluster\n")
       cl = makePSOCKcluster(mc.cores)
+      cat("   export cluster\n")
       clusterExport(cl, c("myrndwalk"))
+      cat("   eval cluster\n")
       output = clusterEvalQ(cl, library(GSVA))
-      reslist = parLapply(cl = cl, X=datalist,fun=MYGSEA,geneSets =signature_data, min.sz=10, max.sz=Inf, verbose=T, useranks = useranks)
+      cat("   make reslist\n")
+      reslist = parLapply(cl = cl, X=datalist,fun=MYGSEA,geneSets =signature_data, min.sz=10, max.sz=Inf, verbose=F, useranks = useranks)
+      cat("   stop cluster\n")
       stopCluster(cl)
-
+      cat("   reduce\n")
       res = Reduce(cbind, reslist)
     }
     if (normalization) {
@@ -126,7 +132,7 @@ signatureScoreCoreMYGSEA <- function(sk.list,
   signature.list <- sort(unique(signaturescoremat[,"signature"]))
 
   #write to disk
-  file <- paste("../output/signature_score_summary/signaturescoremat_",sigset,"_",dataset,"_",method,"_bidirectional.RData",sep="")
+  file <- paste("../output/signature_score_summary/signaturescoremat_",sigset,"_",dataset,"_",method,"_directional.RData",sep="")
   cat("   savging file ... ",file,"\n")
   save(signaturescoremat,file=file)
   cat("   output written\n")

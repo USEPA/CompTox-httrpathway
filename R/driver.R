@@ -9,7 +9,7 @@ library(reshape2)
 #--------------------------------------------------------------------------------------
 driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
                    sigcatalog="signatureDB_master_catalog 2020-01-31",
-                   sigset="pilot_small",
+                   sigset="pilot_tiny",
                    nrandom.chems=1000,
                    mc.cores=1,
                    method="mygsea",
@@ -18,7 +18,6 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
                    do.build.random=F,
                    do.run.random=F,
                    do.run.all=F,
-                   do.accumulation.plot=F,
                    do.signature.summary.plot=F,
                    do.signature.pod=F,
                    do.signature.pod.laneplot=F,
@@ -98,7 +97,7 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
   }
 
   nullset <- paste0(dataset,"_RAND",nrandom.chems)
-  if(do.run.random){
+  if(do.run.random || do.all){
     runAllSignatureCR(dataset=nullset,
                       nullset=nullset,
                       sigset=sigset,
@@ -107,7 +106,7 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
                       do.plot = F,
                       mc.cores = c(mc.cores,mc.cores))
   }
-  if(do.run.all){
+  if(do.run.all || do.all){
     runAllSignatureCR(dataset=dataset,
                       nullset=nullset,
                       sigset=sigset,
@@ -121,31 +120,19 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
         ../output/signature_conc_resp_summary/\n
         \n")
   }
-  if(do.accumulation.plot) {
-    signatureAccumNullPlot(sigset=sigset,
-                           dataset=dataset,
-                           method=method,
-                           nullset=nullset,
-                           nametag="conthits",
-                           mc.cores=mc.cores,
-                           to.file=T,
-                           hit.threshold=0.5,
-                           verbose=F)
-    cat("Look for output in ../output/accumplots/ \n")
-  }
-  if(do.signature.summary.plot) {
+  if(do.signature.summary.plot || do.all) {
     signatureClassSummaryPlot(to.file=T,dataset=dataset,
                               sigset=sigset,
                               method = method)
   }
-  if(do.signature.pod) {
+  if(do.signature.pod || do.all) {
     signaturePOD(sigset=sigset,
                  dataset=dataset,
                  method=method,
                  hit.threshold=0.5)
   }
-  if(do.signature.pod.laneplot) {
-    podLaneplot(to.file=F,
+  if(do.signature.pod.laneplot || do.all) {
+    podLaneplot(to.file=T,
                 dataset=dataset,
                 sigset=sigset,
                 method=method)
