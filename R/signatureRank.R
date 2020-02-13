@@ -4,12 +4,13 @@
 #--------------------------------------------------------------------------------------
 signatureRank <- function(to.file=F,
                         dataset="DMEM_6hr_pilot_normal_pe_1",
-                        pathset="PathwaySet_20191107",
+                        sigset="pilot_large",
+                        sigcatalog="signatureDB_master_catalog 2020-01-31",
                         method="mygsea") {
   printCurrentFunction()
 
   if(to.file) {
-    fname <- paste0("../output/signature_rank/signature_rank_",dataset,"_",pathset,"_",method,".pdf")
+    fname <- paste0("../output/signature_rank/signature_rank_",dataset,"_",sigset,"_",method,".pdf")
     pdf(file=fname,width=5.5,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
   }
   par(mfrow=c(2,1),mar=c(4,4,2,2))
@@ -22,15 +23,18 @@ signatureRank <- function(to.file=F,
   rownames(chems) <- chems$dtxsid
   file <- "../input/BMDExpress/BMDExpress_Pathway_Results_Pilot_6h_DMEM.RData"
   load(file=file)
-  bmds <- all_signature_bmds
+  bmds <- all_pathway_bmds
 
-  file <- paste0("../output/signature_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_",method,"_0.05_conthits.RData")
+  file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_0.05_conthits.RData")
   print(file)
   load(file)
-  deseq <- PATHWAY_CR
+  deseq <- SIGNATURE_CR
   drank <- abs(deseq$hitcall * log10(deseq$bmd))
+  drank <- deseq$hitcall * (6-log10(deseq$bmd))#      FIX THIS
   deseq$drank <- drank
   deseq <- deseq[order(deseq$drank,decreasing=T),]
+
+  annotations <- signatureCatalogLoader(sigset,sigcatalog)
 
 
   name.list <- c("dtxsid","casrn","name","target_key",
@@ -52,58 +56,59 @@ signatureRank <- function(to.file=F,
     result[dtxsid,"target_key"] <- target_key
     cat(result[dtxsid,"name"],":",target_key,"\n")
 
-    pathset.list <- NULL
+    sigset.list <- NULL
 
-    if(target_key=="thyroid") pathset.list <- c("thyroid")
-    if(target_key=="ER") pathset.list <- c("estrogen","Tamoxifen","Cyproterone")
-    if(target_key=="ion channel") pathset.list <- c("ion channel","Amiodarone")
-    if(target_key=="PPAR") pathset.list <- c("ppar")
-    if(target_key=="CYPs") pathset.list <- c("p450","conazole")
-    if(target_key=="AR") pathset.list <- c("Testosterone","androgen","Nilutamide","Flutamide")
-    if(target_key=="mitochondria") pathset.list <-c("mitochondria")
-    if(target_key=="cholesterol") pathset.list <- c("statin","sterol processing","steroid synthesis","glitazone","fibrate","adipogenesis","fatty acid")
+    if(target_key=="thyroid") sigset.list <- c("thyroid")
+    if(target_key=="ER") sigset.list <- c("estrogen")
+    if(target_key=="AR") sigset.list <- c("androgen")
+    if(target_key=="ion channel") sigset.list <- c("ion channel","ion channel activity")
+    if(target_key=="PPAR") sigset.list <- c("PPAR","peroxisome")
+    if(target_key=="CYPs") sigset.list <- c("CYP19A1","CYP inhibitor","xenobiotic metabolism")
+     if(target_key=="mitochondria") sigset.list <-c("mitochondria","mitochondrial")
+    if(target_key=="cholesterol") sigset.list <- c("lipid","cholesterol")
 
-    if(target_key=="electron chain") pathset.list <- NULL
-    if(target_key=="protein reactive") pathset.list <- NULL
-    if(target_key=="adrenergic") pathset.list <- NULL
-    if(target_key=="protein synthesis") pathset.list <- NULL
-    if(target_key=="Plant PPO") pathset.list <- NULL
-    if(target_key=="DNA") pathset.list <- NULL
-
-    if(!is.null(pathset.list)) {
+    if(target_key=="electron chain") sigset.list <- NULL
+    if(target_key=="protein reactive") sigset.list <- NULL
+    if(target_key=="adrenergic") sigset.list <- NULL
+    if(target_key=="protein synthesis") sigset.list <- NULL
+    if(target_key=="Plant PPO") sigset.list <- NULL
+    if(target_key=="DNA") sigset.list <- NULL
+    if(!is.null(sigset.list)) {
       #DESEQ
       mask <- vector(length=nrow(temp),mode="integer")
       mask[] <- 0
-      mask[is.element(temp$signature_class,pathset.list)] <- 1
+      mask[is.element(temp$super_target,sigset.list)] <- 1
       result[dtxsid,"deseq2.first.signature"] <- temp[1,"signature"]
       result[dtxsid,"deseq2.first.signature.score"] <- temp[1,"drank"]
-      result[dtxsid,"deseq2.first.signature.class"] <- temp[1,"signature_class"]
+      result[dtxsid,"deseq2.first.signature.class"] <- temp[1,"super_target"]
       index <- min(which(mask==1))
 
       result[dtxsid,"deseq.first.ontarget.signature"] <- temp[index,"signature"]
       result[dtxsid,"deseq.first.ontarget.signature.rank"] <- index
       result[dtxsid,"deseq.first.ontarget.signature.score"] <- temp[index,"drank"]
       result[dtxsid,"deseq.first.ontarget.signature.pod"] <- temp[index,"bmd"]
-
       #BMDS
-      temp2 <- bmds[is.element(bmds$chem_name,result[dtxsid,"name"]),]
-      rownames(temp2) <- temp2$Pathway
-      rownames(temp) <- temp$signature
-      plist <- temp2$Pathway
-      temp3 <- temp[plist,"signature_class"]
-      temp2$signature_class <-  temp3
-      temp2 <- temp2[order(temp2$BMDL),]
-      mask <- vector(length=nrow(temp2),mode="integer")
-      mask[] <- 0
-      mask[is.element(temp2$signature_class,pathset.list)] <- 1
-      result[dtxsid,"bmde.first.signature"] <- temp2[1,"Pathway"]
-      result[dtxsid,"bmde.first.signature.class"] <- temp2[1,"signature_class"]
-      if(sum(mask)>0) {
-        index <- min(which(mask==1))
+      do.bmds <- F
+      if(do.bmds) {
+        temp2 <- bmds[is.element(bmds$chem_name,result[dtxsid,"name"]),]
+        rownames(temp2) <- temp2$Pathway
+        rownames(temp) <- temp$signature
+        plist <- temp2$Pathway
+        temp3 <- temp[plist,"signature_class"]
+        temp2$signature_class <-  temp3
+        temp2 <- temp2[order(temp2$BMDL),]
+        mask <- vector(length=nrow(temp2),mode="integer")
+        mask[] <- 0
+        mask[is.element(temp2$signature_class,sigset.list)] <- 1
+        result[dtxsid,"bmde.first.signature"] <- temp2[1,"Pathway"]
+        result[dtxsid,"bmde.first.signature.class"] <- temp2[1,"signature_class"]
+        if(sum(mask)>0) {
+          index <- min(which(mask==1))
 
-        result[dtxsid,"bmde.first.ontarget.signature"] <- temp2[index,"Pathway"]
-        result[dtxsid,"bmde.first.ontarget.signature.rank"] <- index
-        result[dtxsid,"bmde.first.ontarget.signature.pod"] <- temp2[index,"BMD"]
+          result[dtxsid,"bmde.first.ontarget.signature"] <- temp2[index,"Pathway"]
+          result[dtxsid,"bmde.first.ontarget.signature.rank"] <- index
+          result[dtxsid,"bmde.first.ontarget.signature.pod"] <- temp2[index,"BMD"]
+        }
       }
     }
   }
@@ -126,16 +131,16 @@ signatureRank <- function(to.file=F,
       x <- x+rnorm(1,0,x*0.05)
       y <- result[i,"bmde.first.ontarget.signature.rank"]
       target_key <- result[i,"target_key"]
-      if(target_key=="thyroid") pathset.list <- c("thyroid")
-      if(target_key=="ER") pathset.list <- c("estrogen","Tamoxifen","Cyproterone")
-      if(target_key=="ion channel") pathset.list <- c("ion channel","Amiodarone")
-      if(target_key=="PPAR") pathset.list <- c("ppar")
-      if(target_key=="CYPs") pathset.list <- c("p450","conazole")
-      if(target_key=="AR") pathset.list <- c("Testosterone","androgen","Nilutamide","Flutamide")
-      if(target_key=="mitochondria") pathset.list <-c("mitochondria")
-      if(target_key=="cholesterol") pathset.list <- c("statin","sterol processing","steroid synthesis","glitazone","fibrate","adipogenesis","fatty acid")
+      if(target_key=="thyroid") sigset.list <- c("thyroid")
+      if(target_key=="ER") sigset.list <- c("estrogen","Tamoxifen","Cyproterone")
+      if(target_key=="ion channel") sigset.list <- c("ion channel","Amiodarone")
+      if(target_key=="PPAR") sigset.list <- c("ppar")
+      if(target_key=="CYPs") sigset.list <- c("p450","conazole")
+      if(target_key=="AR") sigset.list <- c("Testosterone","androgen","Nilutamide","Flutamide")
+      if(target_key=="mitochondria") sigset.list <-c("mitochondria")
+      if(target_key=="cholesterol") sigset.list <- c("statin","sterol processing","steroid synthesis","glitazone","fibrate","adipogenesis","fatty acid")
 
-      color <- dict[is.element(dict$signature_class,pathset.list[1]),"color"]
+      color <- dict[is.element(dict$signature_class,sigset.list[1]),"color"]
       points(x,y,bg=color,pch=21,cex=2)
     }
   }
@@ -155,22 +160,22 @@ signatureRank <- function(to.file=F,
       x <- result[i,"deseq.first.ontarget.signature.pod"]
       y <- result[i,"bmde.first.ontarget.signature.pod"]
       target_key <- result[i,"target_key"]
-      if(target_key=="thyroid") pathset.list <- c("thyroid")
-      if(target_key=="ER") pathset.list <- c("estrogen","Tamoxifen","Cyproterone")
-      if(target_key=="ion channel") pathset.list <- c("ion channel","Amiodarone")
-      if(target_key=="PPAR") pathset.list <- c("ppar")
-      if(target_key=="CYPs") pathset.list <- c("p450","conazole")
-      if(target_key=="AR") pathset.list <- c("Testosterone","androgen","Nilutamide","Flutamide")
-      if(target_key=="mitochondria") pathset.list <-c("mitochondria")
-      if(target_key=="cholesterol") pathset.list <- c("statin","sterol processing","steroid synthesis","glitazone","fibrate","adipogenesis","fatty acid")
+      if(target_key=="thyroid") sigset.list <- c("thyroid")
+      if(target_key=="ER") sigset.list <- c("estrogen","Tamoxifen","Cyproterone")
+      if(target_key=="ion channel") sigset.list <- c("ion channel","Amiodarone")
+      if(target_key=="PPAR") sigset.list <- c("ppar")
+      if(target_key=="CYPs") sigset.list <- c("p450","conazole")
+      if(target_key=="AR") sigset.list <- c("Testosterone","androgen","Nilutamide","Flutamide")
+      if(target_key=="mitochondria") sigset.list <-c("mitochondria")
+      if(target_key=="cholesterol") sigset.list <- c("statin","sterol processing","steroid synthesis","glitazone","fibrate","adipogenesis","fatty acid")
 
-      color <- dict[is.element(dict$signature_class,pathset.list[1]),"color"]
+      color <- dict[is.element(dict$signature_class,sigset.list[1]),"color"]
       points(x,y,bg=color,pch=21,cex=2)
     }
   }
   if(!to.file) browser()
   else dev.off()
-  file <- paste0("../output/signature_rank/signature_rank_",dataset,"_",pathset,"_",method,".xlsx")
+  file <- paste0("../output/signature_rank/signature_rank_",dataset,"_",sigset,"_",method,".xlsx")
   write.xlsx(result,file)
 }
 
