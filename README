@@ -18,7 +18,7 @@ git commit -m "Initial Commit"
 git remote add origin ssh://git@ncct-bitbucket.epa.gov:7999/httrpat/httrpathway.git
 git push -u origin master
 
-https://ncct-bitbucket.epa.gov/projects/TOXVAL/repos/toxvaldbv08/browse
+https://ncct-bitbucket.epa.gov/projects/HTTRPAT/repos/httrpathway/browse
 
 Pointing to pdflatex ...
 
@@ -30,3 +30,6 @@ roxygen2::roxygenise()
 Sys.setenv(PATH = paste(Sys.getenv("PATH"), "C:/Program Files/MiKTeX 2.9/miktex/bin/x64", sep=.Platform$path.sep))
 Sys.setenv(R_PAPERSIZE="letter")
 system("R CMD Rd2pdf . --title=httrpathway httrpathway --output=./httrpathway_manual.pdf --force --no-clean --internals")
+
+To install tcplfit2 from git ...
+devtools::install_git("http://ncct-bitbucket.epa.gov/scm/tcplFit2/tcplFit2")
