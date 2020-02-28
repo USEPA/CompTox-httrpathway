@@ -8,9 +8,10 @@ signatureGeneHM(
   to.file = F,
   dataset = "DMEM_6hr_pilot_normal_pe_1",
   chemical.target = "ER",
-  signature.super_class = "estrogen",
-  pathset = "PathwaySet_20191107",
-  method = "gsva",
+  signature.super_target = "estrogen",
+  sigset = "pilot_tiny",
+  sigcatalog = "signatureDB_master_catalog 2020-01-31",
+  method = "mygsea",
   threshold = 0.5
 )
 }

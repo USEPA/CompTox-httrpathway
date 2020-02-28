@@ -7,8 +7,9 @@
 signatureClassHM(
   to.file = F,
   dataset = "DMEM_6hr_pilot_normal_pe_1",
-  pathset = "PathwaySet_20191107",
-  method = "gsva",
+  sigset = "pilot_tiny",
+  sigcatalog = "signatureDB_master_catalog 2020-01-31",
+  method = "mygsea",
   threshold = 0.5
 )
 }

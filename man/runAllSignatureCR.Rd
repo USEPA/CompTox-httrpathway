@@ -9,7 +9,7 @@ runAllSignatureCR(
   dataset = "DMEM_6hr_pilot_normal_pe_1",
   sigset,
   sigcatalog,
-  method = "fc",
+  method = "mygsea",
   minsigsize = 10,
   conthits = T,
   nullset,

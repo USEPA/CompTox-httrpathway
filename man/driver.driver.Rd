@@ -5,14 +5,14 @@
 \title{Code to run all calculations}
 \usage{
 driver.driver(
-  pathset = "PathwaySet_20200108",
-  method = "mygsea",
+  sigcatalog = "signatureDB_master_catalog 2020-01-31",
+  sigset = "pilot_large",
   nrandom.chems = 1000,
+  method = "mygsea",
   mc.cores = 30,
   step1 = F,
   step2 = F,
-  step3 = F,
-  do.log = F
+  step3 = F
 )
 }
 \arguments{

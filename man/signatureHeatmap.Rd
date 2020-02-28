@@ -6,11 +6,12 @@
 \usage{
 signatureHeatmap(
   to.file = F,
-  pathset = "PathwaySet_20191025",
-  dataset = "DMEM_6hr_pilot_normal_00",
-  method = "fc",
+  dataset = "DMEM_6hr_pilot_normal_pe_1",
+  sigset = "pilot_tiny",
+  sigcatalog = "signatureDB_master_catalog 2020-01-31",
+  method = "mygsea",
   conthits = T,
-  nametag = NULL,
+  nametag = "conthits",
   pval = 0.05
 )
 }

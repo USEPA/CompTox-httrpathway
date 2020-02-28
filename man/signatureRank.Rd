@@ -7,7 +7,8 @@
 signatureRank(
   to.file = F,
   dataset = "DMEM_6hr_pilot_normal_pe_1",
-  pathset = "PathwaySet_20191107",
+  sigset = "pilot_large",
+  sigcatalog = "signatureDB_master_catalog 2020-01-31",
   method = "mygsea"
 )
 }
