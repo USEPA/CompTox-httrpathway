@@ -36,9 +36,11 @@ signaturePOD <- function(sigset,
     result[dtxsid,"signature_pod_min"] <- temp[1,"bmd"]
     result[dtxsid,"signature_pod_min.lci"] <- temp[1,"bmdl"]
     result[dtxsid,"signature_pod_min.uci"] <- temp[1,"bmdu"]
-    result[dtxsid,"signature_pod_95"] <- temp[0.05*npath+1,"bmd"]
-    result[dtxsid,"signature_pod_95.lci"] <- temp[0.05*npath+1,"bmdl"]
-    result[dtxsid,"signature_pod_95.uci"] <- temp[0.05*npath+1,"bmdu"]
+    minval <- 5
+    #if(npath>100) minval <- 0.05*npath
+    result[dtxsid,"signature_pod_95"] <- temp[minval,"bmd"]
+    result[dtxsid,"signature_pod_95.lci"] <- temp[minval,"bmdl"]
+    result[dtxsid,"signature_pod_95.uci"] <- temp[minval,"bmdu"]
   }
   x <- result$signature_pod_min
   x[is.na(x)] <- 1000
