@@ -9,7 +9,7 @@
 #' (sample_id_conc_time) to the individual components
 #'
 #--------------------------------------------------------------------------------------
-buildFCMAT2 <- function(dataset="DMEM_6hr_pilot_normal_pe_0",dir="../input/fcdata/",
+buildFCMAT2 <- function(dataset="DMEM_6hr_pilot_normal_pe_1",dir="../input/fcdata/",
                         method="gene",do.read=T,
                         chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx") {
   printCurrentFunction()
@@ -44,7 +44,7 @@ buildFCMAT2 <- function(dataset="DMEM_6hr_pilot_normal_pe_0",dir="../input/fcdat
     conc <- row[3]
     conc <- as.numeric(str_replace(conc,"uM",""))
     temp1 <- chem.map[is.element(chem.map$EPA_Sample_ID,sid),]
-    dtxsid <- temp1[1,"DTXSID"]
+    dtxsid <- temp1[1,"dtxsid"]
     casrn <- dsstox[dtxsid,"casrn"]
     name <- temp1[1,"Chem.Name"]
     media <- row[4]
