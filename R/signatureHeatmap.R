@@ -8,31 +8,32 @@ library(gplots)
 
 #-------------------------------------------------------------------------------------
 signatureHeatmap <- function(to.file=F,
-                           pathset="PathwaySet_20191025",
-                           dataset="DMEM_6hr_pilot_normal_00",
-                           method="fc",
+                           dataset="DMEM_6hr_pilot_normal_pe_1",
+                           sigset="pilot_tiny",
+                           sigcatalog="signatureDB_master_catalog 2020-01-31",
+                           method = "mygsea",
                            conthits=T,
-                           nametag=NULL,
+                           nametag="conthits",
                            pval=0.05) {
   printCurrentFunction()
   if(is.null(nametag) && conthits) nametag = "conthits"
   if(to.file) {
-    file <- paste0("../output/signature_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_",method,"_", pval,"_",nametag,".pdf")
+    file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_", pval,"_",nametag,".pdf")
     pdf(file=file,width=7,height=7,pointsize=12,bg="white",paper="letter",pagecentre=T)
   }
 
 
-  file <- paste0("../output/signature_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_",method,"_", pval,"_", nametag ,".RData")
+  file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_", pval,"_", nametag ,".RData")
   print(file)
   load(file)
-  mat <- PATHWAY_CR
+  mat <- SIGNATURE_CR
 
-  temp <- mat[,c("name","signature","bmdl")]
-  x <- temp$bmdl
+  temp <- mat[,c("name","signature","bmd")]
+  x <- temp$bmd
   x[is.na(x)] <- 1000
   x <- 3-log10(x)
   x[mat$hitcall<0.5] <- 0
-  temp$bmdl <- x
+  temp$bmd <- x
   res <- reshape2::dcast(temp,name~signature)
   rownames(res) <- res[,1]
   res <- res[,2:ncol(res)]
@@ -43,20 +44,19 @@ signatureHeatmap <- function(to.file=F,
   rownames(cindex) <- cindex$name
   ccolors <- cindex[nlist,"color"]
 
-  file = paste0("../input/processed_signature_data/PATHWAY_CATALOG_",pathset,".RData")
-  load(file=file)
-  pindex <- signature_catalog
+  annotations <- signatureCatalogLoader(sigset,sigcatalog)
+  pindex <- annotations
   colors <- names(res)
   colors[] <- "white"
   for(i in 1:length(colors)) {
     signature <- names(res)[i]
-    super_class <- pindex[is.element(pindex$signature,signature),"super_class"]
-    if(super_class=="estrogen") colors[i] <- "blue"
-    if(is.element(super_class,c("apoptosis","nfkb","oxidative stress","mitochondria","cytotoxicity",
+    super_target <- pindex[is.element(pindex$signature,signature),"super_target"]
+    if(super_target=="estrogen") colors[i] <- "blue"
+    if(is.element(super_target,c("apoptosis","nfkb","oxidative stress","mitochondria","cytotoxicity",
                            "hif1a","hypoxia","extracellular matrix","heat shock","microtubule","h1f2a"))) colors[i] <- "red"
-    if(super_class=="cell cycle") colors[i] <- "cyan"
-    if(super_class=="p450") colors[i] <- "green"
-    if(super_class=="steroid synthesis") colors[i] <- "brown"
+    if(super_target=="cell cycle") colors[i] <- "cyan"
+    if(super_target=="p450") colors[i] <- "green"
+    if(super_target=="steroid synthesis") colors[i] <- "brown"
 
   }
 

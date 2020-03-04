@@ -5,28 +5,30 @@
 #--------------------------------------------------------------------------------------
 signatureClassHM <- function(to.file=F,
                            dataset="DMEM_6hr_pilot_normal_pe_1",
-                           pathset="PathwaySet_20191107",
-                           method = "gsva",
+                           sigset="pilot_tiny",
+                           sigcatalog="signatureDB_master_catalog 2020-01-31",
+                           method = "mygsea",
                            threshold=0.5) {
   printCurrentFunction()
   file <- "../input/chemicals/HTTR Pilot chemical annotation.xlsx"
   chems <- read.xlsx(file)
   dtxsid.list <- chems$dtxsid
   nchem <- length(dtxsid.list)
+  annotations <- signatureCatalogLoader(sigset,sigcatalog)
 
   if(to.file) {
-    fname <- paste0("../output/pod_laneplot/signatureClassHM_",dataset,"_",pathset,"_",method,".pdf")
+    fname <- paste0("../output/pod_laneplot/signatureClassHM_",dataset,"_",sigset,"_",method,".pdf")
     pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
   }
 
-  file <- paste0("../output/signature_conc_resp_summary/PATHWAY_CR_",pathset,"_",dataset,"_",method,"_0.05_conthits.RData")
+  file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_0.05_conthits.RData")
   print(file)
   load(file=file)
-  mat <- PATHWAY_CR
+  mat <- SIGNATURE_CR
 
-  pathclass.list <- sort(unique(mat$signature_class))
+  targetclass.list <- sort(unique(mat$super_target))
 
-  pathclass.list <- c(
+  targetclass.list <- c(
     "Amiodarone",
     "androgen",
     "apoptosis",
@@ -60,27 +62,28 @@ signatureClassHM <- function(to.file=F,
     "thyroid",
     "tnf"
   )
+  targetclass.list <- c("estrogen","androgen")
 
-  npathclass <- length(pathclass.list)
+  ntargetclass <- length(targetclass.list)
 
-  for(pathclass in pathclass.list) {
-    temp <- mat[is.element(mat$signature_class,pathclass),]
+  for(targetclass in targetclass.list) {
+    temp <- mat[is.element(mat$super_target,targetclass),]
     n <- length(unique(temp$signature))
-    cat(pathclass,n,"\n")
+    cat(targetclass,n,"\n")
   }
 
-  res <- as.data.frame(matrix(nrow=nchem,ncol=npathclass))
+  res <- as.data.frame(matrix(nrow=nchem,ncol=ntargetclass))
   rownames(res) <- dtxsid.list
-  names(res) <- pathclass.list
+  names(res) <- targetclass.list
   res[] <- 0
   for(dtxsid in dtxsid.list) {
     temp1 <- mat[is.element(mat$dtxsid,dtxsid),]
-    for(pathclass in pathclass.list) {
-      temp2 <- temp1[is.element(temp1$signature_class,pathclass),]
+    for(targetclass in targetclass.list) {
+      temp2 <- temp1[is.element(temp1$super_target,targetclass),]
       if(nrow(temp2)>0) {
         bot <- nrow(temp2)
         top <- nrow(temp2[temp2$hitcall>threshold,])
-        res[dtxsid,pathclass]  <- top/bot
+        res[dtxsid,targetclass]  <- top/bot
       }
     }
   }
@@ -89,7 +92,7 @@ signatureClassHM <- function(to.file=F,
   result <- heatmap.2(as.matrix(res),
                       margins=c(10,10),
                       scale="none",
-                      main=paste(dataset,"\n",method,":",pathset),
+                      main=paste(dataset,"\n",method,":",sigset),
                       xlab="",
                       ylab="",
                       cexCol=0.7,
@@ -107,14 +110,14 @@ signatureClassHM <- function(to.file=F,
   if(!to.file) browser()
 
   # low conc version
-  res <- as.data.frame(matrix(nrow=nchem,ncol=npathclass))
+  res <- as.data.frame(matrix(nrow=nchem,ncol=ntargetclass))
   rownames(res) <- dtxsid.list
-  names(res) <- pathclass.list
+  names(res) <- targetclass.list
   res[] <- 0
   for(dtxsid in dtxsid.list) {
     temp1 <- mat[is.element(mat$dtxsid,dtxsid),]
-    for(pathclass in pathclass.list) {
-      temp2 <- temp1[is.element(temp1$signature_class,pathclass),]
+    for(targetclass in targetclass.list) {
+      temp2 <- temp1[is.element(temp1$super_target,targetclass),]
       if(nrow(temp2)>0) {
         bot <- nrow(temp2)
         mask <- temp2$hitcall
@@ -122,7 +125,7 @@ signatureClassHM <- function(to.file=F,
         mask[temp2$hitcall<threshold] <- 0
         mask[temp2$bmd>10] <- 0
         top <- sum(mask)
-        res[dtxsid,pathclass]  <- top/bot
+        res[dtxsid,targetclass]  <- top/bot
       }
     }
   }
@@ -131,7 +134,7 @@ signatureClassHM <- function(to.file=F,
   result <- heatmap.2(as.matrix(res),
                       margins=c(10,10),
                       scale="none",
-                      main=paste(dataset,"\n",method,":",pathset),
+                      main=paste(dataset,"\n",method,":",sigset),
                       xlab="",
                       ylab="",
                       cexCol=0.7,

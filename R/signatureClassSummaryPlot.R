@@ -4,36 +4,24 @@
 #' @param to.file If TRUE, write plots to a file
 #--------------------------------------------------------------------------------------
 signatureClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_1",
-                                    sigset="PathwaySet_20191107",
+                                    sigset="pilot_large_all_CMAP",
                                     method = "mygsea",
+                                    sigcatalog="signatureDB_master_catalog 2020-01-31",
                                     hitcall.threshold=0.5) {
   printCurrentFunction()
 
   file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_0.05_conthits.RData")
   load(file=file)
-  PCRDATA <<- SIGNATURE_CR
+  mat <- SIGNATURE_CR
 
   file <- "../input/chemicals/HTTR Pilot chemical annotation.xlsx"
   achems <- read.xlsx(file)
   rownames(achems) <- achems$dtxsid
 
-  mat <- PCRDATA
-  #x <- mat[is.element(mat$dtxsid,"DTXSID4022369"),]
-  #cat("nrow(mat) 1:",nrow(mat),nrow(x),"\n")
-
   chems <- unique(mat[,c("dtxsid","casrn","name")])
   chems <- chems[order(chems$name),]
   mat <- mat[mat$hitcall>=hitcall.threshold,]
-  #x <- mat[is.element(mat$dtxsid,"DTXSID4022369"),]
-  #cat("nrow(mat) 2:",nrow(mat),nrow(x),"\n")
-
   mat <- mat[!is.na(mat$bmd),]
-  #x <- mat[is.element(mat$dtxsid,"DTXSID4022369"),]
-  #cat("nrow(mat) 3:",nrow(mat),nrow(x),"\n")
-
-  file <- "../input/cytotoxicity summary wide allchems.xlsx"
-  CYTOTOX <- read.xlsx(file)
-  rownames(CYTOTOX) <- CYTOTOX$dtxsid
 
   if(to.file) {
     fname <- paste0("../output/signature_class_summary_plots/signatureClassSummaryPlot ",dataset,"_",sigset,"_",method,"_0.05_conthits.pdf")
@@ -41,24 +29,8 @@ signatureClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_p
   }
   par(mfrow=c(3,2),mar=c(4,4,2,2))
 
-  file <-  file <- "../input/signature_dictionary.xlsx"
-  dict <- read.xlsx(file)
-
-  #######################################################
-  # make the legend
-  #top <- 1
-  #plot(c(0,0),main="Legend",cex.axis=1.2,cex.lab=1.2,type="n",
-  #     xlim=c(0,1),ylim=c(0,top),xlab="",ylab="",xaxt="n",yaxt="n")
-  #temp <- unique(dict[,c("signature_superclass","color")])
-  #temp <- temp[order(temp$signature_superclass),]
-  #delta <- top/nrow(temp)
-  #yval <- top
-  #for(i in 1:nrow(temp)) {
-  #  points(0,yval,pch=22,bg=temp[i,"color"],cex=2)
-  #  text(0,yval,temp[i,"signature_superclass"],pos=4,cex=1.5)
-  #  yval <- yval-delta
-  #}
-  #######################################################
+  file = paste0("../input/signatures/",sigcatalog,".xlsx")
+  annotations <- read.xlsx(file)
 
   delta <- 0.25
   grid <- seq(from=-5,to=4,by=delta)
@@ -71,16 +43,16 @@ signatureClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_p
   }
   mat$logbmd <- x
   mat$bmdindex <- ix
-
-  x <- mat$super_target
-  color <- x
-  color[] <- "white"
-  for(super_target in unique(x)) {
-    color[is.element(x,super_target)] <- dict[is.element(dict$super_target,super_target),"color"][1]
+  parent.list <- unique(mat$signature)
+  colors <- mat$signature
+  colors[] <- "white"
+  for(parent in parent.list) {
+    color <- annotations[is.element(annotations$parent,parent),"color"][1]
+    #cat(parent,color,"\n")
+    colors[is.element(mat$signature,parent)] <- color
   }
-  mat$color <- color
-  #x <- mat[is.element(mat$dtxsid,"DTXSID4022369"),]
-  #cat("nrow(mat) 4:",nrow(mat),nrow(x),"\n")
+
+  mat$color <- colors
   mask <- mat$bmd
   mask[] <- 0
   mask1 <- mask
@@ -89,9 +61,6 @@ signatureClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_p
   mask2[mat$bmd< 0.1] <- 1
   mask <- 1- mask1*mask2
   mat <- mat[mask==1,]
-  #x <- mat[is.element(mat$dtxsid,"DTXSID4022369"),]
-  #cat("nrow(mat) 5:",nrow(mat),nrow(x),"\n")
-
 
   file <- "../input/chemicals/HTTR Pilot chemical annotation.xlsx"
   chem.annotations <- read.xlsx(file)
@@ -102,27 +71,26 @@ signatureClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_p
     name <- chems[i,"name"]
     #dtxsid <- "DTXSID4022369"
     name <- chems[is.element(chems$dtxsid,dtxsid),"name"]
-    luc <- CYTOTOX[dtxsid,"LUC"]
-    bla <- CYTOTOX[dtxsid,"BLA"]
-    srb <- CYTOTOX[dtxsid,"SRB"]
-    other <- CYTOTOX[dtxsid,"LUC"]
     ymin <- 0
     ymax <- 60
-    if(is.element(name,c("4-Nonylphenol, branched","Amiodarone hydrochloride","Cyproterone acetate","Maneb","Ziram"))) ymax <- 100
+
+   # if(is.element(name,c("Cyproterone acetate","Maneb","Ziram"))) ymax <- 100
     plot(c(0,0),main=name,cex.axis=1.2,cex.lab=1.2,type="n",
          xlim=c(-4,2),ylim=c(0,ymax),xlab="log(bmd uM)",ylab="Pathway Efficacy")
-    #lines(c(-5,5),c(0,0))
+
+    color <- achems[is.element(achems$dtxsid,dtxsid),"color"]
+    rect(1.5,ymax-5,2,ymax,col=color,border="black")
 
     temp <- mat[is.element(mat$dtxsid,dtxsid),]
     cat("initial signatures",nrow(temp),"\n")
-    temp <- mat[is.element(mat$dtxsid,dtxsid),c("bmdindex","top","color","super_target")]
+    temp <- mat[is.element(mat$dtxsid,dtxsid),c("signature","bmdindex","top","color","super_target")]
 
-    target_class <- achems[dtxsid,"pathway_class"]
+    target_class <- achems[dtxsid,"target_key"]
     target.list <- str_split(target_class,"\\|")[[1]]
-    color.list <- temp$color
-    color.list[!is.element(color.list,c("red","black"))] <- "gray"
-    color.list[is.element(temp$super_target,target.list)] <- "green"
-    temp$color <- color.list
+    #color.list <- temp$color
+    #color.list[!is.element(color.list,c("red","black"))] <- "gray"
+    #color.list[is.element(temp$super_target,target.list)] <- "green"
+    #temp$color <- color.list
     #browser()
 
     temp <- temp[order(temp$color),]
@@ -147,12 +115,6 @@ signatureClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_p
 
     dd <- (ymax-ymin)/8
     yval <- ymax * 0.8#ymin
-
-    if(!is.na(bla)) lines(c(bla,bla),c(yval,yval+dd),lwd=2,col="red"); #yval <- yval+dd/2}
-    if(!is.na(luc)) lines(c(luc,luc),c(yval,yval+dd),lwd=2,col="orange"); #yval <- yval+dd/2}
-    if(!is.na(srb)) lines(c(srb,srb),c(yval,yval+dd),lwd=2,col="cyan"); #yval <- yval+dd/2}
-    if(!is.na(other)) lines(c(other,other),c(yval,yval+dd),lwd=2,col="blue"); #yval <- yval+dd/2}
-
     if(!to.file) browser()
   }
   if(to.file) dev.off()

@@ -53,14 +53,14 @@ podLaneplot <- function(to.file=F,
 
   xmin <- 1e-7
   xmax <- 1e3
-  plot(c(1,1),type="n",main=paste(dataset,":",method,"\n",sigset),cex.main=1.0,cex.axis=1.2,cex.lab=1.2,xlab="log(BMD10 uM)",ylab="",yaxt="n",
+  plot(c(1,1),type="n",main=paste(dataset,":",method,"\n",sigset),cex.main=1.0,cex.axis=1.2,cex.lab=1.2,xlab="log(BMD uM)",ylab="",yaxt="n",
        xlim=c(xmin,xmax),ylim=c(0,nchem+2),log="x",
        xaxp=c(1e-4,1e2,n=1))
 
   yval <- -0.5
   yval <- nchem+2.5
   xval <- 1.8e-7
-  text(xval,yval,"Pathway LCI",pos=4,cex=1)
+  text(xval,yval,"5th Signature",pos=4,cex=1)
   points(xval,yval,pch=24,bg="black")
   xval <- xval*100
   if(plot.signature_min) {
@@ -73,13 +73,13 @@ podLaneplot <- function(to.file=F,
   #xval <- xval*100
   points(xval,yval,pch=23,bg="red")
   text(xval,yval,"ToxCast",pos=4,cex=1)
-  xval <- xval*100
+  xval <- xval*40
   points(xval,yval,pch=23,bg="yellow")
   text(xval,yval,"BMDExpress",pos=4,cex=1)
   xval <- xval*100
   points(xval,yval,pch=24,bg="green")
   text(xval,yval,"ER agonist",pos=4,cex=1)
-  xval <- xval*100
+  xval <- xval*50
   points(xval,yval,pch=25,bg="green")
   text(xval,yval,"ER antagonist",pos=4,cex=1)
 
@@ -171,14 +171,14 @@ podLaneplot <- function(to.file=F,
       if(is.na(auc.anta)) auc.anta <- 0
       if(auc.agon>auc.anta) {
         erpod <- 10**(erdata[dtxsid,"ER.agonist.meanlogac50.mean"])
-        if(erpod<100) {
+        if(erpod<100 && name!="Reserpine") {
           points(erpod,counter,pch=24,bg="green")
           result[dtxsid,"er_agonist"] <- erpod
         }
       }
       else {
         erpod <- 10**(erdata[dtxsid,"ER.antagonist.meanlogac50.mean"])
-        if(erpod<100) {
+        if(erpod<100 && name!="Reserpine") {
           points(erpod,counter,pch=25,bg="green")
           result[dtxsid,"er_antagonist"] <- erpod
         }

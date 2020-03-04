@@ -4,12 +4,13 @@
 #' @param to.file If TRUE, write plots to a file
 #--------------------------------------------------------------------------------------
 signatureGeneHM <- function(to.file=F,
-                          dataset="DMEM_6hr_pilot_normal_pe_1",
-                          chemical.target="ER",
-                          signature.super_class="estrogen",
-                          pathset="PathwaySet_20191107",
-                          method = "gsva",
-                          threshold=0.5) {
+                            dataset="DMEM_6hr_pilot_normal_pe_1",
+                            chemical.target="ER",
+                            signature.super_target="estrogen",
+                            sigset="pilot_tiny",
+                            sigcatalog="signatureDB_master_catalog 2020-01-31",
+                            method = "mygsea",
+                            threshold=0.5) {
   printCurrentFunction()
   file <- "../input/chemicals/HTTR Pilot chemical annotation.xlsx"
   chems0 <- read.xlsx(file)
@@ -17,15 +18,14 @@ signatureGeneHM <- function(to.file=F,
   dtxsid.list <- chems0$dtxsid
   nchem <- length(dtxsid.list)
 
-  file <- "../input/processed_signature_data/signature_catalog 2019-11-07.xlsx"
-  catalog <- read.xlsx(file)
-  catalog <- catalog[catalog$useme==1,]
-  catalog <- catalog[is.element(catalog$super_class,signature.super_class),]
+  catalog <- signatureCatalogLoader(sigset,sigcatalog)
+  catalog <- catalog[catalog[,sigset]==1,]
+  catalog <- catalog[is.element(catalog$super_target,signature.super_target),]
   signature.list <- catalog$signature
   signature.list <- sort(signature.list)
   #signature.list <- signature.list[1:3]
   if(to.file) {
-    fname <- paste0("../output/signature_gene_heatmaps/signatureGeneHM_",dataset,"_",chemical.target,"_",signature.super_class,".pdf")
+    fname <- paste0("../output/signature_gene_heatmaps/signatureGeneHM_",dataset,"_",chemical.target,"_",signature.super_target,".pdf")
     pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
   }
 
@@ -34,38 +34,51 @@ signatureGeneHM <- function(to.file=F,
   load(file=file)
   fcmat2 <- FCMAT2
 
-  file <- paste0("../input/fcdata/FCMAT2.PV.",dataset,".RData")
-  print(file)
-  load(file=file)
-  fcmat2.pv <- FCMAT2.PV
+  #file <- paste0("../input/fcdata/FCMAT2.PV.",dataset,".RData")
+  #print(file)
+  #load(file=file)
+  #fcmat2.pv <- FCMAT2.PV
 
-  file <- paste0("../input/fcdata/FCMAT2.FCoverSE.",dataset,".RData")
-  print(file)
-  load(file=file)
-  fcmat2.fcoverse <- FCMAT2.FCoverSE
+  #file <- paste0("../input/fcdata/FCMAT2.FCoverSE.",dataset,".RData")
+  #print(file)
+  #load(file=file)
+  #fcmat2.fcoverse <- FCMAT2.FCoverSE
 
   file <- paste0("../input/fcdata/CHEM_DICT_",dataset,".RData")
   load(file=file)
   chems <- CHEM_DICT
   chems <- chems[is.element(chems$dtxsid,dtxsid.list),]
+  if(chemical.target=="ER") {
+    temp <- rbind(
+      chems[chems$name=="Bisphenol A",],
+      chems[chems$name=="Bisphenol B",],
+      chems[chems$name=="4-Nonylphenol, branched",],
+      chems[chems$name=="4-Cumylphenol",],
+      chems[chems$name=="4-Hydroxytamoxifen",],
+      chems[chems$name=="Fulvestrant",],
+      chems[chems$name=="Clomiphene citrate (1:1)",]
+    )
+    chems <- temp
+  }
   chemnames <- paste(chems$name,chems$conc)
-  file <- paste0("../input/processed_signature_data/PATHWAY_CATALOG_",pathset,".RData")
+  #file <- paste0("../input/processed_signature_data/PATHWAY_CATALOG_",pathset,".RData")
+  #load(file=file)
+  file <- paste0("../input/signatures/signatureDB_genelists.RData")
+  print(file)
   load(file=file)
-  file <- paste0("../input/processed_signature_data/PATHWAY_GENE_LIST_",pathset,".RData")
-  load(file=file)
+  # genelists
 
-
-  for(signature in signature.list) {
+   for(signature in signature.list) {
     cat(signature,"\n")
 
-    gene.list <- signature_data[signature][[1]]
+    gene.list <- genelists[signature][[1]]
     gene.list <- unique(gene.list)
     gene.list <- gene.list[is.element(gene.list,colnames(fcmat2))]
 
-    for(mode in c("fc","fcse","pv")) {
+    for(mode in c("fc")) {
       if(mode=="fc") mat <- fcmat2
-      else if(mode=="pv") mat <- -log10(fcmat2.pv)
-      else if(mode=="fcse") mat <- fcmat2.fcoverse
+      #else if(mode=="pv") mat <- -log10(fcmat2.pv)
+      #else if(mode=="fcse") mat <- fcmat2.fcoverse
 
       mat2 <- mat[,gene.list]
       mat2[is.na(mat2)] <- 0
