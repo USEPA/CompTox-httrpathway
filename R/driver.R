@@ -8,8 +8,8 @@ library(reshape2)
 #' @param method signature scoring method in c("fc", "gsva", "mygsea")
 #--------------------------------------------------------------------------------------
 driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
-                   sigcatalog="signatureDB_master_catalog 2020-01-31",
-                   sigset="pilot_tiny",
+                   sigcatalog="signatureDB_master_catalog 2020-03-10",
+                   sigset="pilot_large_all_100CMAP",
                    nrandom.chems=1000,
                    mc.cores=1,
                    method="mygsea",
@@ -131,7 +131,7 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
                  method=method,
                  hit.threshold=0.5)
   }
-  if(do.signature.pod.laneplot || do.all) {
+  if(do.signature.pod.laneplot) {
     podLaneplot(to.file=T,
                 dataset=dataset,
                 sigset=sigset,
