@@ -48,6 +48,8 @@ runAllSignatureCR = function(basedir="../input/fcdata/",
   file <- paste0(basedir,"FCMAT2_",dataset,".RData")
   print(file)
   load(file)
+  FCMAT2[is.nan(FCMAT2)] <- 0
+
   file <- paste0(basedir,"CHEM_DICT_",dataset,".RData",sep="")
   print(file)
   load(file)
