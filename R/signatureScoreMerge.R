@@ -12,11 +12,11 @@
 #'
 #' @return nothing
 #' @export
-signatureScoreMerge <- function(sigset="pilot_small",
+signatureScoreMerge <- function(sigset="pilot_tiny",
                                 sigcatalog="signatureDB_master_catalog 2020-01-31",
-                                dataset="DMEM_6hr_pilot_normal_pe_1_RAND1000",
+                                dataset="DMEM_6hr_screen_normal_pe_1",
                                 method="mygsea",
-                                nullset="DMEM_6hr_pilot_normal_pe_1_RAND1000") {
+                                nullset="DMEM_6hr_screen_normal_pe_1_RAND1000") {
 
   printCurrentFunction(paste(dataset,sigset,method))
   starttime = proc.time()
@@ -48,7 +48,7 @@ signatureScoreMerge <- function(sigset="pilot_small",
   y <- stri_replace(y,replacement="",mode="last",fixed="_up")
   y <- stri_replace(y,replacement="",mode="last",fixed="_dn")
   setb$parent <- y
-  setb$index <- paste(setb$dtxsid,setb$conc,setb$signature)
+  setb$index <- paste(setb$dtxsid,setb$sample_id,setb$conc,setb$signature)
   cat("> order the table\n")
   setc <- setb[order(setb$index),]
 
@@ -60,8 +60,8 @@ signatureScoreMerge <- function(sigset="pilot_small",
   setc1 <- setc[index1,] #dn
   setc2 <- setc[index2,] #up
   cat("> rows in setc1 and set c2 before double check",nrow(setc1),nrow(setc2),"\n")
-  setc1$index <- paste(setc1$dtxsid,setc1$conc,setc1$parent)
-  setc2$index <- paste(setc2$dtxsid,setc2$conc,setc2$parent)
+  setc1$index <- paste(setc1$dtxsid,setc1$sample_id,setc1$conc,setc1$parent)
+  setc2$index <- paste(setc2$dtxsid,setc2$sample_id,setc2$conc,setc2$parent)
   rownames(setc1) <- setc1$index
   rownames(setc2) <- setc2$index
 
