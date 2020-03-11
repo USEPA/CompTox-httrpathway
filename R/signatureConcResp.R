@@ -36,11 +36,11 @@ library(tcplfit2)
 #' @return If to.file = T, nothing. If to.file = F, dataframe with signature CR
 #'   output.
 #' @export
-signatureConcResp <- function(sigset,
-                              sigcatalog,
-                              dataset,
+signatureConcResp <- function(sigset="pilot_tiny",
+                              sigcatalog="signatureDB_master_catalog 2020-01-31",
+                              dataset="DMEM_6hr_screen_normal_pe_1",
                               method="mygsea",
-                              nullset,
+                              nullset="DMEM_6hr_screen_normal_pe_1_RAND1000",
                               mc.cores=1,
                               to.file=T,
                               do.plot = F,
@@ -77,8 +77,13 @@ signatureConcResp <- function(sigset,
   cat("> signatureConcResp 2\n")
 
   #aggregate signaturescoremat by unique sample/signature per row; data table is considerably faster than aggregate
-  signaturescoremat = setDT(signaturescoremat)[, list(conc = list(conc),resp = list(signature_score), size = min(size)),
+  if(is.element("time",names(signaturescoremat)))
+    signaturescoremat = setDT(signaturescoremat)[, list(conc = list(conc),resp = list(signature_score), size = min(size)),
                                      by = list(sample_id, dtxsid, casrn, name, time, signature, bmed, cutoff, onesd)]
+  else
+    signaturescoremat = setDT(signaturescoremat)[, list(conc = list(conc),resp = list(signature_score), size = min(size)),
+                                                 by = list(sample_id, dtxsid, casrn, name, signature, bmed, cutoff, onesd)]
+
   cat("> signatureConcResp 3\n")
 
   colnames(signaturescoremat)[colnames(signaturescoremat) == "size"] = "signature_size"
@@ -92,6 +97,7 @@ signatureConcResp <- function(sigset,
 
   #lapply with inner function: signatureConcRespCore_pval
   if(mc.cores > 1){
+    cat("> signatureConcResp 6\n")
     cl = makePSOCKcluster(mc.cores)
     # hideout = clusterCall(cl, function(){source("R/signatureConcRespCore_pval.R")})
     clusterExport(cl, c("acy", "acgnlsobj", "bmdbounds", "bmdobj", "cnst", "exp2", "exp3", "exp4", "exp5", "fitcnst", "fithill", "fitgnls",
@@ -102,13 +108,12 @@ signatureConcResp <- function(sigset,
     #                         conthits =conthits, aicc = aicc, chunk.size = ceiling(length(signaturescoremat)/5/mc.cores) )
     SIGNATURE_CR = parLapplyLB(cl = cl, X=signaturescoremat, fun=concRespCore, fitmodels = fitmodels,
                              conthits =conthits, aicc = aicc, verbose=FALSE, chunk.size = ceiling(length(signaturescoremat)/5/mc.cores) )
+    cat("> signatureConcResp 7\n")
   } else {
     cat("> signatureConcResp 6\n")
-
     #SIGNATURE_CR = lapply(X=signaturescoremat, FUN = signatureConcRespCore_pval, fitmodels = fitmodels, conthits= conthits, aicc = aicc)
     SIGNATURE_CR = lapply(X=signaturescoremat, FUN =concRespCore, fitmodels = fitmodels, conthits= conthits, aicc = aicc,verbose=F)
     cat("> signatureConcResp 7\n")
-
   }
 
   #construct SIGNATURE_CR

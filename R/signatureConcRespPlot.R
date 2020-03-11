@@ -86,7 +86,7 @@ signatureConcRespPlot <- function(row,CYTOTOX) {
   xplot = 10^(seq(log10(plotrange[1]), log10(plotrange[2]), length.out = 8))[-8]
 
   #Top label headings
-  text(xplot[1],yplot,"time",pos=4)
+  #text(xplot[1],yplot,"time",pos=4)
   text(xplot[2],yplot,"mthd",pos=4)
   text(xplot[3],yplot,"AC50",pos=4)
   text(xplot[4],yplot,"Top",pos=4)
@@ -122,7 +122,7 @@ signatureConcRespPlot <- function(row,CYTOTOX) {
   points(xplot[1],yplot,pch=19,col=col.list[j]) #dot at top left
 
   #Fill in top labels second row
-  text(xplot[1],yplot,time,pos=4)
+  #text(xplot[1],yplot,time,pos=4)
   text(xplot[2],yplot,fit_method,pos=4)
   text(xplot[3],yplot,format(ac50,digits=2),pos=4, col = "red")
   text(xplot[4],yplot,format(top,digits=2),pos=4)

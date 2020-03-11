@@ -127,7 +127,11 @@ signatureScoreCoreMYGSEA <- function(sk.list,
   #bind scores to ids and trim any unnecessary columns
   signaturescoremat <- cbind(nmat,res2)
   cat("   finish building output\n")
-  name.list <- c("sample_id","dtxsid","casrn","name","time","conc","sigset","signature","size","signature_score")
+  if(is.element("time",names(signaturescoremat)))
+    name.list <- c("sample_id","dtxsid","casrn","name","time","conc","sigset","signature","size","signature_score")
+  else
+    name.list <- c("sample_id","dtxsid","casrn","name","conc","sigset","signature","size","signature_score")
+
   signaturescoremat <- signaturescoremat[,name.list]
   signature.list <- sort(unique(signaturescoremat[,"signature"]))
 
