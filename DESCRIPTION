@@ -35,7 +35,8 @@ Imports: stats,
   reshape2,
   data.table,
   openxlsx,
-  e1071
+  e1071,
+  tidyverse
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
