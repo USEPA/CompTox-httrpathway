@@ -7,19 +7,19 @@ library(reshape2)
 #' Code to run all calculations
 #' @param method signature scoring method in c("fc", "gsva", "mygsea")
 #--------------------------------------------------------------------------------------
-driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
-                   sigcatalog="signatureDB_master_catalog 2020-03-10",
-                   sigset="pilot_large_all_100CMAP",
+driver <- function(dataset="DMEM_6hr_screen_normal_pe_1",
+                   sigcatalog="signatureDB_master_catalog 2020-04-04",
+                   sigset="screen_large",
                    nrandom.chems=1000,
-                   mc.cores=1,
+                   mc.cores=30,
                    method="mygsea",
                    do.build.fcmat1.all=F,
                    do.build.fcmat2.all=F,
                    do.build.random=F,
-                   do.run.random=F,
-                   do.run.all=F,
-                   do.signature.summary.plot=F,
-                   do.signature.pod=F,
+                   do.run.random=T,
+                   do.run.all=T,
+                   do.signature.summary.plot=T,
+                   do.signature.pod=T,
                    do.signature.pod.laneplot=F,
                    do.all=F) {
   printCurrentFunction(paste(dataset,":",sigset))
@@ -122,6 +122,7 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
   }
   if(do.signature.summary.plot || do.all) {
     signatureClassSummaryPlot(to.file=T,dataset=dataset,
+                              sigcatalog=sigcatalog,
                               sigset=sigset,
                               method = method)
   }
