@@ -4,9 +4,9 @@
 #' @param to.file If TRUE, write plots to a file
 #--------------------------------------------------------------------------------------
 signatureClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_1",
-                                    sigset="pilot_large_all_CMAP",
+                                    sigset="pilot_large_all_100CMAP",
                                     method = "mygsea",
-                                    sigcatalog="signatureDB_master_catalog 2020-01-31",
+                                    sigcatalog="signatureDB_master_catalog 2020-03-12",
                                     hitcall.threshold=0.5) {
   printCurrentFunction()
 
@@ -46,6 +46,7 @@ signatureClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_p
   parent.list <- unique(mat$signature)
   colors <- mat$signature
   colors[] <- "white"
+  #browser()
   for(parent in parent.list) {
     color <- annotations[is.element(annotations$parent,parent),"color"][1]
     #cat(parent,color,"\n")
@@ -76,7 +77,7 @@ signatureClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_p
 
    # if(is.element(name,c("Cyproterone acetate","Maneb","Ziram"))) ymax <- 100
     plot(c(0,0),main=name,cex.axis=1.2,cex.lab=1.2,type="n",
-         xlim=c(-4,2),ylim=c(0,ymax),xlab="log(bmd uM)",ylab="Pathway Efficacy")
+         xlim=c(-4,2),ylim=c(0,ymax),xlab="log(bmd uM)",ylab="")
 
     color <- achems[is.element(achems$dtxsid,dtxsid),"color"]
     rect(1.5,ymax-5,2,ymax,col=color,border="black")
@@ -111,7 +112,7 @@ signatureClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_p
     }
     cclass <- chem.annotations[dtxsid,"target_annotation"]
     text(-4,ymax*0.95,cclass,pos=4,cex=0.95)
-    text(-4,ymax*0.85,paste0("Pathways with hitcall>",hitcall.threshold,": ",nrow(temp)," / ",npath),pos=4,cex=0.95)
+    text(-4,ymax*0.85,paste0("Signatures with hitcall>",hitcall.threshold,": ",nrow(temp)," / ",npath),pos=4,cex=0.95)
 
     dd <- (ymax-ymin)/8
     yval <- ymax * 0.8#ymin

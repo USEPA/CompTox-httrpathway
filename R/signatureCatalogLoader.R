@@ -5,7 +5,7 @@
 #' @return the trimmed signature table
 #' @export
 signatureCatalogLoader <- function(sigset="pilot_small",
-                                   sigcatalog="signatureDB_master_catalog 2020-01-31") {
+                                   sigcatalog="signatureDB_master_catalog 2020-03-12") {
 
   printCurrentFunction()
 

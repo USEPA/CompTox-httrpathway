@@ -37,10 +37,10 @@ library(tcplfit2)
 #'   output.
 #' @export
 signatureConcResp <- function(sigset="pilot_tiny",
-                              sigcatalog="signatureDB_master_catalog 2020-01-31",
-                              dataset="DMEM_6hr_screen_normal_pe_1",
+                              sigcatalog="signatureDB_master_catalog 2020-03-12",
+                              dataset="DMEM_6hr_screen_normal_pe_1_pgnorm",
                               method="mygsea",
-                              nullset="DMEM_6hr_screen_normal_pe_1_RAND1000",
+                              nullset="DMEM_6hr_screen_normal_pe_1_pgnorm_RAND1000",
                               mc.cores=1,
                               to.file=T,
                               do.plot = F,

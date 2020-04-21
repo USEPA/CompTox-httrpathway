@@ -12,9 +12,9 @@
 #'
 #' @return nothing
 #' @export
-signatureScoreMerge <- function(sigset="pilot_tiny",
-                                sigcatalog="signatureDB_master_catalog 2020-01-31",
-                                dataset="DMEM_6hr_screen_normal_pe_1",
+signatureScoreMerge <- function(sigset="screen_large",
+                                sigcatalog="signatureDB_master_catalog 2020-04-04",
+                                dataset="DMEM_6hr_screen_normal_pe_1_RAND1000",
                                 method="mygsea",
                                 nullset="DMEM_6hr_screen_normal_pe_1_RAND1000") {
 
@@ -62,6 +62,11 @@ signatureScoreMerge <- function(sigset="pilot_tiny",
   cat("> rows in setc1 and set c2 before double check",nrow(setc1),nrow(setc2),"\n")
   setc1$index <- paste(setc1$dtxsid,setc1$sample_id,setc1$conc,setc1$parent)
   setc2$index <- paste(setc2$dtxsid,setc2$sample_id,setc2$conc,setc2$parent)
+  mask1 <- duplicated(setc1$index)
+  mask2 <- duplicated(setc2$index)
+  cat("duplicates in Set 1:",sum(mask1),length(mask1),"\n")
+  cat("duplicates in Set 2:",sum(mask2),length(mask2),"\n")
+  #browser()
   rownames(setc1) <- setc1$index
   rownames(setc2) <- setc2$index
 
