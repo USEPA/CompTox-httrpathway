@@ -2,108 +2,137 @@
 #' Transpose and filter the fold change matrix FCMAT1 in long format into a
 #' gene x sample format.
 #'
-#' @param chems The CHEMS data frame with chemical information
-#' @param method =gene or probe_id
+#' @param dataset The name to give to the data set
+#' @param dir The directory from which to read all of the raw filesatalog file
+#' @param mc.cores The number of cores to use in reading the tsv files
+#' @param method Either "gene" or "probe"
+#' @param do.read If TRUE, read in the FCMAT1 file and place in a global.
+#' @param chemical.file The required map from sample keys to chemical information
+#' @param dsstox.file The information mapping chemicals to DSSTox IDs
+#/
 #' @return Global variables are created for the FC matrix (FCMAT2), the SE matrix (SEMAT2)
 #' and the chemical dictionary (CHEM_DICT) which translates form the sample key
 #' (sample_id_conc_time) to the individual components
 #'
 #--------------------------------------------------------------------------------------
-buildFCMAT2 <- function(dataset="DMEM_6hr_pilot_normal_pe_1",dir="../input/fcdata/",
-                        method="gene",do.read=T,
-                        chemical.file="../input/chemicals/HTTr.Sample.Matrix.2017.04.24.xlsx") {
-  printCurrentFunction()
+buildFCMAT2 <- function(dataset="DMEM_6hr_screen_normal_pe_1",
+                            dir="../input/fcdata/",
+                            method="gene",
+                            do.read=F,
+                            chemical.file="../input/chemicals/HTTr_screen_sample_map.xlsx",
+                            dsstox.file="../input/DSSTox/DSSTox_sample_map.xlsx") {
+  printCurrentFunction(dataset)
+  cat("  load FCMAT1\n")
+  flush.console()
   if(do.read) {
     file <- paste0(dir,"FCMAT1_",dataset,".RData")
     print(file)
     load(file)
     FCMAT1 <<- FCMAT1
-    cat("data loaded\n")
+    cat("  data loaded\n")
   }
-  if(!exists("DSSTOX")) {
-    file <- "../input/chemicals/DSSTox_2019-05-16.RData"
-    load(file=file)
-    DSSTOX <<- DSSTOX
-  }
+  cat("  copy FCMAT1 to mat\n")
+  flush.console()
   mat <- FCMAT1
-  dsstox <- DSSTOX
-  rownames(dsstox) <- dsstox$dsstox_substance_id
-  chem.map <- read.xlsx(chemical.file)
+
+  cat("  generate the sample key information\n")
+  flush.console()
   sid.list <- unique(mat$sample_key)
   temp <- str_split(sid.list,"_")
-  name.list <- c("sample_key","sample_id","conc","time","casrn","name","dtxsid","media","conc_index")
-  chems <- as.data.frame(matrix(nrow=length(sid.list),ncol=length(name.list)))
-  names(chems) <- name.list
-  chems$sample_key <- sid.list
-  for(i in 1:nrow(chems)) {
-    row <- temp[[i]]
-    conc_index <- row[2]
-    sid <- row[1]
-    time <- row[5]
-    time <- as.numeric(str_replace(time,"h",""))
-    conc <- row[3]
-    conc <- as.numeric(str_replace(conc,"uM",""))
-    temp1 <- chem.map[is.element(chem.map$EPA_Sample_ID,sid),]
-    dtxsid <- temp1[1,"dtxsid"]
-    casrn <- dsstox[dtxsid,"casrn"]
-    name <- temp1[1,"Chem.Name"]
-    media <- row[4]
-    chems[i,"sample_id"] <- sid
-    chems[i,"conc"] <- conc
-    chems[i,"time"] <- time
-    chems[i,"casrn"] <- casrn
-    chems[i,"name"] <- name
-    chems[i,"dtxsid"] <- dtxsid
-    chems[i,"media"] <- media
-    chems[i,"conc_index"] <- conc_index
+  sample.map <- as.data.frame(do.call(rbind,temp),stringsAsFactors=F)
+  name.list <- c("sample_id","conc_index","conc.string","media","time")
+  if(ncol(sample.map)==3) name.list <- c("sample_id","conc_index","conc.string")
+  names(sample.map) <- name.list
+  conc <- sample.map$conc.string
+  units <- conc
+  units <- str_replace_all(units,"\\.","")
+  for(i in 0:9) units <- str_replace_all(units,as.character(i),"")
+
+  for(unit in unique(units)) conc <- str_replace_all(conc,unit,"")
+  conc <- as.numeric(conc)
+
+  sample.map$conc <- conc
+  sample.map$units <- units
+  sample.map$sample_key <- sid.list
+  if(is.element("time",names(sample.map))) {
+    time <- sample.map$time
+    sample.map$time <- as.numeric(str_replace(time,"h",""))
+    sample.map <- sample.map[,c("sample_key","sample_id","conc_index","conc","units","media","time")]
   }
+  else sample.map <- sample.map[,c("sample_key","sample_id","conc_index","conc","units")]
+
+  cat("  add dtxsid, name, casrn\n")
+  smat <- read.xlsx(dsstox.file)
+  names(smat)[1] <- "sample_id"
+  smat <- unique(smat[,c("sample_id","dtxsid","casrn","name")])
+  smat <- smat[!is.na(smat$sample_id),]
+  rownames(smat) <- smat$sample_id
+  spid.list <- sample.map$sample_id
+
+  cat("  check for missing sample_ids\n")
+  missing <- spid.list[!is.element(spid.list,smat$sample_id)]
+  if(length(missing)>0) {
+    cat("  missing sample IDs\n")
+    print(missing)
+    browser()
+  }
+  cat("  write the chemical tables\n")
+  temp <- smat[sample.map$sample_id,c("dtxsid","casrn","name")]
+  chems <- cbind(sample.map,temp)
+  write.xlsx(chems,chemical.file)
 
   CHEM_DICT <- chems
   file <- paste0(dir,"CHEM_DICT_",dataset,".RData")
   save(CHEM_DICT,file=file)
 
+  cat("  build FCMAT2\n")
   if(method=="gene") {
-	  mat2 <- mat[,c("sample_key","gene","l2fc")]
-	  matfc <- acast(mat2,gene~sample_key,mean)
+    probes <- as.data.frame(mat$probe_id)
+    names(probes) <- "probe_id"
+    genes <- separate(probes,"probe_id",sep="_",into="genes")
+    mat$gene <- genes[,1]
 
-	  matp <- mat[,c("sample_key","gene","padj")]
-	  matpv <- acast(matp,gene~sample_key,mean)
-	  matpv <- t(matpv)
+    mat2 <- mat[,c("sample_key","gene","l2fc")]
+    matfc <- acast(mat2,gene~sample_key,mean)
 
-	  mats <- mat[,c("sample_key","gene","se")]
-	  matse <- acast(mats,gene~sample_key,mean)
-	  matse <- t(matse)
+    matp <- mat[,c("sample_key","gene","padj")]
+    matpv <- acast(matp,gene~sample_key,mean)
+    matpv <- t(matpv)
+
+    mats <- mat[,c("sample_key","gene","se")]
+    matse <- acast(mats,gene~sample_key,mean)
+    matse <- t(matse)
   }
-	else if(method=="probe_id") {
-	  mat2 <- mat[,c("sample_key","probe_id","l2fc")]
-	  matfc <- acast(mat2,probe_id~sample_key,mean)
+  else if(method=="probe_id") {
+    mat2 <- mat[,c("sample_key","probe_id","l2fc")]
+    matfc <- acast(mat2,probe_id~sample_key,mean)
 
-	  matp <- mat[,c("sample_key","probe_id","padj")]
-	  matpv <- acast(matp,probe_id~sample_key,mean)
-	  matpv <- t(matpv)
+    matp <- mat[,c("sample_key","probe_id","padj")]
+    matpv <- acast(matp,probe_id~sample_key,mean)
+    matpv <- t(matpv)
 
-	  mats <- mat[,c("sample_key","probe_id","se")]
-	  matse <- acast(mats,probe_id~sample_key,mean)
-	  matse <- t(matse)
+    mats <- mat[,c("sample_key","probe_id","se")]
+    matse <- acast(mats,probe_id~sample_key,mean)
+    matse <- t(matse)
 
-	}
-
+  }
 
   mat3 <- matfc
-	mat3[is.nan(mat3)] <- NA
-	cat("Dimension of mat3 before filtering: ",dim(mat3),"\n")
-	temp <- mat3
-	temp[!is.na(mat3)] <- 1
-	temp[is.na(mat3)] <- 0
-	rs <- rowSums(temp)
-	nsample <- dim(mat3)[2]
-	mask <- rs
-	mask[] <- 1
-	mask[rs<0.95*nsample] <- 0
-	matfc <- matfc[mask==1,]
-	cat("Dimension of mat3 after filtering: ",dim(matfc),"\n")
-	matfc <- t(matfc)
+  mat3[is.nan(mat3)] <- NA
+  cat("  dimension of mat3 before filtering: ",dim(mat3),"\n")
+  temp <- mat3
+  temp[!is.na(mat3)] <- 1
+  temp[is.na(mat3)] <- 0
+  rs <- rowSums(temp)
+  nsample <- dim(mat3)[2]
+  mask <- rs
+  mask[] <- 1
+  mask[rs<0.95*nsample] <- 0
+  matfc <- matfc[mask==1,]
+  cat("  dimension of mat3 after filtering: ",dim(matfc),"\n")
+  matfc <- t(matfc)
 
+  cat("  export FCMAT2\n")
   FCMAT2 <- matfc
   file <- paste0(dir,"FCMAT2_",dataset,".RData")
   save(FCMAT2,file=file)
@@ -128,4 +157,5 @@ buildFCMAT2 <- function(dataset="DMEM_6hr_pilot_normal_pe_1",dir="../input/fcdat
   print(dim(FCMAT2.SE))
   file <- paste0(dir,"FCMAT2.SE.",dataset,".RData")
   save(FCMAT2.SE,file=file)
+  flush.console()
 }
