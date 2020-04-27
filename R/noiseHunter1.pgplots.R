@@ -59,7 +59,12 @@ noiseHunter1.pgplots <- function(to.file=F,
 
   ngene <- ncol(FCMAT2)
   output <- NULL
-  for(i in 1:length(pg.list)) {
+  npg <- length(pg.list)
+  name.list <- c("pg","l2fc.mean","l2fc.sd","se.mean","se.sd")
+  result <- as.data.frame(matrix(nrow=npg,ncol=length(name.list)))
+  names(result) <- name.list
+
+  for(i in 1:npg) {
     pg_id <- pg.list[i]
     cat("Plate group",pg_id,"\n")
     sk.list <- cmap[cmap$pg_id==pg_id,"sample_key"]
@@ -70,10 +75,17 @@ noiseHunter1.pgplots <- function(to.file=F,
     plot(density(cmean),xlim=c(-1,1),xlab="mean(gene-wise l2fc)",ylim=c(0,15),cex.lab=0.8,cex.axis=0.8,cex.main=0.8,
          main=paste("PG",pg_id,"l2fc mean\nSK=",format(sk,digits=2),"SD=",format(sd(cmean),digits=2)))
 
+    result[pg_id,"pg"] <- pg_id
+    result[pg_id,"l2fc.mean"] <- mean(cmean)
+    result[pg_id,"l2fc.sd"] <- sd(cmean)
+
     temp <- fcmat2.se[sk.list,]
     cmean <- colMeans(temp)
     plot(density(cmean),xlim=c(0,0.4),xlab="mean(gene-wise se)",ylim=c(0,40),cex.lab=0.8,cex.axis=0.8,cex.main=0.8,
          main=paste("PG",pg_id,"SE mean"))
+
+    result[pg_id,"se.mean"] <- mean(cmean)
+    result[pg_id,"se.sd"] <- sd(cmean)
 
     temp <- fcmat2.pv[sk.list,]
     temp[temp<1e-3] <- 1e-3
@@ -103,8 +115,11 @@ noiseHunter1.pgplots <- function(to.file=F,
       plot(density(cmed),xlim=c(-6,0),xlab="median(gene-wise pv)",ylim=c(0,40),cex.lab=0.8,cex.axis=0.8,cex.main=0.8,
            main=paste("PG",pg_id,"PV median"))
     }
+
     if(!to.file) browser()
   }
+  file <- paste0("../output/noiseHunter/noiseHunter ",dataset," pg distribution.xlsx")
+  write.xlsx(result,file)
   if(to.file) dev.off()
 
  }
