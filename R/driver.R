@@ -6,21 +6,25 @@ library(reshape2)
 #--------------------------------------------------------------------------------------
 #' Code to run all calculations
 #' @param method signature scoring method in c("fc", "gsva", "mygsea")
+#' heparg2d_toxcast_pfas_pe1_normal
+#' mcf7_ph1_pe1_normal_good_pg
 #--------------------------------------------------------------------------------------
-driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
-                   sigcatalog="signatureDB_master_catalog 2020-04-05",
-                   sigset="pilot_large_all_100CMAP",
+driver <- function(dataset="mcf7_ph1_pe1_normal_good_pg",
+                   sigcatalog="signatureDB_master_catalog 2020-07-10",
+                   sigset="screen_large",
                    nrandom.chems=1000,
-                   mc.cores=30,
+                   normfactor=7500,
+                   mc.cores=25,
                    method="mygsea",
                    do.build.fcmat1.all=F,
                    do.build.fcmat2.all=F,
                    do.build.random=F,
                    do.run.random=T,
                    do.run.all=T,
+                   do.scr.plots=T,
                    do.signature.summary.plot=T,
                    do.signature.pod=T,
-                   do.signature.pod.laneplot=T,
+                   do.signature.pod.laneplot=F,
                    do.all=F) {
   printCurrentFunction(paste(dataset,":",sigset))
 
@@ -103,6 +107,7 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
                       sigset=sigset,
                       sigcatalog=sigcatalog,
                       method = method,
+                      normfactor=normfactor,
                       do.plot = F,
                       mc.cores = c(mc.cores,mc.cores))
   }
@@ -112,6 +117,7 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
                       sigset=sigset,
                       sigcatalog=sigcatalog,
                       method = method,
+                      normfactor=normfactor,
                       do.plot = T,
                       mc.cores = c(mc.cores,mc.cores))
     cat("Look for output in \n
@@ -120,11 +126,25 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
         ../output/signature_conc_resp_summary/\n
         \n")
   }
+  if(do.all || do.scr.plots){
+    signatureConcRespPlotWrapper(sigset=sigset,
+                                  dataset=dataset,
+                                  sigcatalog=sigcatalog,
+                                  method=method,
+                                  mc.cores=mc.cores,
+                                  do.load=T,
+                                  pval = .05,
+                                  nametag = NULL)
+  }
   if(do.signature.summary.plot || do.all) {
     signatureClassSummaryPlot(to.file=T,dataset=dataset,
                               sigcatalog=sigcatalog,
                               sigset=sigset,
                               method = method)
+    #signatureClassSummaryDotPlot(to.file=T,dataset=dataset,
+    #                             sigcatalog=sigcatalog,
+    #                            sigset=sigset,
+    #                             method = method)
   }
   if(do.signature.pod || do.all) {
     signaturePOD(sigset=sigset,

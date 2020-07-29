@@ -35,6 +35,7 @@ runAllSignatureCR = function(basedir="../input/fcdata/",
                              sigset,
                              sigcatalog,
                              method = "mygsea",
+                             normfactor=7500,
                              minsigsize = 10,
                              conthits = T,
                              nullset,
@@ -56,7 +57,9 @@ runAllSignatureCR = function(basedir="../input/fcdata/",
   rownames(CHEM_DICT) <- CHEM_DICT[,"sample_key"]
 
   #run signature scores
-  signatureScore(FCMAT2, CHEM_DICT,sigset,sigcatalog,dataset,method=method,mc.cores=mc.cores[1], minsigsize = minsigsize)
+  signatureScore(FCMAT2, CHEM_DICT,sigset,sigcatalog,dataset,method=method,
+                 normfactor=normfactor,
+                 mc.cores=mc.cores[1], minsigsize = minsigsize)
   if(is.null(nullset)) return()
 
   signatureScoreMerge(sigset,sigcatalog,dataset,method,nullset)

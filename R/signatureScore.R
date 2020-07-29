@@ -35,6 +35,7 @@ signatureScore <- function(FCMAT2,
                            sigcatalog,
                            dataset,
                            method,
+                           normfactor=7500,
                            mc.cores=1,
                            minsigsize = 10) {
 
@@ -69,8 +70,13 @@ signatureScore <- function(FCMAT2,
   sig.list.0 <- sort(unique(names(signature_data0)))
   sig.list <- sort(unique(names(signature_data)))
   slost <- sig.list.0[!is.element(sig.list.0,sig.list)]
-  if(length(slost)>0) for(i in 1:length(slost)) cat("   ",slost[i],"\n")
-  cat("   now run the inner functions depending on method\n")
+  if(length(slost)>0) {
+    for(i in 1:length(slost)) cat("   ",slost[i],"\n")
+    file <- paste0("../output/deleted signatures ",dataset," ",sigset,".xlsx")
+    write.xlsx(slost,file)
+    browser()
+  }
+   cat("   now run the inner functions depending on method\n")
   if(method=="fc") {
     if(mc.cores > 1){
       #split fcmat into mc.cores matrices and run them in parallel
@@ -111,6 +117,7 @@ signatureScore <- function(FCMAT2,
   if(method=="mygsea") {
     signatureScoreCoreMYGSEA(sk.list,
                              method = "mygsea",
+                             normfactor=normfactor,
                              sigset=sigset,
                              dataset=dataset,
                              fcmat=FCMAT2,

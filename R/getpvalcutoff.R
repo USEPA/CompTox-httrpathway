@@ -25,12 +25,25 @@
 #'   numsd (number of sds corresponding to each cutoff).
 #' @export
 getpvalcutoff = function(pathset, nullset, method, pvals = NULL, numsds = NULL){
-  printCurrentFunction()
+  printCurrentFunction(paste(pathset,":",nullset))
+
   #get null signature scores
   file <- paste0("../output/signature_score_summary/signaturescoremat_",pathset,"_",nullset,"_",method,".RData")
   load(file)
 
-  #find p-value for each signature
+  ###########################################
+  ###########################################
+  debug=F
+  if(debug) {
+    sig <- "CMAP fulvestrant 1e-06 100 8242 100"
+    temp <- signaturescoremat[is.element(signaturescoremat$signature,sig),]
+    mval <- mean(temp$signature_score)
+    cat(pathset,nrow(temp),mean(temp$signature_score),sd(temp$signature_score),"\n")
+    browser()
+  }
+  ###########################################
+  ###########################################
+   #find p-value for each signature
   if(!is.null(pvals)){
     pout = as.data.frame(setDT(signaturescoremat)[, list(cutoff = quantile(abs(signature_score-median(signature_score)),1-pvals),
                                                    bmed = median(signature_score)), by = list(signature)])

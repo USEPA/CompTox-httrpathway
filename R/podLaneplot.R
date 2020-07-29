@@ -4,10 +4,10 @@
 #' @param to.file If TRUE, write plots to a file
 #--------------------------------------------------------------------------------------
 podLaneplot <- function(to.file=F,
-                        dataset,
-                        sigset,
-                        method,
-                        plot.signature_min=F) {
+                        dataset="DMEM_6hr_pilot_normal_pe_1",
+                        sigset="pilot_large_all_100CMAP",
+                        method="mygsea",
+                        plot.signature_min=T) {
   printCurrentFunction()
   file <- "../input/chemicals/HTTR Pilot chemical annotation.xlsx"
   chems <- read.xlsx(file)
@@ -33,8 +33,11 @@ podLaneplot <- function(to.file=F,
   #rownames(pod.accum) <- pod.accum$dtxsid
 
   file <- "../input/BMDExpress/BMDExpress_Pathway_Results_Pilot_6h_DMEM.RData"
+  file <- "../input/BMDExpress/BMDExpress_Pseudo1_ANOVA_Pathway_Results_Pilot_6h_DMEM.RData"
   load(file=file)
-  ### min_pathway_bmds
+  ### all_pathway_bmds
+  all_pathway_bmds <- all_pathway_bmds[is.element(all_pathway_bmds$type,"Real"),]
+  #browser()
 
   file <- paste0("../output/signature_pod/signature_pod_",sigset,"_",dataset,"_",method,".xlsx")
   print(file)
@@ -62,26 +65,26 @@ podLaneplot <- function(to.file=F,
   xval <- 1.8e-7
   text(xval,yval,"5th Signature",pos=4,cex=1)
   points(xval,yval,pch=24,bg="black")
-  xval <- xval*100
+  xval <- xval*75
   if(plot.signature_min) {
     text(xval,yval,"Pathway min",pos=4,cex=1)
     points(xval,yval,pch=24,bg="blue")
-    xval <- xval*100
+    xval <- xval*75
   }
   #points(xval,yval,pch=21,bg="orange")
   #text(xval,yval,"Pathway acc",pos=4,cex=1)
   #xval <- xval*100
   points(xval,yval,pch=23,bg="red")
   text(xval,yval,"ToxCast",pos=4,cex=1)
-  xval <- xval*40
+  xval <- xval*20
   points(xval,yval,pch=23,bg="yellow")
   text(xval,yval,"BMDExpress",pos=4,cex=1)
-  xval <- xval*100
+  xval <- xval*80
   points(xval,yval,pch=24,bg="green")
-  text(xval,yval,"ER agonist",pos=4,cex=1)
-  xval <- xval*50
+  xval <- xval*2
   points(xval,yval,pch=25,bg="green")
-  text(xval,yval,"ER antagonist",pos=4,cex=1)
+  #xval <- xval*50
+  text(xval,yval,"ER agonist/antagonist",pos=4,cex=1)
 
   xval <- 1e-7
   yval <- nchem+1.25
@@ -102,7 +105,7 @@ podLaneplot <- function(to.file=F,
 
   name.list <- c("dtxsid","casrn","name",
                  "toxcast_pod",
-                 "signature_bmdl","signature_bmd","signature_bmdu",
+                 "signature_bmdl","signature_bmd","signature_bmdu","signature_pod_min",
                  "bmdexpress","er_agonist","er_antagonist",
                  "cytotox_bla","cytotox_luc","cytotox_srb","cytotox_other")
   result <- as.data.frame(matrix(nrow=length(dtxsid.list),ncol=length(name.list)))
@@ -128,7 +131,7 @@ podLaneplot <- function(to.file=F,
 
     toxcast_pod_05 <- toxcast[dtxsid,"pod_uM"]
 
-    bmds_pod <- min(min_pathway_bmds[is.element(min_pathway_bmds$chem_name,name),"BMD"])
+    bmds_pod <- min(all_pathway_bmds[is.element(all_pathway_bmds$chem_name,name),"BMD"],na.rm=T)
 
     if(is.na(signature_pod_min)) signature_pod_min <- 1000
     if(is.na(signature_pod_min.lci)) signature_pod_min.lci <- 0.001
@@ -158,7 +161,7 @@ podLaneplot <- function(to.file=F,
 
     if(plot.signature_min) {
       if(signature_pod_min.lci<1e-4) signature_pod_min.lci <- 1e-4
-      lines(c(signature_pod_min.lci,signature_pod_min.uci),c(counter-0.25,counter-0.25),col="blue",lwd=2)
+      #lines(c(signature_pod_min.lci,signature_pod_min.uci),c(counter-0.25,counter-0.25),col="blue",lwd=2)
       points(signature_pod_min,counter-0.25,pch=24,bg="blue")
     }
     lines(c(signature_pod_95.lci,signature_pod_95.uci),c(counter+0.25,counter+0.25),col="black",lwd=2)
@@ -214,6 +217,7 @@ podLaneplot <- function(to.file=F,
     result[dtxsid,"signature_bmdl"] <- signature_pod_95.lci
     result[dtxsid,"signature_bmd"] <- signature_pod_95
     result[dtxsid,"signature_bmdu"] <- signature_pod_95.uci
+    result[dtxsid,"signature_pod_min"] <- signature_pod_min
     result[dtxsid,"bmdexpress"] <- bmds_pod
     result[dtxsid,"cytotox_bla"] <- bla
     result[dtxsid,"cytotox_luc"] <- luc
@@ -225,9 +229,29 @@ podLaneplot <- function(to.file=F,
   yval <- -0.5
   xval <- 0.5e-7
   #text(xval,yval,"black,red,blue: ToxCast POD <,in,> Pathway POD range;  X: Cytotoxicity and Pathway POD range overlap",pos=4,cex=0.8)
-  text(xval,yval,"black,red,blue: ToxCast POD <,in,> Pathway POD range",pos=4,cex=0.8)
+
+  x <- log10(result$signature_bmd)
+  y <- log10(result$toxcast_pod)
+  res <- lm(y~x)
+  sr <- summary(res)
+  r2.1 <- sr$adj.r.squared
+  rmse.1 <- sr$sigma
+
+  x <- log10(result$signature_bmd)
+  y <- log10(result$bmdexpress)
+  y[y==Inf] <- 1000
+  res <- lm(y~x)
+  sr <- summary(res)
+  r2.2 <- sr$adj.r.squared
+  rmse.2 <- sr$sigma
+
+  footer <- paste0("black,red,blue: ToxCast POD <,in,> Pathway POD range; R2(ToxCast, BMDExpress)=",
+                   format(r2.1,digits=2),":",format(r2.2,digits=2))
+
+  text(xval,yval,footer,pos=4,cex=0.8)
   if(!to.file) browser()
   else dev.off()
+
 
   file <- paste0("../output/signature_pod/pod_laneplot_",dataset,"_",sigset,"_",method,"_no_signature_min.xlsx")
   write.xlsx(result,file)

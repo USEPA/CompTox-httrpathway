@@ -33,6 +33,7 @@
 #' @export
 signatureScoreCoreMYGSEA <- function(sk.list,
                                      method = "mygsea",
+                                     normfactor=7500,
                                      sigset,
                                      dataset,
                                      fcmat,
@@ -81,7 +82,9 @@ signatureScoreCoreMYGSEA <- function(sk.list,
       res = Reduce(cbind, reslist)
     }
     if (normalization) {
-      nfactor = (range(res)[2] - range(res)[1])
+      #nfactor = (range(res)[2] - range(res)[1])
+      # this old value made values for a specific signature dependent on the other signatures
+      nfactor = normfactor
       res = res/nfactor
     }
     success <- T

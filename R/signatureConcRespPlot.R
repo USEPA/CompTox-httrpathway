@@ -27,18 +27,14 @@
 #'
 #' @importFrom stringr str_split
 #' @importFrom grDevices rgb
-signatureConcRespPlot <- function(row,CYTOTOX) {
+signatureConcRespPlot <- function(row,CYTOTOX=NULL) {
 
   dtxsid <- row[1,"dtxsid"]
-  luc <- 10**CYTOTOX[dtxsid,"LUC"]
-  bla <- 10**CYTOTOX[dtxsid,"BLA"]
-  srb <- 10**CYTOTOX[dtxsid,"SRB"]
-  other <- 10**CYTOTOX[dtxsid,"LUC"]
+  sample_id <- row[1,"sample_id"]
 
   #every variable in PATHWAY_CR goes into the environment to make it easy
   #to update this function to use new PATHWAY_CR data.
   list2env(row,envir = environment())
-
   #hard-code plotting points for curves
   logc_plot <- seq(from=-3,to=2,by=0.05)
   conc_plot <- 10**logc_plot
@@ -65,10 +61,6 @@ signatureConcRespPlot <- function(row,CYTOTOX) {
 
   delta <- (ymax-ymin)/16
   yval <- ymin
-  if(!is.na(bla)) {lines(c(bla,bla),c(yval,yval+delta),lwd=4,col="red"); yval <- yval+delta/2}
-  if(!is.na(luc)) {lines(c(luc,luc),c(yval,yval+delta),lwd=4,col="orange"); yval <- yval+delta/2}
-  if(!is.na(srb)) {lines(c(srb,srb),c(yval,yval+delta),lwd=4,col="cyan"); yval <- yval+delta/2}
-  if(!is.na(other)) {lines(c(other,other),c(yval,yval+delta),lwd=4,col="blue"); yval <- yval+delta/2}
 
   #cutoffs and gray rectangular noise region
   rect(xleft=0.0001,ybottom=-cutoff,xright=1000,ytop=cutoff,col="lightgray")
@@ -133,6 +125,7 @@ signatureConcRespPlot <- function(row,CYTOTOX) {
   text(xplot[1],0.85*ymin,paste("class: ",super_target,"\nsize: ",signature_size,"\nmethod:",
                                 fit_method,"\nCutoff=",format(cutoff,digits=2),sep=""),pos=4)
 
+  text(10,ymin,sample_id)
   #color hitcall based on whether it's a hit
   color <- "black"
   font <- 1

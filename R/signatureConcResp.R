@@ -139,71 +139,36 @@ signatureConcResp <- function(sigset="pilot_tiny",
   cat("> signatureConcResp 10\n")
 
   #plotting
-  if(do.plot){
+  #if(do.plot){
     #fix chemical name so it can be part of a file name
-    SIGNATURE_CR$proper_name = gsub("\\)","",SIGNATURE_CR$name)
-    SIGNATURE_CR$proper_name = gsub("\\(","",SIGNATURE_CR$proper_name)
-    SIGNATURE_CR$proper_name = gsub(":","",SIGNATURE_CR$proper_name)
-    SIGNATURE_CR$proper_name = gsub("%","Percent",SIGNATURE_CR$proper_name)
+  #  SIGNATURE_CR$proper_name = gsub("\\)","",SIGNATURE_CR$name)
+  #  SIGNATURE_CR$proper_name = gsub("\\(","",SIGNATURE_CR$proper_name)
+  #  SIGNATURE_CR$proper_name = gsub(":","",SIGNATURE_CR$proper_name)
+  #  SIGNATURE_CR$proper_name = gsub("%","Percent",SIGNATURE_CR$proper_name)
 
-    dir.create("../output/signature_conc_resp_plots/", showWarnings = F)
-    foldname = paste0("../output/signature_conc_resp_plots/",sigset,"_",dataset,"_",method,"_", pval, nametag)
-    dir.create(foldname, showWarnings = F)
-    pnames = unique(SIGNATURE_CR$proper_name)
+  #  dir.create("../output/signature_conc_resp_plots/", showWarnings = F)
+  #  foldname = paste0("../output/signature_conc_resp_plots/",sigset,"_",dataset,"_",method,"_", pval, nametag)
+  #  dir.create(foldname, showWarnings = F)
+  #  pnames = unique(SIGNATURE_CR$proper_name)
 
     #cycle through chemicals for plotting (each gets its own file)
-    if(mc.cores > 1){
-      clusterExport(cl, c("plotouter", "signatureConcRespPlot"))
-      output = clusterEvalQ(cl, library(stringr))
-      output = parLapply(cl = cl, X=as.list(pnames), fun=plotouter,
-                         SIGNATURE_CR = SIGNATURE_CR, foldname = foldname, CYTOTOX=CYTOTOX)
-    } else {
-      output = lapply(X=as.list(pnames), plotouter,SIGNATURE_CR = SIGNATURE_CR, foldname = foldname, CYTOTOX=CYTOTOX)
-    }
+  #  if(mc.cores > 1){
+  #    clusterExport(cl, c("plotouter", "signatureConcRespPlot"))
+  #    output = clusterEvalQ(cl, library(stringr))
+  #    output = parLapply(cl = cl, X=as.list(pnames), fun=plotouter,
+  #                       SIGNATURE_CR = SIGNATURE_CR, foldname = foldname, CYTOTOX=CYTOTOX)
+  #  } else {
+  #    output = lapply(X=as.list(pnames), plotouter,SIGNATURE_CR = SIGNATURE_CR, foldname = foldname, CYTOTOX=CYTOTOX)
+  #  }
 
-    SIGNATURE_CR$proper_name = NULL
+  #  SIGNATURE_CR$proper_name = NULL
 
-  }
+  #}
   cat("> signatureConcResp 11\n")
 
   if(mc.cores > 1) stopCluster(cl)
   print(proc.time() - starttime)
 
   if(!to.file) return(SIGNATURE_CR)
-}
-
-#' Plot Outer
-#'
-#' Calls signatureConcResp plotting function.
-#'
-#' Calls signatureConcResp plotting function for one chemical and every signature.
-#' Saves a single pdf to disk for the given chemical containing every signature
-#' CR plot.
-#'
-#' @param proper_name Chemical name to be used in file name.
-#' @param SIGNATURE_CR Dataframe output of signatureConcResp_pval.
-#' @param foldname Folder name for output file.
-#' @param CYTOTOX The cytotoxicity data for all chemicals
-#' @import grDevices
-#'
-#' @return No output.
-#' @export
-plotouter = function(proper_name, SIGNATURE_CR, foldname, CYTOTOX){
-  #open pdf for plots
-  fname <- paste0(foldname,"/conc_resp_",proper_name,".pdf")
-  pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
-  par(mfrow=c(3,2),mar=c(4,4,2,2))
-
-  #narrow down to given chemical
-  subframe = SIGNATURE_CR[SIGNATURE_CR$proper_name == proper_name,]
-
-  subframe = subframe[order(-subframe$hitcall, subframe$bmd),] #order by potency (optional)
-
-  #cycle through signatures (rows) and run signatureConcRespPlot
-  for(i in 1:nrow(subframe)){
-    signatureConcRespPlot(subframe[i,],CYTOTOX)
-  }
-
-  graphics.off()
 }
 

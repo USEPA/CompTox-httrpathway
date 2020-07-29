@@ -27,7 +27,7 @@ noiseHunter.rawCounts.byPlate.bySample.to.signatures <- function(do.read=F,
                  "nhit","nhit.10","nhit.1","nhit.0.1",
                  "n_reads","n_reads_mapd","mapd_frac","bad_probe_count","n_cov5","n_sig80","top10_prop","gini_coef",
                  "n_reads.sd","n_reads_mapd.sd","mapd_frac.sd","bad_probe_count.sd","n_cov5.sd","n_sig80.sd","top10_prop.sd","gini_coef.sd")
-result <- NULL
+  result <- NULL
   for(pg in 1:npg) {
     cat(pg,"\n")
     smap.pg <- smap[smap$pg_id==pg,]
@@ -59,7 +59,8 @@ result <- NULL
 
       stemp <- smap.pg[is.element(smap.pg$chem_id,cid),]
       col.list <- names(res)[11:ncol(res)]
-      browser()
+      col.list <- col.list[is.element(col.list,names(stemp))]
+
       for(col in col.list) {
         res[k,col] <- mean(stemp[,col])
         col.sd <- paste0(col,".sd")

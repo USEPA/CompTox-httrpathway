@@ -16,7 +16,9 @@
 #'
 #' @return No output.
 #' @export
-randomdata = function(basedir="../input/fcdata/",dataset="DMEM_6hr_pilot_normal_pe_1", nchem = 10, seed = 12345){
+randomdata = function(basedir="../input/fcdata/",
+                      dataset="heparg2d_toxcast_pfas_pe1_normal",
+                      nchem = 1000, seed = 12345){
   printCurrentFunction()
   set.seed(seed)
 
@@ -27,13 +29,14 @@ randomdata = function(basedir="../input/fcdata/",dataset="DMEM_6hr_pilot_normal_
 
   #get all the concentration vectors and sample nchem of them with replacement
   concpats = lapply(CHEM_DICT$sample_id, function(x){CHEM_DICT$conc[CHEM_DICT$sample_id == x]}) #get concentration patterns
-  nconcs = sapply(concpats, function(x) {length(unique(x))})
+#  nconcs = sapply(concpats, function(x) {length(unique(x))})
+  nconcs = sapply(concpats, function(x) {length(x)})
   concpats = concpats[nconcs >= 4] #don't use concs with <4 values
+  concpats = concpats[nconcs <= 8] #don't use concs with >8 values
   concpats = concpats[sample(1:length(concpats), nchem, replace = T)]
   concs = unlist(concpats)
   clens = sapply(concpats[1:nchem],length)
   n = length(concs)
-
   #load fcmat
   file <- paste0(basedir,"FCMAT2_",dataset,".RData")
   load(file)
