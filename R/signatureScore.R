@@ -49,9 +49,22 @@ signatureScore <- function(FCMAT2,
   FCMAT2 = FCMAT2[,nonempties > 0]
 
   cat("   load signature data\n")
-  file <- paste0("../input/signatures/signatureDB_genelists.RData")
-  cat("   ",file,"\n")
-  load(file) #genelists
+  if(sigset!="wgcna") {
+    file = paste0("../input/signatures/signatureDB_genelists.RData")
+    print(file)
+    load(file=file)
+  }
+  else {
+    name <- str_replace(sigcatalog,"_catalog","")
+    file = paste0("../input/signatures/",name,".RData")
+    print(file)
+    load(file=file)
+    genelists <- sigdb
+  }
+
+  #file <- paste0("../input/signatures/signatureDB_genelists.RData")
+  #cat("   ",file,"\n")
+  #load(file) #genelists
   catalog <- signatureCatalogLoader(sigset,sigcatalog)
 
   catalog <- catalog[is.element(catalog$signature,names(genelists)),]
@@ -76,7 +89,7 @@ signatureScore <- function(FCMAT2,
     write.xlsx(slost,file)
     browser()
   }
-   cat("   now run the inner functions depending on method\n")
+  cat("   now run the inner functions depending on method\n")
   if(method=="fc") {
     if(mc.cores > 1){
       #split fcmat into mc.cores matrices and run them in parallel

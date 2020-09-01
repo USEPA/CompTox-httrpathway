@@ -40,7 +40,7 @@ signatureConcResp <- function(sigset="pilot_tiny",
                               sigcatalog="signatureDB_master_catalog 2020-03-12",
                               dataset="DMEM_6hr_screen_normal_pe_1_pgnorm",
                               method="mygsea",
-                              nullset="DMEM_6hr_screen_normal_pe_1_pgnorm_RAND1000",
+                              nullset,
                               mc.cores=1,
                               to.file=T,
                               do.plot = F,
@@ -138,32 +138,6 @@ signatureConcResp <- function(sigset="pilot_tiny",
   }
   cat("> signatureConcResp 10\n")
 
-  #plotting
-  #if(do.plot){
-    #fix chemical name so it can be part of a file name
-  #  SIGNATURE_CR$proper_name = gsub("\\)","",SIGNATURE_CR$name)
-  #  SIGNATURE_CR$proper_name = gsub("\\(","",SIGNATURE_CR$proper_name)
-  #  SIGNATURE_CR$proper_name = gsub(":","",SIGNATURE_CR$proper_name)
-  #  SIGNATURE_CR$proper_name = gsub("%","Percent",SIGNATURE_CR$proper_name)
-
-  #  dir.create("../output/signature_conc_resp_plots/", showWarnings = F)
-  #  foldname = paste0("../output/signature_conc_resp_plots/",sigset,"_",dataset,"_",method,"_", pval, nametag)
-  #  dir.create(foldname, showWarnings = F)
-  #  pnames = unique(SIGNATURE_CR$proper_name)
-
-    #cycle through chemicals for plotting (each gets its own file)
-  #  if(mc.cores > 1){
-  #    clusterExport(cl, c("plotouter", "signatureConcRespPlot"))
-  #    output = clusterEvalQ(cl, library(stringr))
-  #    output = parLapply(cl = cl, X=as.list(pnames), fun=plotouter,
-  #                       SIGNATURE_CR = SIGNATURE_CR, foldname = foldname, CYTOTOX=CYTOTOX)
-  #  } else {
-  #    output = lapply(X=as.list(pnames), plotouter,SIGNATURE_CR = SIGNATURE_CR, foldname = foldname, CYTOTOX=CYTOTOX)
-  #  }
-
-  #  SIGNATURE_CR$proper_name = NULL
-
-  #}
   cat("> signatureConcResp 11\n")
 
   if(mc.cores > 1) stopCluster(cl)

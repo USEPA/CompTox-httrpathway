@@ -16,9 +16,10 @@
 #'
 #'mcf7_ph1_pe1_normal_good_pg
 #'heparg2d_toxcast_pfas_pe1_normal
+#'u2os_toxcast_pfas_pe1_normal
 #--------------------------------------------------------------------------------------
-buildFCMAT2.fromDB <- function(dataset="mcf7_ph1_pe1_normal_good_pg",
-                               time=6,
+buildFCMAT2.fromDB <- function(dataset="u2os_toxcast_pfas_pe1_normal",
+                               time=24,
                                media="DMEM",
                                dir="../input/fcdata/",
                                method="gene",

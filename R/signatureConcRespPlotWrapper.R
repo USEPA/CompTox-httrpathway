@@ -1,5 +1,5 @@
 library(openxlsx)
-#' Wrapper for al;l of teh conc-response plotting
+#' Wrapper for all of the conc-response plotting
 #'
 
 #' @param sigset Name of the signature set.
@@ -17,11 +17,16 @@ library(openxlsx)
 #' @import openxlsx
 #'
 #' @export
-signatureConcRespPlotWrapper <- function(sigset="pilot_tiny",
-                                         dataset="DMEM_6hr_pilot_normal_pe_1",
+#'
+#' heparg2d_toxcast_pfas_pe1_normal
+#' mcf7_ph1_pe1_normal_good_pg
+#' u2os_toxcast_pfas_pe1_normal
+#'----------------------------------------------------------------------------------
+signatureConcRespPlotWrapper <- function(sigset="screen_large",
+                                         dataset="u2os_toxcast_pfas_pe1_normal",
                                          sigcatalog,
-                                         method="mygsea",
-                                         mc.cores=1,
+                                         method="fc",
+                                         mc.cores=20,
                                          do.load=T,
                                          pval = .05,
                                          nametag = NULL) {
@@ -43,6 +48,10 @@ signatureConcRespPlotWrapper <- function(sigset="pilot_tiny",
   SIGNATURE_CR$proper_name = gsub("\\(","",SIGNATURE_CR$proper_name)
   SIGNATURE_CR$proper_name = gsub(":","",SIGNATURE_CR$proper_name)
   SIGNATURE_CR$proper_name = gsub("%","Percent",SIGNATURE_CR$proper_name)
+
+  temp <- SIGNATURE_CR[SIGNATURE_CR$hitcall>0.8,]
+  if(nrow(temp)<10) temp <- SIGNATURE_CR[1:10,]
+  SIGNATURE_CR <- temp
 
   dir.create("../output/signature_conc_resp_plots/", showWarnings = F)
   foldname = paste0("../output/signature_conc_resp_plots/",sigset,"_",dataset,"_",method,"_", pval, nametag)
@@ -99,7 +108,10 @@ plotouter = function(proper_name, SIGNATURE_CR, foldname){
     #narrow down to given chemical / and sample_id
     subframe = temp[is.element(temp$sample_id,sid),]
 
-    subframe = subframe[order(-subframe$hitcall,-subframe$top_over_cutoff, subframe$bmd),] #order by potency (optional)
+    subframe$auc <- abs(subframe$top) * (3-log10(subframe$bmd))
+    subframe <- subframe[order(subframe$auc,decreasing=T),]
+
+    #subframe = subframe[order(-subframe$hitcall,-subframe$top_over_cutoff, subframe$bmd),] #order by potency (optional)
 
     #cycle through signatures (rows) and run signatureConcRespPlot
     for(i in 1:nrow(subframe)){

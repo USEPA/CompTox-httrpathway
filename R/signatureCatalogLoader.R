@@ -4,15 +4,26 @@
 #' @param sigcatlog Nmae of the catalog file
 #' @return the trimmed signature table
 #' @export
-signatureCatalogLoader <- function(sigset="pilot_small",
-                                   sigcatalog="signatureDB_master_catalog 2020-03-12") {
+signatureCatalogLoader <- function(sigset="wgcna",
+                                   sigcatalog="signatureDB_wgcna_mcf7_ph1_pe1_normal_good_pg_MCF7_12_10_catalog") {
 
   printCurrentFunction()
 
   file = paste0("../input/signatures/",sigcatalog,".xlsx")
   mat <- read.xlsx(file)
-  file = paste0("../input/signatures/signatureDB_genelists.RData")
-  load(file=file)
+  if(sigset!="wgcna") {
+    file = paste0("../input/signatures/signatureDB_genelists.RData")
+    print(file)
+    load(file=file)
+  }
+  else {
+    name <- str_replace(sigcatalog,"_catalog","")
+    file = paste0("../input/signatures/",name,".RData")
+    print(file)
+    load(file=file)
+    genelists <- sigdb
+  }
+  #load(file=file)
   #genelists
   slist1 <- names(genelists)
   matnorand <- mat[!is.element(mat$source,"Random"),]

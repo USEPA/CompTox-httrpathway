@@ -17,14 +17,14 @@ tc.trend.3 <- function(to.file=F,
                        tccut=2,
                        dbmdcut=30,
                        do.err.filter=T,
-                       dataset="meanncnt0_5-plateteffect_1-shrinkage_normal",
-                       sigcatalog="signatureDB_master_catalog 2020-05-05",
+                       dataset="heparg2d_toxcast_pfas_pe1_normal",
+                       sigcatalog="signatureDB_master_catalog 2020-08-14",
                        sigset="screen_large",
-                       method="mygsea",
+                       method="fc",
                        do.load=F) {
   printCurrentFunction(paste(dataset,sigset,method))
   if(to.file) {
-    fname <- paste0("../output/ tc.trend.3 ",dataset,"_",sigset,".pdf")
+    fname <- paste0("../output/PFAS/pfas.trend.3 ",dataset,"_",sigset,".pdf")
     pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
   }
   par(mfrow=c(3,2),mar=c(4,4,2,2))

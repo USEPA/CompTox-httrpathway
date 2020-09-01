@@ -13,18 +13,20 @@
 #' @export
 library(tidyverse)
 #--------------------------------------------------------------------------------------
-buildFCMAT1.fromDB <- function(dataset="mcf7_ph1_pe1_normal_good_pg",
+buildFCMAT1.fromDB <- function(dataset="u2os_toxcast_pfas_pe1_normal",
                                dir="../input/fcdata/new_versions/",
-                               infile="httr_mcf7_ph1_FCmat1_meanncnt0_5-plateteffect_1-shrinkage_normal.RData"){
+                               infile="httr_u2os_toxcast_pfas_FCmat1-meanncnt0_5-plateteffect_1-shrinkage_normal.RData"){
   printCurrentFunction()
   cat("   start loading RData file\n")
   infile <- paste0(dir,infile)
   print(infile)
   load(file=infile)
+  cat("finished loading\n")
   name.list <- names(FCMAT1)
   name.list[is.element(name.list,"gene_symbol")] <- "gene"
   names(FCMAT1) <- name.list
   file <- paste0("../input/fcdata/FCMAT1_",dataset,".RData")
+  cat("start saving\n")
   save(FCMAT1,file=file)
   cat("   start saving RData file\n")
   save(FCMAT1,file=file)

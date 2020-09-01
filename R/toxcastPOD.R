@@ -84,22 +84,24 @@ toxcastPOD <- function(do.prep=F) {
 
   load(file='../toxcast/toxcast_master.RData')
   mat <- toxcast.master
+  mat0 = mat
   mat <- mat[!is.na(mat$hitpct),]
-
   chems <- unique(mat[,c("dsstox_substance_id","casn","chnm")])
   names(chems) <- c("dtxsid","casrn","name")
   chems$nhit <- NA
+  chems$nassay <- NA
   chems$pod_uM <- NA
   chems$pod_loguM <- NA
   rownames(chems) <- chems$dtxsid
   for(dtxsid in chems$dtxsid) {
     temp <- mat[is.element(mat$dsstox_substance_id,dtxsid),]
+    temp0 <- mat0[is.element(mat0$dsstox_substance_id,dtxsid),]
     x <- log10(temp$modl_ga_uM)
     q <- quantile(x,probs=seq(0,1,0.05))
     chems[dtxsid,"pod_loguM"] <- q[2]
     chems[dtxsid,"pod_uM"] <- 10**q[2]
     chems[dtxsid,"nhit"] <- length(x)
-
+    chems[dtxsid,"nassay"] <- nrow(temp0)
   }
   file <- "../toxcast/toxcast_pod.xlsx"
   write.xlsx(chems,file)

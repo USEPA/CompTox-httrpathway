@@ -7,7 +7,8 @@ podLaneplot <- function(to.file=F,
                         dataset="DMEM_6hr_pilot_normal_pe_1",
                         sigset="pilot_large_all_100CMAP",
                         method="mygsea",
-                        plot.signature_min=T) {
+                        hccut=0.9,
+                        plot.signature_min=F) {
   printCurrentFunction()
   file <- "../input/chemicals/HTTR Pilot chemical annotation.xlsx"
   chems <- read.xlsx(file)
@@ -23,7 +24,6 @@ podLaneplot <- function(to.file=F,
   par(mfrow=c(1,1),mar=c(4,4,2,2))
 
   file <- "../toxcast/toxcast_pod.xlsx"
-  print(file)
   toxcast <- read.xlsx(file)
   rownames(toxcast) <- toxcast$dtxsid
 
@@ -39,10 +39,10 @@ podLaneplot <- function(to.file=F,
   all_pathway_bmds <- all_pathway_bmds[is.element(all_pathway_bmds$type,"Real"),]
   #browser()
 
-  file <- paste0("../output/signature_pod/signature_pod_",sigset,"_",dataset,"_",method,".xlsx")
+  file <- paste0("../output/signature_pod/signature_pod_",sigset,"_",dataset,"_",method,"_",hccut,".xlsx")
   print(file)
   pod.signature <- read.xlsx(file)
-  pod.signature <- pod.signature[order(pod.signature$signature_pod_95),]
+  pod.signature <- pod.signature[order(pod.signature$signature_pod_95.count),]
   rownames(pod.signature) <- pod.signature$dtxsid
   dtxsid.list <- pod.signature$dtxsid
 
@@ -125,13 +125,15 @@ podLaneplot <- function(to.file=F,
     signature_pod_min.lci <- pod.signature[dtxsid,"signature_pod_min.lci"]
     signature_pod_min.uci <- pod.signature[dtxsid,"signature_pod_min.uci"]
 
-    signature_pod_95 <- pod.signature[dtxsid,"signature_pod_95"]
-    signature_pod_95.lci <- pod.signature[dtxsid,"signature_pod_95.lci"]
-    signature_pod_95.uci <- pod.signature[dtxsid,"signature_pod_95.uci"]
+    signature_pod_95 <- pod.signature[dtxsid,"signature_pod_95.count"]
+    signature_pod_95.lci <- pod.signature[dtxsid,"signature_pod_95.count.lci"]
+    signature_pod_95.uci <- pod.signature[dtxsid,"signature_pod_95.count.uci"]
 
     toxcast_pod_05 <- toxcast[dtxsid,"pod_uM"]
 
-    bmds_pod <- min(all_pathway_bmds[is.element(all_pathway_bmds$chem_name,name),"BMD"],na.rm=T)
+    bmds_pod = 10000
+    if(is.element(name,all_pathway_bmds$chem_name))
+      bmds_pod <- min(all_pathway_bmds[is.element(all_pathway_bmds$chem_name,name),"BMD"],na.rm=T)
 
     if(is.na(signature_pod_min)) signature_pod_min <- 1000
     if(is.na(signature_pod_min.lci)) signature_pod_min.lci <- 0.001
@@ -188,25 +190,25 @@ podLaneplot <- function(to.file=F,
       }
     }
 
-    luc <- 10**cytotox[dtxsid,"LUC"]
-    bla <- 10**cytotox[dtxsid,"BLA"]
-    srb <- 10**cytotox[dtxsid,"SRB"]
-    flo <- 10**cytotox[dtxsid,"FLO"]
-    other <- 10**cytotox[dtxsid,"other"]
+    #luc <- 10**cytotox[dtxsid,"LUC"]
+    #bla <- 10**cytotox[dtxsid,"BLA"]
+    #srb <- 10**cytotox[dtxsid,"SRB"]
+    #flo <- 10**cytotox[dtxsid,"FLO"]
+    #other <- 10**cytotox[dtxsid,"other"]
     #if(!is.na(luc)) lines(c(luc,luc),c(counter-0.5,counter+0.5),col="orange",lwd=2)
     #if(!is.na(bla)) lines(c(bla,bla),c(counter-0.5,counter+0.5),col="red",lwd=2)
     #if(!is.na(srb)) lines(c(srb,srb),c(counter-0.5,counter+0.5),col="cyan",lwd=2)
     #if(!is.na(flo)) lines(c(flo,flo),c(counter-0.5,counter+0.5),col="gray",lwd=2)
     #if(!is.na(other)) lines(c(other,other),c(counter-0.5,counter+0.5),col="blue",lwd=2)
-    cytomin <- min(luc,bla,srb,other)
-    scyto <- ""
+    #cytomin <- min(luc,bla,srb,other)
+    #scyto <- ""
     #if(cytomin < signature_pod_95 ) scyto <- "X"
-    text(2e-7,counter,scyto,pos=2,cex=0.8)
+    #text(2e-7,counter,scyto,pos=2,cex=0.8)
 
     shift <- "="
     if(toxcast_pod_05<signature_pod_95.lci) shift <- "-"
     if(toxcast_pod_05>signature_pod_95.uci) shift <- "+"
-    sname <- paste0(scyto," ",name," (",shift,")")
+    #sname <- paste0(scyto," ",name," (",shift,")")
     sname <- name
     col <- "black"
     if(shift=="=") col <- "red"
@@ -219,10 +221,10 @@ podLaneplot <- function(to.file=F,
     result[dtxsid,"signature_bmdu"] <- signature_pod_95.uci
     result[dtxsid,"signature_pod_min"] <- signature_pod_min
     result[dtxsid,"bmdexpress"] <- bmds_pod
-    result[dtxsid,"cytotox_bla"] <- bla
-    result[dtxsid,"cytotox_luc"] <- luc
-    result[dtxsid,"cytotox_srb"] <- srb
-    result[dtxsid,"cytotox_other"] <- other
+    #result[dtxsid,"cytotox_bla"] <- bla
+    #result[dtxsid,"cytotox_luc"] <- luc
+    #result[dtxsid,"cytotox_srb"] <- srb
+    #result[dtxsid,"cytotox_other"] <- other
 
     counter <- counter+1
   }

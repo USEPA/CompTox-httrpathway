@@ -46,18 +46,13 @@ signatureConcRespPlot <- function(row,CYTOTOX=NULL) {
   #y range is also hard-coded
   ymax <- 1
   ymin <- -1
-  if(method=="gsva") {
-    ymax <- 2
-    ymin <- -2
-  }
-
   #some deprecated code; later will use j =1 and col.list[j] to mean black
   col.list <- c("black","cyan","red")
 
   #empty plot to start with
   plotrange = c(0.001,100)
   plot(c(1,1),type="n",xlab="conc (uM)",ylab="Score",xlim=plotrange,ylim=c(ymin,ymax),
-       log="x",main=paste(proper_name,"\n",signature),cex.main=0.9)
+       log="x",main=paste(proper_name,"\n",signature),cex.main=0.9,cex.lab=1.5,cex.axis=1.5)
 
   delta <- (ymax-ymin)/16
   yval <- ymin
@@ -78,13 +73,13 @@ signatureConcRespPlot <- function(row,CYTOTOX=NULL) {
   xplot = 10^(seq(log10(plotrange[1]), log10(plotrange[2]), length.out = 8))[-8]
 
   #Top label headings
-  #text(xplot[1],yplot,"time",pos=4)
-  text(xplot[2],yplot,"mthd",pos=4)
-  text(xplot[3],yplot,"AC50",pos=4)
-  text(xplot[4],yplot,"Top",pos=4)
-  text(xplot[5],yplot,"BMD",pos=4)
-  text(xplot[6],yplot,"ACC",pos=4)
-  text(xplot[7],yplot,"Hitcall",pos=4)
+#  text(xplot[1],yplot,"mthd",pos=4)
+  text(xplot[1],yplot,"AC50",pos=4)
+  text(xplot[2],yplot,"BMD",pos=4)
+  text(xplot[3],yplot,"Top",pos=4)
+  text(xplot[4],yplot,"T/C",pos=4)
+  text(xplot[5],yplot,"E95",pos=4)
+  text(xplot[6],yplot,"Hitcall",pos=4)
 
   j = 1 #j = 1 is black
   conc <- conc[!is.na(resp)]
@@ -102,24 +97,28 @@ signatureConcRespPlot <- function(row,CYTOTOX=NULL) {
   modpars= modpars[!sapply(modpars, is.na)]
 
   #gcalculate and plot model curves
-  if(fit_method == "hill"){
-    resp_plot <- do.call("hillfn",list(ps = unlist(modpars), x = conc_plot))
-    lines(resp_plot~conc_plot,col=col.list[j])
-  } else if(!fit_method %in% c("cnst","none") ){
-    resp_plot <- do.call(fit_method,list(ps = unlist(modpars), x = conc_plot))
-    lines(resp_plot~conc_plot,col=col.list[j])
+  if(!is.na(fit_method)) {
+    if(fit_method == "hill"){
+      resp_plot <- do.call("hillfn",list(ps = unlist(modpars), x = conc_plot))
+      lines(resp_plot~conc_plot,col=col.list[j])
+    } else if(!fit_method %in% c("cnst","none") ){
+      resp_plot <- do.call(fit_method,list(ps = unlist(modpars), x = conc_plot))
+      lines(resp_plot~conc_plot,col=col.list[j])
+    }
   }
 
   yplot <- yplot-(ymax-ymin)*0.05 #second row for top labels
-  points(xplot[1],yplot,pch=19,col=col.list[j]) #dot at top left
+  #points(xplot[1],yplot,pch=19,col=col.list[j]) #dot at top left
 
   #Fill in top labels second row
   #text(xplot[1],yplot,time,pos=4)
-  text(xplot[2],yplot,fit_method,pos=4)
-  text(xplot[3],yplot,format(ac50,digits=2),pos=4, col = "red")
-  text(xplot[4],yplot,format(top,digits=2),pos=4)
-  text(xplot[5],yplot,format(bmd,digits=2),pos=4, col = "green")
-  text(xplot[6],yplot,format(acc,digits=2),pos=4, col = "blue")
+  #text(xplot[2],yplot,fit_method,pos=4)
+  text(xplot[1],yplot,format(ac50,digits=2),pos=4, col = "red")
+  text(xplot[2],yplot,format(bmd,digits=2),pos=4, col = "green")
+  text(xplot[3],yplot,format(top,digits=2),pos=4)
+  text(xplot[4],yplot,format(top_over_cutoff,digits=2),pos=4)
+e95 <- exp(er)*qt(.975,4) - exp(er)*qt(.025,4)
+  text(xplot[5],yplot,format(e95,digits=2),pos=4, col = "blue")
 
   #Bottom left info
   text(xplot[1],0.85*ymin,paste("class: ",super_target,"\nsize: ",signature_size,"\nmethod:",
@@ -133,7 +132,7 @@ signatureConcRespPlot <- function(row,CYTOTOX=NULL) {
     color <- "red"
     font <- 2
   }
-  text(xplot[7],yplot,format(hitcall, digits = 2),pos=4,col=color,cex=1,font=font)
+  text(xplot[6],yplot,format(hitcall, digits = 2),pos=4,col=color,cex=1,font=font)
 
   #plot green bmd with range
   if(hitcall>0) {

@@ -6,7 +6,7 @@ library(reshape2)
 library(gplots)
 library(RColorBrewer)
 #--------------------------------------------------------------------------------------
-#' Calcualte the stats for the reference chemicals
+#' Calculate the stats for the reference chemicals
 #'
 #' heparg2d_toxcast_pfas_pe1_normal
 #' mcf7_ph1_pe1_normal_good_pg
@@ -19,10 +19,13 @@ refchemdbStats <- function(to.file=F,
                            do.count1=F,
                            do.plot=F,
                            do.stats=F,
-                           dataset="u2os_toxcast_pfas_pe1_normal",
+                           do.merge=F,
+                           do.inout=F,
+                           do.inout.summary=F,
+                           dataset="heparg2d_toxcast_pfas_pe1_normal",
                            sigset="screen_large",
                            method="fc",
-                           celltype="U2OS",
+                           celltype="HepaRG",
                            hccut=0.95) {
   printCurrentFunction(paste(dataset,sigset,method))
   file = "../input/signatures/refchemdb_chem_filtered_unique_with_new.xlsx"
@@ -174,6 +177,7 @@ refchemdbStats <- function(to.file=F,
       mat[2,1] = num1
       mat[2,2] = denom1 - num1
       p = 1
+
       if(num0>0 && num1>0) {
         x = prop.test(x=mat,alternative="less")
         p = x$p.value
@@ -230,5 +234,115 @@ refchemdbStats <- function(to.file=F,
     }
     if(!to.file) browser()
     else dev.off()
+  }
+  if(do.merge) {
+    ct.list <- c("U2OS","MCF7","HepaRG")
+    res <- NULL
+    for(celltype in ct.list) {
+      file = paste0("../output/signature_refchemdb/",celltype,"/stats_proptest_",celltype,".xlsx")
+      mat = read.xlsx(file)
+      res = rbind(res,mat)
+    }
+    temp = res[res$hit<0.05,c("signature","super_target")]
+    temp = rbind(temp,res[res$hit10<0.05,c("signature","super_target")])
+    temp = rbind(temp,res[res$hit1<0.05,c("signature","super_target")])
+    temp = unique(temp)
+    temp = temp[order(temp$super_target),]
+    file = paste0("../output/signature_refchemdb/validated_signatures_merged.xlsx")
+    write.xlsx(temp,file)
+  }
+  if(do.inout) {
+    mat = MAT
+    mat[is.na(mat$bmd),"bmd"] = 1000
+    mat[mat$bmd>1000,"bmd"] = 1000
+    mat[mat$bmd<0.001,"bmd"] = 0.001
+    file = paste0("../output/signature_refchemdb/validated_signatures_merged.xlsx")
+    valsig = read.xlsx(file)
+    rcdb = rcdb[is.element(rcdb$super_target,valsig$super_target),]
+    if(to.file) {
+      fname = paste0("../output/signature_refchemdb/",celltype,"/signature_refchemdb_inout_",celltype,
+                      "_",dataset,"_",sigset,"_",method,".pdf")
+      pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
+    }
+    par(mfrow=c(3,2),mar=c(4,4,2,2))
+
+    name.list =c("name","super_target","celltype","p","mean.in","mean.out")
+    row = as.data.frame(matrix(nrow=1,ncol=length(name.list)))
+    names(row) = name.list
+    res = NULL
+
+    mat = mat[is.element(mat$name,rcdb$name),]
+    mat = mat[is.element(mat$signature,valsig$signature),]
+    chem.list = sort(unique(rcdb$name))
+    for(i in 1:length(chem.list)) {
+      chem = chem.list[i]
+      temp1 = mat[is.element(mat$name,chem),]
+      if(nrow(temp1)>10) {
+        st.list = sort(unique(rcdb[is.element(rcdb$name,chem),"super_target"]))
+        cat(chem,":",nrow(temp1),":",length(st.list),"\n")
+        for(st in st.list) {
+          bmd.in = temp1[is.element(temp1$super_target,st),"bmd"]
+          bmd.out = temp1[!is.element(temp1$super_target,st),"bmd"]
+          if(length(bmd.in)>2 && length(bmd.out)>2) {
+            p = 1
+            tryCatch({
+              p = t.test(bmd.in,bmd.out,alternative="less")$p.value
+            }, warning = function(w) {
+            }, error = function(e) {
+            })
+            x.in = bmd.in
+            x.in[] = "in"
+            x.out = bmd.out
+            x.out[] = "out"
+            x = c(x.in,x.out)
+            bmd = c(bmd.in,bmd.out)
+            boxplot(bmd~x,main=paste(chem,st,"\n",celltype," p=",format(p,digits=2)),cex.axis=1.2,cex.lab=1.2,
+                    log="y",ylim=c(0.01,1000),ylab="BMD",xlab="")
+            for(y in c(0.01,0.1,1,10,100,1000)) lines(c(0,100),c(y,y))
+
+            row[1,"name"] = chem
+            row[1,"celltype"] = celltype
+            row[1,"mean.in"] = mean(log10(bmd.in))
+            row[1,"mean.out"] = mean(log10(bmd.out))
+            row[1,"super_target"] = st
+            row[1,"p"] = p
+            res = rbind(res,row)
+            if(!to.file) browser()
+          }
+        }
+      }
+    }
+    file = paste0("../output/signature_refchemdb/",celltype,"/signature_refchemdb_inout_",celltype,".xlsx")
+    write.xlsx(res,file)
+    if(to.file) dev.off()
+  }
+  if(do.inout.summary) {
+    clist = c("MCF7","HepaRG","U2OS")
+    mat = NULL
+    for(celltype in clist) {
+      file = paste0("../output/signature_refchemdb/",celltype,"/signature_refchemdb_inout_",celltype,".xlsx")
+      temp = read.xlsx(file)
+      mat = rbind(mat,temp)
+    }
+    name.list = c("name","super_target",clist)
+    row = as.data.frame(matrix(nrow=1,ncol=length(name.list)))
+    names(row) = name.list
+    res = NULL
+    chem.list = (sort(unique(mat$name)))
+    for(chem in chem.list) {
+      temp1 = mat[is.element(mat$name,chem),]
+      st.list = sort(unique(temp1$super_target))
+      for(st in st.list) {
+        temp2 = temp1[is.element(temp1$super_target,st),]
+        if(nrow(temp2)==3) {
+          row[1,"name"] = temp2[1,"name"]
+          row[1,"super_target"] = temp2[1,"super_target"]
+          for(celltype in clist)row[1,celltype] = -log10(temp2[is.element(temp2$celltype,celltype),"p"])
+          res = rbind(res,row)
+        }
+      }
+    }
+    file = paste0("../output/signature_refchemdb/signature_refchemdb_inout_merged.xlsx")
+    write.xlsx(res,file)
   }
 }
