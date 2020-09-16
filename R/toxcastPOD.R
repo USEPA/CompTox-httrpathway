@@ -1,3 +1,4 @@
+library(tcpl)
 #-----------------------------------------------------------------------------------#
 #' Get the TOxCast PODs using input from
 #-----------------------------------------------------------------------------------#
@@ -5,17 +6,19 @@ toxcastPOD <- function(do.prep=F) {
 
 
   if(do.prep) {
-    tcplConf(user='rjudson', pass='Catman2@', host='mysql-res1.epa.gov', drvr = 'MySQL',db = 'invitrodb')
-    tcplConf(user='rjudson', pass='Catman2@', host='mysql-res1.epa.gov', drvr = 'MySQL',db = 'prod_internal_invitrodb_v3_2')
+    #tcplConf(user='rjudson', pass='Catman2@', host='mysql-res1.epa.gov', drvr = 'MySQL',db = 'invitrodb')
+    #tcplConf(user='rjudson', pass='Catman2@', host='mysql-res1.epa.gov', drvr = 'MySQL',db = 'prod_internal_invitrodb_v3_2')
+    tcplConf(user='rjudson', pass='Catman2@', host='ccte-mysql-res.epa.gov', drvr = 'MySQL',db = 'prod_internal_invitrodb_v3_2')
     setDBConn(password="Catman2@")
 
     #-----------------------------------------------------------------------------------#
     # Extract data from invitrodb
     #-----------------------------------------------------------------------------------#
     cat("1b: Extract data from invitrodb\n")
-    file <- "../input/chemicals/HTTR Pilot chemical annotation.xlsx"
+    file <- "../input/chemicals/httr_chemical_annotations 2020-09-14.xlsx"
     chems <- read.xlsx(file)
     pod.master.casn <- chems$casrn
+    pod.master.casn = c(pod.master.casn,"446-72-0","53123-88-9")
     invitrodb.chem <- tcplLoadChem(field='casn', val=pod.master.casn, exact=TRUE)
     invitrodb.mc5 <- tcplPrepOtpt(tcplLoadData(lvl=5, type='mc', fld='spid', val=invitrodb.chem$spid))
     invitrodb.hitc1.mc5 <- invitrodb.mc5[which(invitrodb.mc5$hitc==1),]
@@ -80,8 +83,13 @@ toxcastPOD <- function(do.prep=F) {
 
     toxcast.master <- as.data.frame(filter.invitrodb.hitc1.mc5)
     save(toxcast.master, file='../toxcast/toxcast_master.RData')
+
+    toxcast.all <- as.data.frame(invitrodb.mc5)
+    save(toxcast.all, file='../toxcast/toxcast_all.RData')
   }
 
+  load(file='../toxcast/toxcast_all.RData')
+  mat.all = toxcast.all
   load(file='../toxcast/toxcast_master.RData')
   mat <- toxcast.master
   mat0 = mat
@@ -95,13 +103,13 @@ toxcastPOD <- function(do.prep=F) {
   rownames(chems) <- chems$dtxsid
   for(dtxsid in chems$dtxsid) {
     temp <- mat[is.element(mat$dsstox_substance_id,dtxsid),]
-    temp0 <- mat0[is.element(mat0$dsstox_substance_id,dtxsid),]
+    temp0 <- mat.all[is.element(mat.all$dsstox_substance_id,dtxsid),]
     x <- log10(temp$modl_ga_uM)
     q <- quantile(x,probs=seq(0,1,0.05))
     chems[dtxsid,"pod_loguM"] <- q[2]
     chems[dtxsid,"pod_uM"] <- 10**q[2]
     chems[dtxsid,"nhit"] <- length(x)
-    chems[dtxsid,"nassay"] <- nrow(temp0)
+    chems[dtxsid,"nassay"] <- length(unique(temp0$aenm))
   }
   file <- "../toxcast/toxcast_pod.xlsx"
   write.xlsx(chems,file)

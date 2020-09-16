@@ -14,6 +14,8 @@
 #'   sample_key, sample_id, conc, time, casrn, name, dtxsid.
 #' @param signature_data Named ist of gene name vectors. Each element is one
 #'   signature, defined by the genes it contains.
+#' @param ngenemax If ngene is not NULL, then tonly the most extreme n genes of the
+#' signature will be used for the "in" set
 #'
 #' @import openxlsx
 #'
@@ -23,10 +25,11 @@
 #'   mean_fc_scaled_out, signature_score.
 #' @export
 signatureScoreCoreFC <- function(fcdata,
-                               sigset,
-                               dataset,
-                               chem_dict,
-                               signature_data) {
+                                 sigset,
+                                 dataset,
+                                 chem_dict,
+                                 signature_data,
+                                 ngenemax=NULL) {
 
   #Strategy: Matrix multiplication against logical in/out matrix gives fc sum over signature genes
 
@@ -38,6 +41,12 @@ signatureScoreCoreFC <- function(fcdata,
   #Change NAs to zero in data to avoid changing sum
   existingdata = fcdata
   existingdata[is.na(fcdata)] = 0
+
+  # deal with the minimum number of genes
+  if(!is.null(ngenemax)) {
+    absmat = abs(existingdata)
+
+  }
   #inlengths is a sample by signature matrix that gives the number of non-missing genes present
   # in a signature
   inlengths = (!is.na(fcdata)) %*% inmat
@@ -68,7 +77,7 @@ signatureScoreCoreFC <- function(fcdata,
   #signaturescoremat will be arranged as every signature for a given sample key,
   # then every signature for the next sample, etc.
   signaturescoremat = as.data.frame(matrix(0,nrow = nrow(signaturescore)*ncol(signaturescore),
-                                      ncol = length(name.list)), stringsAsFactors = F)
+                                           ncol = length(name.list)), stringsAsFactors = F)
   colnames(signaturescoremat) = name.list
   # fill in columns for output
   signaturescoremat$signature_score = as.vector(t(signaturescore))

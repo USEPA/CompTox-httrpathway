@@ -80,7 +80,8 @@ signatureClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_p
          xlim=c(-4,2),ylim=c(0,ymax),xlab="log(bmd uM)",ylab="")
 
     color <- achems[is.element(achems$dtxsid,dtxsid),"color"]
-    rect(1.5,ymax-5,2,ymax,col=color,border="black")
+    #rect(1.5,ymax-5,2,ymax,col=color,border="black")
+    rect(-3.75,ymax-20,-3.25,ymax-15,col=color,border="black")
 
     temp <- mat[is.element(mat$dtxsid,dtxsid),]
     cat("initial signatures",nrow(temp),"\n")

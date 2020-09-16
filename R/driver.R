@@ -8,8 +8,9 @@ library(reshape2)
 #' @param method signature scoring method in c("fc", "gsva", "mygsea")
 #' heparg2d_toxcast_pfas_pe1_normal
 #' mcf7_ph1_pe1_normal_good_pg
-#'  u2os_toxcast_pfas_pe1_normal
+#' u2os_toxcast_pfas_pe1_normal
 #' DMEM_6hr_pilot_normal_pe_1
+#' mcf7_ph1_pe1_normal_all_pg
 #'
 #'  signatureDB_wgcna_mcf7_ph1_pe1_normal_good_pg_MCF7_12_10_catalog
 #'  signatureDB_master_catalog 2020-07-10 / screen_large
@@ -17,15 +18,15 @@ library(reshape2)
 #'
 #'
 #--------------------------------------------------------------------------------------
-driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
-                   sigcatalog="signatureDB_master_catalog 2020-08-14",
-                   sigset="pilot_large_all_100CMAP",
+driver <- function(dataset="mcf7_ph1_pe1_normal_all_pg",
+                   sigcatalog="signatureDB_master_catalog 2020-08-31",
+                   sigset="screen_large",
                    nullset=NULL,
                    nrandom.chems=1000,
                    normfactor=7500,
                    mc.cores=20,
                    method="fc",
-                   do.build.random=F,
+                   do.build.random=T,
                    do.run.random=T,
                    do.run.all=T,
                    do.scr.plots=T,

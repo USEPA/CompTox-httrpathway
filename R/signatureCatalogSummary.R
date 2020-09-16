@@ -2,7 +2,7 @@
 #' Summarize the signature catalog
 #'
 #'--------------------------------------------------------------------------------------
-signatureCatalogSummary <- function(sigcatalog="signatureDB_master_catalog 2020-08-14",
+signatureCatalogSummary <- function(sigcatalog="signatureDB_master_catalog 2020-08-31",
                            sigset="screen_large") {
   printCurrentFunction()
 
@@ -11,7 +11,7 @@ signatureCatalogSummary <- function(sigcatalog="signatureDB_master_catalog 2020-
   catalog <- catalog[catalog[,sigset]==1,]
 
   st.list <- sort(unique(catalog$super_target))
-  name.list <- c("super_target","n_signature","n_parent")
+  name.list <- c("super_target","n_signature","n_parent","new_target")
   nst <- length(st.list)
   res <- as.data.frame(matrix(nrow=nst,ncol=length(name.list)))
   names(res) <- name.list
@@ -21,6 +21,7 @@ signatureCatalogSummary <- function(sigcatalog="signatureDB_master_catalog 2020-
     n1 <- length(unique(temp$signature))
     n2 <- length(unique(temp$parent))
     res[i,"super_target"] <- st
+    res[i,"new_target"] <- st
     res[i,"n_signature"] <- n1
     res[i,"n_parent"] <- n2
   }

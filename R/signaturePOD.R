@@ -2,12 +2,18 @@
 #'
 #' Build lane plots by chemical list and signature class, across the datasets
 #' @param to.file If TRUE, write plots to a file
+#'
+#' heparg2d_toxcast_pfas_pe1_normal
+#' mcf7_ph1_pe1_normal_good_pg
+#' u2os_toxcast_pfas_pe1_normal
+#' PFAS_HepaRG
+#' PFAS_U2OS
 #--------------------------------------------------------------------------------------
-signaturePOD <- function(sigset="pilot_large_all_100CMAP",
-                       dataset="DMEM_6hr_pilot_normal_pe_1",
-                       method="mygsea",
-                       hccut=0.5,
-                       do.load=F) {
+signaturePOD <- function(do.load=F,
+                         sigset="screen_large",
+                         dataset="PFAS_U2OS",
+                         method="fc",
+                         hccut=0.95) {
   printCurrentFunction()
 
   if(do.load) {
@@ -45,15 +51,22 @@ signaturePOD <- function(sigset="pilot_large_all_100CMAP",
     result[dtxsid,"signature_pod_min"] <- temp[1,"bmd"]
     result[dtxsid,"signature_pod_min.lci"] <- temp[1,"bmdl"]
     result[dtxsid,"signature_pod_min.uci"] <- temp[1,"bmdu"]
-    minval <- 5
-    result[dtxsid,"signature_pod_95.count"] <- temp[minval,"bmd"]
-    result[dtxsid,"signature_pod_95.count.lci"] <- temp[minval,"bmdl"]
-    result[dtxsid,"signature_pod_95.count.uci"] <- temp[minval,"bmdu"]
-    if(npath>100) minval <- 0.05*npath
-    result[dtxsid,"signature_pod_95"] <- temp[minval,"bmd"]
-    result[dtxsid,"signature_pod_95.lci"] <- temp[minval,"bmdl"]
-    result[dtxsid,"signature_pod_95.uci"] <- temp[minval,"bmdu"]
+    if(nrow(temp)>1) {
+      minval <- 5
+      if(minval>nrow(temp)) minval = nrow(temp)
+      result[dtxsid,"signature_pod_95.count"] <- temp[minval,"bmd"]
+      result[dtxsid,"signature_pod_95.count.lci"] <- temp[minval,"bmdl"]
+      result[dtxsid,"signature_pod_95.count.uci"] <- temp[minval,"bmdu"]
+      minval <- 0.05*npath
+      if(minval<5) minval=5
+      if(minval>nrow(temp)) minval = nrow(temp)
+      result[dtxsid,"signature_pod_95"] <- temp[minval,"bmd"]
+      result[dtxsid,"signature_pod_95.lci"] <- temp[minval,"bmdl"]
+      result[dtxsid,"signature_pod_95.uci"] <- temp[minval,"bmdu"]
+    }
   }
+
+  #result <- result[!is.na(result$signature_pod_95.count),]
   x <- result$signature_pod_min
   x[is.na(x)] <- 1000
   result$signature_pod_min <- x
