@@ -24,12 +24,14 @@
 #'   all samples for that signature), pvalue (pvalue corresponding to each cutoff),
 #'   numsd (number of sds corresponding to each cutoff).
 #' @export
-getpvalcutoff = function(pathset, nullset, method, pvals = NULL, numsds = NULL){
+getpvalcutoff = function(pathset, nullset, method, pvals = NULL, numsds = NULL,verbose=F){
   printCurrentFunction(paste(pathset,":",nullset))
 
   #get null signature scores
   file <- paste0("../output/signature_score_summary/signaturescoremat_",pathset,"_",nullset,"_",method,".RData")
+  if(verbose) print(file)
   load(file)
+  if(verbose) cat("  file loaded\n")
 
   ###########################################
   ###########################################
@@ -43,16 +45,16 @@ getpvalcutoff = function(pathset, nullset, method, pvals = NULL, numsds = NULL){
   }
   ###########################################
   ###########################################
-   #find p-value for each signature
+  if(verbose) cat("  find p-value for each signature\n")
   if(!is.null(pvals)){
-    pout = as.data.frame(setDT(signaturescoremat)[, list(cutoff = quantile(abs(signature_score-median(signature_score)),1-pvals),
+    pout = as.data.frame(setDT(signaturescoremat)[, list(cutoff = quantile(abs(signature_score-median(signature_score)),1-pvals,na.rm=T),
                                                    bmed = median(signature_score)), by = list(signature)])
     pout$pvalue = rep_len(pvals, nrow(pout))
     if(is.null(numsds)) output = pout else pout$numsd = NA_real_
 
   }
 
-  #find x*standard deviation for each signature
+  if(verbose) cat("  find x*standard deviation for each signature\n")
   if(!is.null(numsds)){
     sdout = as.data.frame(setDT(signaturescoremat)[, list(cutoff = numsds*sd(signature_score-median(signature_score)) ,
                                                    bmed = median(signature_score)), by = list(signature)])
