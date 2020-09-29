@@ -41,14 +41,16 @@ signatureScore <- function(FCMAT2,
 
   printCurrentFunction(paste(dataset,sigset,method))
   starttime = proc.time()
-  cat("   create directory\n")
+  cat("  signatureScore: create directory\n")
   dir.create("../output/signature_score_summary/", showWarnings = F)
+
+  cat("  signatureScore: Start nonempties\n")
 
   #get rid of columns filled with missing values
   nonempties = apply(FCMAT2,2,function(x){sum(!is.na(x))})
   FCMAT2 = FCMAT2[,nonempties > 0]
 
-  cat("   load signature data\n")
+  cat("  signatureScore: load signature data\n")
   if(sigset!="wgcna") {
     file = paste0("../input/signatures/signatureDB_genelists.RData")
     print(file)
@@ -65,6 +67,7 @@ signatureScore <- function(FCMAT2,
   #file <- paste0("../input/signatures/signatureDB_genelists.RData")
   #cat("   ",file,"\n")
   #load(file) #genelists
+  cat("  signatureScore: signatureCatalogLoader\n")
   catalog <- signatureCatalogLoader(sigset,sigcatalog)
 
   catalog <- catalog[is.element(catalog$signature,names(genelists)),]
@@ -75,7 +78,7 @@ signatureScore <- function(FCMAT2,
 
   #Enforce minimum signature size
   plengths = sapply(signature_data, function(x){sum(x %in% colnames(FCMAT2))})
-  cat("   Removing", sum(plengths < minsigsize), "signatures under min size", minsigsize, ".", sum(plengths >= minsigsize),
+  cat("  Removing", sum(plengths < minsigsize), "signatures under min size", minsigsize, ".", sum(plengths >= minsigsize),
       "signatures remaining.\n")
   signature_data0 <- signature_data
   signature_data = signature_data[plengths >= minsigsize]
@@ -89,7 +92,7 @@ signatureScore <- function(FCMAT2,
     write.xlsx(slost,file)
     browser()
   }
-  cat("   now run the inner functions depending on method\n")
+  cat("  signatureScore: now run the inner functions depending on method\n")
   if(method=="fc") {
     if(mc.cores > 1){
       #split fcmat into mc.cores matrices and run them in parallel
@@ -98,20 +101,24 @@ signatureScore <- function(FCMAT2,
 
       cl = makePSOCKcluster(mc.cores)
       clusterExport(cl, c("signatureScoreCoreFC"))
+      cat("  signatureScore: start signatureScoreCoreFC parallel\n")
       pscorelist = parLapply(cl = cl, X=fclist, fun=signatureScoreCoreFC,
                              sigset = sigset,
                              dataset = dataset,
                              chem_dict = CHEM_DICT,
                              signature_data = signature_data )
       stopCluster(cl)
+      cat("  signatureScore: finish signatureScoreCoreFC parallel\n")
       #reform output
       signaturescoremat = as.data.frame(rbindlist(pscorelist))
     } else {
+      cat("  signatureScore: Start signatureScoreCoreFC single\n")
       signaturescoremat = signatureScoreCoreFC(fcdata = FCMAT2, sigset = sigset,dataset = dataset,
                                           chem_dict = CHEM_DICT,signature_data = signature_data )
+      cat("  signatureScore: Finish signatureScoreCoreFC single\n")
     }
 
-    cat("   save signaturescoremat\n")
+    cat("  signatureScore: save signaturescoremat\n")
     file <- paste0("../output/signature_score_summary/signaturescoremat_",sigset,"_",dataset,"_",method,"_directional.RData")
     cat("   ",file,"\n")
     save(signaturescoremat,file=file)
@@ -154,6 +161,6 @@ signatureScore <- function(FCMAT2,
                              useranks = F)
   }
 
-  cat("\nTime taken:",proc.time() - starttime, "\n")
+  cat("\n  signatureScore: Time taken:",proc.time() - starttime, "\n")
 
 }

@@ -40,7 +40,9 @@ randomdata = function(basedir="../input/fcdata/",
   #load fcmat
   file <- paste0(basedir,"FCMAT2_",dataset,".RData")
   load(file)
+  cat("  file:",file,"\n")
   fcmat2_0 <- FCMAT2
+  cat("  dim:",dim(FCMAT2),"\n")
 
   FCMAT2 = apply(FCMAT2, 2, function(x){
     #if all are NA, keep it that way

@@ -17,9 +17,10 @@
 #'mcf7_ph1_pe1_normal_good_pg
 #'heparg2d_toxcast_pfas_pe1_normal
 #'u2os_toxcast_pfas_pe1_normal
+#'mcf7_ph1_pe1_normal_block_123
 #--------------------------------------------------------------------------------------
-buildFCMAT2.fromDB <- function(dataset="u2os_toxcast_pfas_pe1_normal",
-                               time=24,
+buildFCMAT2.fromDB <- function(dataset="mcf7_ph1_pe1_normal_block_123",
+                               time=6,
                                media="DMEM",
                                dir="../input/fcdata/",
                                method="gene",
@@ -34,7 +35,7 @@ buildFCMAT2.fromDB <- function(dataset="u2os_toxcast_pfas_pe1_normal",
     FCMAT1 <<- FCMAT1
     cat("  data loaded\n")
   }
-  cat("  copy FCMAT1 to mat\n")
+  cat("  copy FCMAT1 to mat",nrow(FCMAT1),"\n")
   flush.console()
   mat <- FCMAT1
 

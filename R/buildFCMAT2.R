@@ -15,12 +15,14 @@
 #' (sample_id_conc_time) to the individual components
 #'
 #--------------------------------------------------------------------------------------
-buildFCMAT2 <- function(dataset="DMEM_6hr_screen_normal_pe_1",
-                            dir="../input/fcdata/",
-                            method="gene",
-                            do.read=F,
-                            chemical.file="../input/chemicals/HTTr_screen_sample_map.xlsx",
-                            dsstox.file="../input/DSSTox/DSSTox_sample_map.xlsx") {
+buildFCMAT2 <- function(dataset="mcf7_ph1_pe1_normal_all_pg",
+                        dir="../input/fcdata/",
+                        method="gene",
+                        do.read=T,
+                        time=6,
+                        media="DMEM",
+                        chemical.file="../input/chemicals/HTTr_screen_sample_map.xlsx",
+                        dsstox.file="../input/DSSTox/DSSTox_sample_map.xlsx") {
   printCurrentFunction(dataset)
   cat("  load FCMAT1\n")
   flush.console()
@@ -31,7 +33,7 @@ buildFCMAT2 <- function(dataset="DMEM_6hr_screen_normal_pe_1",
     FCMAT1 <<- FCMAT1
     cat("  data loaded\n")
   }
-  cat("  copy FCMAT1 to mat\n")
+  cat("  copy FCMAT1 to mat",nrow(FCMAT1),"\n")
   flush.console()
   mat <- FCMAT1
 
@@ -61,6 +63,10 @@ buildFCMAT2 <- function(dataset="DMEM_6hr_screen_normal_pe_1",
   }
   else sample.map <- sample.map[,c("sample_key","sample_id","conc_index","conc","units")]
 
+  if(!is.element("time",names(sample.map))) {
+    sample.map$time = time
+    sample.map$media = media
+  }
   cat("  add dtxsid, name, casrn\n")
   smat <- read.xlsx(dsstox.file)
   names(smat)[1] <- "sample_id"
@@ -95,26 +101,25 @@ buildFCMAT2 <- function(dataset="DMEM_6hr_screen_normal_pe_1",
     mat2 <- mat[,c("sample_key","gene","l2fc")]
     matfc <- acast(mat2,gene~sample_key,mean)
 
-    matp <- mat[,c("sample_key","gene","padj")]
-    matpv <- acast(matp,gene~sample_key,mean)
-    matpv <- t(matpv)
+    #matp <- mat[,c("sample_key","gene","padj")]
+    #matpv <- acast(matp,gene~sample_key,mean)
+    #matpv <- t(matpv)
 
-    mats <- mat[,c("sample_key","gene","se")]
-    matse <- acast(mats,gene~sample_key,mean)
-    matse <- t(matse)
+    #mats <- mat[,c("sample_key","gene","se")]
+    #matse <- acast(mats,gene~sample_key,mean)
+    #matse <- t(matse)
   }
   else if(method=="probe_id") {
     mat2 <- mat[,c("sample_key","probe_id","l2fc")]
     matfc <- acast(mat2,probe_id~sample_key,mean)
 
-    matp <- mat[,c("sample_key","probe_id","padj")]
-    matpv <- acast(matp,probe_id~sample_key,mean)
-    matpv <- t(matpv)
+    #matp <- mat[,c("sample_key","probe_id","padj")]
+    #matpv <- acast(matp,probe_id~sample_key,mean)
+    #matpv <- t(matpv)
 
-    mats <- mat[,c("sample_key","probe_id","se")]
-    matse <- acast(mats,probe_id~sample_key,mean)
-    matse <- t(matse)
-
+    #mats <- mat[,c("sample_key","probe_id","se")]
+    #matse <- acast(mats,probe_id~sample_key,mean)
+    #matse <- t(matse)
   }
 
   mat3 <- matfc
@@ -138,24 +143,26 @@ buildFCMAT2 <- function(dataset="DMEM_6hr_screen_normal_pe_1",
   save(FCMAT2,file=file)
   print(dim(FCMAT2))
 
-  matpv <- matpv[,colnames(FCMAT2)]
-  matse <- matse[,colnames(FCMAT2)]
-  matse.inv <- 1/matse
-  matfcse <- matse.inv * FCMAT2
+  do.other=F
+  if(do.other) {
+    matpv <- matpv[,colnames(FCMAT2)]
+    matse <- matse[,colnames(FCMAT2)]
+    matse.inv <- 1/matse
+    matfcse <- matse.inv * FCMAT2
 
-  FCMAT2.FCoverSE <- matfcse
-  print(dim(FCMAT2.FCoverSE))
-  file <- paste0(dir,"FCMAT2.FCoverSE.",dataset,".RData")
-  save(FCMAT2.FCoverSE,file=file)
+    FCMAT2.FCoverSE <- matfcse
+    print(dim(FCMAT2.FCoverSE))
+    file <- paste0(dir,"FCMAT2.FCoverSE.",dataset,".RData")
+    save(FCMAT2.FCoverSE,file=file)
 
-  FCMAT2.PV <- matpv
-  print(dim(FCMAT2.PV))
-  file <- paste0(dir,"FCMAT2.PV.",dataset,".RData")
-  save(FCMAT2.PV,file=file)
+    FCMAT2.PV <- matpv
+    print(dim(FCMAT2.PV))
+    file <- paste0(dir,"FCMAT2.PV.",dataset,".RData")
+    save(FCMAT2.PV,file=file)
 
-  FCMAT2.SE <- matse
-  print(dim(FCMAT2.SE))
-  file <- paste0(dir,"FCMAT2.SE.",dataset,".RData")
-  save(FCMAT2.SE,file=file)
-  flush.console()
+    FCMAT2.SE <- matse
+    print(dim(FCMAT2.SE))
+    file <- paste0(dir,"FCMAT2.SE.",dataset,".RData")
+    save(FCMAT2.SE,file=file)
+  }
 }

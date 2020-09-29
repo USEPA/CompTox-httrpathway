@@ -29,26 +29,31 @@ signatureScoreCoreFC <- function(fcdata,
                                  dataset,
                                  chem_dict,
                                  signature_data,
-                                 ngenemax=NULL) {
+                                 ngenemax=NULL,
+                                 verbose=F) {
 
   #Strategy: Matrix multiplication against logical in/out matrix gives fc sum over signature genes
-
+  if(verbose) cat("  signatureScoreCoreFC: 1\n")
   #inmat is a logical gene by signature matrix with TRUE when a a gene is in the signature
   # and false otherwise
   allgenes = colnames(fcdata)
   inmat = sapply(signature_data, function(x){allgenes %in% x})
-
+  if(verbose) cat("  signatureScoreCoreFC: 2\n")
   #Change NAs to zero in data to avoid changing sum
   existingdata = fcdata
   existingdata[is.na(fcdata)] = 0
 
   # deal with the minimum number of genes
+  if(verbose) cat("  signatureScoreCoreFC: 3\n")
+
   if(!is.null(ngenemax)) {
     absmat = abs(existingdata)
 
   }
   #inlengths is a sample by signature matrix that gives the number of non-missing genes present
   # in a signature
+  if(verbose) cat("  signatureScoreCoreFC: 4\n")
+
   inlengths = (!is.na(fcdata)) %*% inmat
   insums = existingdata %*% inmat #insums is a sample by signature matrix of l2fc sums in signature
   inmeans = insums/inlengths  #Divide by length of actual number of genes used for mean
@@ -57,8 +62,10 @@ signatureScoreCoreFC <- function(fcdata,
   outsums = existingdata %*% (!inmat)
   outlengths = (!is.na(fcdata)) %*% (!inmat)
   outmeans = outsums/outlengths
+  if(verbose) cat("  signatureScoreCoreFC: 5\n")
 
   signaturescore = inmeans - outmeans #final score is mean in - mean out
+  if(verbose) cat("  signatureScoreCoreFC: 6\n")
 
   #set up output columns
   name.list <- c("sample_id",
@@ -76,9 +83,13 @@ signatureScoreCoreFC <- function(fcdata,
 
   #signaturescoremat will be arranged as every signature for a given sample key,
   # then every signature for the next sample, etc.
+  if(verbose) cat("  signatureScoreCoreFC: 7\n")
+
   signaturescoremat = as.data.frame(matrix(0,nrow = nrow(signaturescore)*ncol(signaturescore),
                                            ncol = length(name.list)), stringsAsFactors = F)
   colnames(signaturescoremat) = name.list
+  if(verbose) cat("  signatureScoreCoreFC: 8\n")
+
   # fill in columns for output
   signaturescoremat$signature_score = as.vector(t(signaturescore))
   signaturescoremat$mean_fc_scaled_in = as.vector(t(inmeans))
@@ -86,13 +97,14 @@ signatureScoreCoreFC <- function(fcdata,
   signaturescoremat$size = as.vector(t(inlengths))
   signaturescoremat$signature = rep(names(signature_data), nrow(fcdata))
   signaturescoremat$sigset = rep(sigset, nrow(signaturescoremat))
-
+  if(verbose) cat("  signatureScoreCoreFC: 9\n")
+#browser()
   #use chem_dict to attach chem information; assumes all id information is present in chem_dict
   sk.list = rownames(fcdata)
   chemkey = chem_dict[match(as.vector(sk.list), chem_dict$sample_key), name.list[1:6]]
   keyrepeat = rep(1:length(sk.list), each = length(signature_data))
   signaturescoremat[,1:6] = chemkey[keyrepeat,]
+  if(verbose) cat("  signatureScoreCoreFC: 10\n")
 
   return(signaturescoremat)
-  cat("Score Calculated\n")
 }

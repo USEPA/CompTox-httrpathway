@@ -40,6 +40,7 @@ runAllSignatureCR = function(basedir="../input/fcdata/",
                              conthits = T,
                              nullset,
                              do.plot = T,
+                             do.cr=T,
                              pval = .05,
                              mc.cores = c(1,1),
                              fitmodels = c("cnst", "hill",  "poly1", "poly2",
@@ -57,22 +58,27 @@ runAllSignatureCR = function(basedir="../input/fcdata/",
   rownames(CHEM_DICT) <- CHEM_DICT[,"sample_key"]
 
   #run signature scores
+  cat("runAllSignatureCR: Start signatureScore\n")
   signatureScore(FCMAT2, CHEM_DICT,sigset,sigcatalog,dataset,method=method,
                  normfactor=normfactor,
                  mc.cores=mc.cores[1], minsigsize = minsigsize)
   if(is.null(nullset)) return()
 
+  cat("runAllSignatureCR: Start signatureScoreMerge\n")
   signatureScoreMerge(sigset,sigcatalog,dataset,method,nullset)
 
-  file <- "../input/cytotoxicity summary wide allchems.xlsx"
-  CYTOTOX <- read.xlsx(file)
-  rownames(CYTOTOX) <- CYTOTOX$dtxsid
+  if(do.cr) {
+    file <- "../input/cytotoxicity summary wide allchems.xlsx"
+    CYTOTOX <- read.xlsx(file)
+    rownames(CYTOTOX) <- CYTOTOX$dtxsid
 
-  #run conc/resp
-  signatureConcResp(sigset,sigcatalog,dataset,method=method, nullset = nullset, mc.cores=mc.cores[2], do.plot = do.plot,
-                    to.file=T, pval = pval, minsigsize = minsigsize, conthits = conthits,
-                    fitmodels = fitmodels,
-                    CYTOTOX=CYTOTOX)
+    #run conc/resp
+    cat("runAllSignatureCR: Start signatureConcResp\n")
+    signatureConcResp(sigset,sigcatalog,dataset,method=method, nullset = nullset, mc.cores=mc.cores[2], do.plot = do.plot,
+                      to.file=T, pval = pval, minsigsize = minsigsize, conthits = conthits,
+                      fitmodels = fitmodels,
+                      CYTOTOX=CYTOTOX)
+  }
 
 }
 

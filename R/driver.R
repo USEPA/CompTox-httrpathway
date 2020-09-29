@@ -8,9 +8,11 @@ library(reshape2)
 #' @param method signature scoring method in c("fc", "gsva", "mygsea")
 #' heparg2d_toxcast_pfas_pe1_normal
 #' mcf7_ph1_pe1_normal_good_pg
+#' mcf7_ph1_pe1_normal_all_pg
 #' u2os_toxcast_pfas_pe1_normal
 #' DMEM_6hr_pilot_normal_pe_1
 #' mcf7_ph1_pe1_normal_all_pg
+#' mcf7_ph1_pe1_normal_block_123
 #'
 #'  signatureDB_wgcna_mcf7_ph1_pe1_normal_good_pg_MCF7_12_10_catalog
 #'  signatureDB_master_catalog 2020-07-10 / screen_large
@@ -18,8 +20,8 @@ library(reshape2)
 #'
 #'
 #--------------------------------------------------------------------------------------
-driver <- function(dataset="mcf7_ph1_pe1_normal_all_pg",
-                   sigcatalog="signatureDB_master_catalog 2020-08-31",
+driver <- function(dataset="mcf7_ph1_pe1_normal_block_123",
+                   sigcatalog="signatureDB_master_catalog 2020-09-16",
                    sigset="screen_large",
                    nullset=NULL,
                    nrandom.chems=1000,
@@ -32,7 +34,7 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_all_pg",
                    do.scr.plots=T,
                    do.signature.summary.plot=T,
                    do.signature.pod=T,
-                   do.signature.pod.laneplot=T,
+                   do.signature.pod.laneplot=F,
                    do.all=F) {
   printCurrentFunction(paste(dataset,":",sigset))
 
@@ -49,6 +51,7 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_all_pg",
                       method = method,
                       normfactor=normfactor,
                       do.plot = F,
+                      do.cr=F,
                       mc.cores = c(mc.cores,mc.cores))
   }
   if(do.run.all || do.all){
@@ -59,6 +62,7 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_all_pg",
                       method = method,
                       normfactor=normfactor,
                       do.plot = T,
+                      do.cr=T,
                       mc.cores = c(mc.cores,mc.cores))
     cat("Look for output in \n
         ../output/signature_score_summary/\n
