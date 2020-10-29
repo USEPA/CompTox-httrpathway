@@ -5,6 +5,7 @@ library(openxlsx)
 #' @param sigset Name of the signature set.
 #' @param dataset Name of the data set.
 #' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
+#' @param bmr_scale	bmr scaling factor. Default = 1.349
 #' @param mc.cores Number of cores to parallelize with.
 #' @param do.load If TRUE, load the SIGNATURE_CR file, otherwiseassume that it is in memory
 #' to.file to.file = T saves the output to a file; otherwise it's returned.
@@ -26,14 +27,16 @@ signatureConcRespPlotWrapper <- function(sigset="screen_large",
                                          dataset="u2os_toxcast_pfas_pe1_normal",
                                          sigcatalog,
                                          method="fc",
+                                         bmr_scale=1.349,
                                          mc.cores=20,
                                          do.load=T,
                                          pval = .05,
-                                         nametag = NULL) {
+                                         nametag = "_conthits") {
 
-  printCurrentFunction(paste(dataset,sigset,method))
+  printCurrentFunction(paste(dataset,sigset,method,nametag))
   if(do.load) {
-    file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_", pval, nametag ,"_conthits.RData")
+    file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_", pval,nametag,".RData")
+    if(bmr_scale!=1.349) file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_bmr_scale_",bmr_scale,"_", pval,nametag,".RData")
     print(file)
     load(file=file)
     SIGNATURE_CR <<- SIGNATURE_CR
@@ -55,6 +58,8 @@ signatureConcRespPlotWrapper <- function(sigset="screen_large",
 
   dir.create("../output/signature_conc_resp_plots/", showWarnings = F)
   foldname = paste0("../output/signature_conc_resp_plots/",sigset,"_",dataset,"_",method,"_", pval, nametag)
+  if(bmr_scale!=1.349)
+    foldname = paste0("../output/signature_conc_resp_plots/",sigset,"_",dataset,"_",method,"_", pval, nametag,"_bmr_scale_",bmr_scale)
   dir.create(foldname, showWarnings = F)
   pnames = unique(SIGNATURE_CR$proper_name)
 

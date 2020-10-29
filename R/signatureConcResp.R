@@ -14,6 +14,7 @@ library(tcplfit2)
 #' @param sigset Name of the signature set.
 #' @param dataset Name of the data set.
 #' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
+#' @param bmr_scale	bmr scaling factor. Default = 1.349
 #' @param nullset Name of the null data set.
 #' @param mc.cores Number of cores to parallelize with.
 #' @param to.file to.file = T saves the output to a file; otherwise it's returned.
@@ -40,6 +41,7 @@ signatureConcResp <- function(sigset="pilot_tiny",
                               sigcatalog="signatureDB_master_catalog 2020-03-12",
                               dataset="DMEM_6hr_screen_normal_pe_1_pgnorm",
                               method="mygsea",
+                              bmr_scale=1.349,
                               nullset,
                               mc.cores=1,
                               to.file=T,
@@ -104,15 +106,13 @@ signatureConcResp <- function(sigset="pilot_tiny",
                         "fitcnst", "fitpoly1", "fitpoly2", "fitpow", "fitexp2", "fitexp3","fitexp4", "fitexp5",
                         "gnls" , "gnlsderivobj", "hillfn", "hitcontinner","hitloginner","tcplfit2_core","tcplhit2_core", "loggnls", "loghill", "nestselect",
                         "poly1", "poly2", "pow", "tcplObj", "toplikelihood"))
-    #SIGNATURE_CR = parLapplyLB(cl = cl, X=signaturescoremat, fun=signatureConcRespCore_pval, fitmodels = fitmodels,
-    #                         conthits =conthits, aicc = aicc, chunk.size = ceiling(length(signaturescoremat)/5/mc.cores) )
-    SIGNATURE_CR = parLapplyLB(cl = cl, X=signaturescoremat, fun=concRespCore, fitmodels = fitmodels,
+    SIGNATURE_CR = parLapplyLB(cl = cl, X=signaturescoremat, fun=concRespCore, fitmodels = fitmodels, bmr_scale=bmr_scale,
                              conthits =conthits, aicc = aicc, verbose=FALSE, chunk.size = ceiling(length(signaturescoremat)/5/mc.cores) )
     cat("> signatureConcResp 7\n")
   } else {
     cat("> signatureConcResp 6\n")
-    #SIGNATURE_CR = lapply(X=signaturescoremat, FUN = signatureConcRespCore_pval, fitmodels = fitmodels, conthits= conthits, aicc = aicc)
-    SIGNATURE_CR = lapply(X=signaturescoremat, FUN =concRespCore, fitmodels = fitmodels, conthits= conthits, aicc = aicc,verbose=F)
+    SIGNATURE_CR = lapply(X=signaturescoremat, FUN =concRespCore, fitmodels = fitmodels, bmr_scale=bmr_scale,
+                          conthits= conthits, aicc = aicc,verbose=F)
     cat("> signatureConcResp 7\n")
   }
 
@@ -127,6 +127,7 @@ signatureConcResp <- function(sigset="pilot_tiny",
   SIGNATURE_CR$sigset = sigset
   SIGNATURE_CR$dataset = dataset
   SIGNATURE_CR$method = method
+  SIGNATURE_CR$bmr_scale = bmr_scale
   SIGNATURE_CR$ac50_loss = as.numeric(SIGNATURE_CR$ac50_loss)
   cat("> signatureConcResp 9\n")
 
@@ -134,15 +135,15 @@ signatureConcResp <- function(sigset="pilot_tiny",
   if(to.file){
     dir.create("../output/signature_conc_resp_summary/", showWarnings = F)
     file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_", pval, nametag ,".RData")
+    if(bmr_scale!=1.349) file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_bmr_scale_",bmr_scale,"_", pval, nametag ,".RData")
     save(SIGNATURE_CR,file=file)
   }
   cat("> signatureConcResp 10\n")
 
-  cat("> signatureConcResp 11\n")
-
   if(mc.cores > 1) stopCluster(cl)
   print(proc.time() - starttime)
 
+  cat("> signatureConcResp 11\n")
   if(!to.file) return(SIGNATURE_CR)
 }
 

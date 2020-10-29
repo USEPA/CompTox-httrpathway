@@ -20,19 +20,20 @@ library(reshape2)
 #'
 #'
 #--------------------------------------------------------------------------------------
-driver <- function(dataset="mcf7_ph1_pe1_normal_block_123",
-                   sigcatalog="signatureDB_master_catalog 2020-09-16",
+driver <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
+                   sigcatalog="signatureDB_master_catalog 2020-10-22",
                    sigset="screen_large",
                    nullset=NULL,
                    nrandom.chems=1000,
                    normfactor=7500,
                    mc.cores=20,
+                   bmr_scale=1.349,
                    method="fc",
-                   do.build.random=T,
-                   do.run.random=T,
-                   do.run.all=T,
-                   do.scr.plots=T,
-                   do.signature.summary.plot=T,
+                   do.build.random=F,
+                   do.run.random=F,
+                   do.run.all=F,
+                   do.scr.plots=F,
+                   do.signature.summary.plot=F,
                    do.signature.pod=T,
                    do.signature.pod.laneplot=F,
                    do.all=F) {
@@ -50,6 +51,7 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_block_123",
                       sigcatalog=sigcatalog,
                       method = method,
                       normfactor=normfactor,
+                      bmr_scale=bmr_scale,
                       do.plot = F,
                       do.cr=F,
                       mc.cores = c(mc.cores,mc.cores))
@@ -60,6 +62,7 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_block_123",
                       sigset=sigset,
                       sigcatalog=sigcatalog,
                       method = method,
+                      bmr_scale=bmr_scale,
                       normfactor=normfactor,
                       do.plot = T,
                       do.cr=T,
@@ -75,26 +78,24 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_block_123",
                                   dataset=dataset,
                                   sigcatalog=sigcatalog,
                                   method=method,
+                                  bmr_scale=bmr_scale,
                                   mc.cores=mc.cores,
                                   do.load=T,
-                                  pval = .05,
-                                  nametag = NULL)
+                                  pval = .05)
   }
   if(do.signature.summary.plot || do.all) {
     signatureClassSummaryPlot(to.file=T,dataset=dataset,
                               sigcatalog=sigcatalog,
                               sigset=sigset,
-                              method = method)
-    #signatureClassSummaryDotPlot(to.file=T,dataset=dataset,
-    #                             sigcatalog=sigcatalog,
-    #                            sigset=sigset,
-    #                             method = method)
+                              method = method,
+                              bmr_scale=bmr_scale)
   }
   if(do.signature.pod || do.all) {
     signaturePOD(do.load=T,
                  sigset=sigset,
                  dataset=dataset,
                  method=method,
+                 bmr_scale=bmr_scale,
                  hccut=0.9)
   }
   if(do.signature.pod.laneplot) {

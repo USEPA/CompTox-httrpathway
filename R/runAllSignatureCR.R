@@ -12,6 +12,7 @@
 #' @param dataset Name of data set.
 #' @param sigset Name of signature set.
 #' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
+#' @param bmr_scale	bmr scaling factor. Default = 1.349
 #' @param minsigsize Minimum signature size.
 #' @param conthits conthits = T uses continous hitcall; conthits = F uses discrete
 #'   hitcalls.
@@ -35,6 +36,7 @@ runAllSignatureCR = function(basedir="../input/fcdata/",
                              sigset,
                              sigcatalog,
                              method = "mygsea",
+                             bmr_scale=1.349,
                              normfactor=7500,
                              minsigsize = 10,
                              conthits = T,
@@ -74,7 +76,7 @@ runAllSignatureCR = function(basedir="../input/fcdata/",
 
     #run conc/resp
     cat("runAllSignatureCR: Start signatureConcResp\n")
-    signatureConcResp(sigset,sigcatalog,dataset,method=method, nullset = nullset, mc.cores=mc.cores[2], do.plot = do.plot,
+    signatureConcResp(sigset,sigcatalog,dataset,method=method, bmr_scale=bmr_scale, nullset = nullset, mc.cores=mc.cores[2], do.plot = do.plot,
                       to.file=T, pval = pval, minsigsize = minsigsize, conthits = conthits,
                       fitmodels = fitmodels,
                       CYTOTOX=CYTOTOX)

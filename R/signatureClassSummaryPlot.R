@@ -1,16 +1,25 @@
 #--------------------------------------------------------------------------------------
 #'
+#' @param dataset Name of data set.
+#' @param sigset Name of signature set.
+#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
+#' @param bmr_scale	bmr scaling factor. Default = 1.349
 #' Build summary plots by signature class
 #' @param to.file If TRUE, write plots to a file
 #--------------------------------------------------------------------------------------
-signatureClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_pe_1",
+signatureClassSummaryPlot <- function(to.file=F,
+                                      dataset="DMEM_6hr_pilot_normal_pe_1",
                                     sigset="pilot_large_all_100CMAP",
                                     method = "mygsea",
+                                    bmr_scale=1.349,
                                     sigcatalog="signatureDB_master_catalog 2020-03-12",
                                     hitcall.threshold=0.5) {
   printCurrentFunction()
 
   file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_0.05_conthits.RData")
+  if(bmr_scale!=1.349) file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_bmr_scale_",bmr_scale,"_0.05_conthits.RData")
+
+
   load(file=file)
   mat <- SIGNATURE_CR
 
@@ -25,6 +34,8 @@ signatureClassSummaryPlot <- function(to.file=F,dataset="DMEM_6hr_pilot_normal_p
 
   if(to.file) {
     fname <- paste0("../output/signature_class_summary_plots/signatureClassSummaryPlot ",dataset,"_",sigset,"_",method,"_0.05_conthits.pdf")
+    if(bmr_scale!=1.349)
+      fname <- paste0("../output/signature_class_summary_plots/signatureClassSummaryPlot ",dataset,"_",sigset,"_",method,"_bmr_scale_",bmr_scale,"_0.05_conthits.pdf")
     pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
   }
   par(mfrow=c(3,2),mar=c(4,4,2,2))
