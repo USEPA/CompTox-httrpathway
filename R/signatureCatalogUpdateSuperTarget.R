@@ -2,7 +2,7 @@
 #' Update the super_target values in the signature catalog
 #'
 #'--------------------------------------------------------------------------------------
-signatureCatalogUpdateSuperTarget <- function(sigcatalog.in="signatureDB_master_catalog 2020-08-30in",
+signatureCatalogUpdateSuperTarget <- function(sigcatalog.in="signatureDB_master_catalog 2020-10-29",
                                               sigcatalog.out="signatureDB_master_catalog 2020-08-31",
                                               mapfile="signatureDB_master_catalog summary in",
                                               sigset="screen_large") {
