@@ -1,71 +1,58 @@
 #--------------------------------------------------------------------------------------
 #' Build the FCMAT1 data set
+#' This is a variant on the original buildFCMAT1 to handle large data sets
+#' hopefully a faster version of the very for-loopy FCMAT1 found in the myGSEA pagackge taken from Derik Hggard
+#' on feb 20 2020.  Written by Bryant Chambers mar 15 2020
+#'
+#' about:
+#' this script builds the giant FCMAT1 from a folder of tsv files in a directory of your choosing
+#'
+#' important. it asssumes that you have all files as .tsv s in a single folder. it doesn't check
+#' that all files are tsvs or exclude non tsv files. I just wrote this as a trial and it seems to
+#' significantly outperform the original. (a 3421 file set took 6 min while the original took 8 hours)
+#'
+#' buildFCMAT1.v3(dataset="DMEM_6hr_screen_normal_pe_1",
+#' dir="../input/httr_mcf7_screen/meanncnt0_5-plateteffect_0-shrinkage_normal_DMEM_6/")
 #'
 #' @param dataset The name to give to the data set
 #' @param dir The directory from which to read all of the raw filesatalog file
-#' @param filetype Either tsv or RData
-#' @return A file with the FCMAT1 data is written to "../input/fcdata/FCMAT0_",dataset,".RData"
-#'
-#'
-#' buildFCMAT1(dataset="DMEM_6hr_screen_normal_pe_1",dir="../input/httr_mcf7_screen/meanncnt0_5-plateteffect_0-shrinkage_normal_DMEM_6/")
-#'
-#' http://www.win-vector.com/blog/2015/07/efficient-accumulation-in-r/
+#' @param mc.cores The number of cores to use in reading the tsv files
+#' @return A file with the FCMAT1 data is written to "../input/fcdata/FCMAT1_",dataset,".RData"
 #'
 #' @export
+library(tidyverse)
 #--------------------------------------------------------------------------------------
-buildFCMAT1 = function(dataset="DMEM_6hr_pilot_normal_pe_1",
-                       dir="../input/httr_mcf7_pilot/meanncnt0_5-plateteffect_0-shrinkage_normal/DMEM_6/",
-                       filetype="tsv",
-                       version=1){
+buildFCMAT1 <- function(dataset="DMEM_6hr_screen_normal_pe_1",
+                        dir="../input/httr_mcf7_screen/meanncnt0_5-plateteffect_1-shrinkage_normal_DMEM_6/",
+                        mc.cores=1){
   printCurrentFunction()
 
-  if(version==1) {
-    file.list <- list.files(dir,full.names=TRUE)
-    #file.list <- file.list[1:10]
-    All <- lapply(file.list,function(i){
-      read.table(i,header=T,stringsAsFactors=F,sep="\t")
-    })
-    mat <- do.call(rbind.data.frame, All)
-    names(mat) <- c("probe_id","sample_key","basemean","l2fc","se","stat","pvalue","padj")
-    probes <- as.data.frame(mat[,1])
-    names(probes) <- "probe_id"
-    genes <- separate(probes,"probe_id",sep="_",into=c("genes","id"))
-    mat$gene <- genes[,1]
-    omat <- mat
-    #browser()
+  filelist <- list.files(dir) #list of all files to iterate through
+  ###########################################################################################################
+  #read all files and bind them simultaneously
+  #this builds a perliminary version of the FCMAT1
+  #  allframes <- suppressMessages(lapply(1:length(filelist),function(x)read_tsv(paste0(dir,filelist[x]))))
+  allframes <- suppressMessages(mclapply(1:length(filelist),function(x)read_tsv(paste0(dir,filelist[x])),mc.cores=mc.cores))
+  cat("   finish reading in all files:",length(allframes),":",length(filelist),"\n")
+  if(length(allframes)!=length(allframes)) {
+    cat("*** Not all data read in\n")
+    browser()
   }
+  #allframesbound <- do.call(rbind, allframes)
+  allframesbound <- rbindlist(allframes)
+  cat("   finish rbind:",dim(allframesbound),"\n")
 
-  if(version==0) {
-    file.list <- list.files(dir)
-    omat <- NULL
-    counter <- 0
-    count <- length(file.list)
-    for(file in file.list) {
-      fname <- paste0(dir,file)
-      counter <- counter+1
-      cat(counter," out of ",count," : ",file,"\n")
-      print(fname)
-      if(filetype=="tsv") {
-        mat <- read.table(fname,header=T,stringsAsFactors=F,sep="\t")
-      }
-      else if(filetype=="RData") {
-        load(fname)
-        mat <- FCests
-      }
-      else {
-        cat("invalid file type",filetype,"\n")
-        browser()
-      }
+  #allframesbound <- unique(allframesbound)
+  #cat("   unique data:",dim(allframesbound),"\n")
 
-      names(mat) <- c("probe_id","sample_key","basemean","l2fc","se","stat","pvalue","padj")
-      probes <- as.data.frame(mat[,1])
-      names(probes) <- "probe_id"
-      genes <- separate(probes,"probe_id",sep="_",into="genes")
-      mat$gene <- genes[,1]
-      omat <- rbind(omat,mat)
-    }
-  }
-  FCMAT1 <- omat
+  ###########################################################################################################
+  #clean up the mat so it look identical to the original fcmat
+  names(allframesbound) <- c("probe_id","sample_key","basemean","l2fc","se","stat","pvalue","padj")               ## double check these so that they match yours
+  allframesbound$basemean <- as.integer(allframesbound$basemean)
+  FCMAT1 <- as.data.frame(allframesbound)
+  cat("   finish builing final data frame\n")
   file <- paste0("../input/fcdata/FCMAT1_",dataset,".RData")
+  cat("   start saving RData file\n")
   save(FCMAT1,file=file)
+  cat("finish saving RData file\n")
 }
