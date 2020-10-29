@@ -2,7 +2,11 @@
 #'
 #' Build lane plots by chemical list and signature class, across the datasets
 #' @param to.file If TRUE, write plots to a file
-#'
+#' @param dataset Name of data set.
+#' @param sigset Name of signature set.
+#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
+#' @param bmr_scale	bmr scaling factor. Default = 1.349
+
 #' heparg2d_toxcast_pfas_pe1_normal
 #' mcf7_ph1_pe1_normal_good_pg
 #' u2os_toxcast_pfas_pe1_normal
@@ -13,11 +17,13 @@ signaturePOD <- function(do.load=F,
                          sigset="screen_large",
                          dataset="PFAS_U2OS",
                          method="fc",
+                         bmr_scale=1.349,
                          hccut=0.95) {
   printCurrentFunction()
 
   if(do.load) {
     file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_0.05_conthits.RData")
+    if(bmr_scale!=1.349) file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_bmr_scale_",bmr_scale,"_0.05_conthits.RData")
     print(file)
     load(file=file)
     mat <- SIGNATURE_CR
@@ -80,6 +86,7 @@ signaturePOD <- function(do.load=F,
   result$signature_pod_95.count <- x
 
   file <- paste0("../output/signature_pod/signature_pod_",sigset,"_",dataset,"_",method,"_",hccut,".xlsx")
+  if(bmr_scale!=1.349) file <- paste0("../output/signature_pod/signature_pod_",sigset,"_",dataset,"_",method,"_bmr_scale_",bmr_scale,"_",hccut,".xlsx")
   write.xlsx(result,file)
 }
 
