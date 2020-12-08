@@ -7,16 +7,13 @@
 #' @param do.read If TRUE, read in FCMAT2 to a gloabal
 #' @return
 #'
-#' heparg2d_toxcast_pfas_pe1_normal
-#' mcf7_ph1_pe1_normal_good_pg
+#' mcf7_ph1_pe1_normal_block_123
 #' u2os_toxcast_pfas_pe1_normal
-#'
-#' u2os_toxcast_pfas_pe1_normal_refchems
-#' heparg2d_toxcast_pfas_pe1_normal_refchems
+#' heparg2d_toxcast_pfas_pe1_normal
 #--------------------------------------------------------------------------------------
 fixSuperTarget <- function(do.read=T,
-                           dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
-                           sigcatalog="signatureDB_master_catalog 2020-08-31",
+                           dataset="mcf7_ph1_pe1_normal_block_123",
+                           sigcatalog="signatureDB_master_catalog 2020-10-29",
                            sigset="screen_large",
                            method="fc") {
   printCurrentFunction(paste0(dataset,sigset,method))
