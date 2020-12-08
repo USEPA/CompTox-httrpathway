@@ -3,7 +3,7 @@ library(tcpl)
 #' Get the TOxCast PODs using input from
 #-----------------------------------------------------------------------------------#
 toxcastPOD <- function(do.prep=F) {
-
+  printCurrentFunction()
 
   if(do.prep) {
     #tcplConf(user='rjudson', pass='Catman2@', host='mysql-res1.epa.gov', drvr = 'MySQL',db = 'invitrodb')
