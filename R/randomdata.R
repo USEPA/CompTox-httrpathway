@@ -13,23 +13,49 @@
 #' @param nchem Number of null chemicals. Number of null samples is approximately
 #'   eight times this value.
 #' @param seed Random seed.
+#' @param maxconc Only use concentrations less than maxconc, default 1000000
+#' @param nlowconc If not NULL, only include the loest nlowconc concentrations for eahc chemical
+#' @param dtxsid.exclude dtxsids to exclude, default NULL
+#' for U2OS pilot dtxsid.exclude=c('DTXSID9020031','DTXSID0040464','DTXSID5023582')
 #'
 #' @return No output.
 #' @export
 randomdata = function(basedir="../input/fcdata/",
-                      dataset="heparg2d_toxcast_pfas_pe1_normal",
-                      nchem = 1000, seed = 12345){
+                      dataset="u2os_pilot_pe1_normal_null_pilot_lowconc",
+                      nchem = 1000,
+                      seed = 12345,
+                      maxconc=1000000,
+                      nlowconc=2,
+                      dtxsid.exclude=NULL){
   printCurrentFunction()
   set.seed(seed)
 
   #load chem_dict
   file <- paste0(basedir,"CHEM_DICT_",dataset,".RData")
   load(file)
-  chem_dict_0 <- CHEM_DICT
+  chem_dict_filter = CHEM_DICT
+  if(!is.null(nlowconc)) {
+    filter = vector(length=nrow(chem_dict_filter),mode="integer")
+    filter[] = 0
+    slist = unique(chem_dict_filter$sample_id)
+    cdf2 = NULL
+    for(sid in slist) {
+      temp = chem_dict_filter[is.element(chem_dict_filter$sample_id,sid),]
+      clist =sort(unique(temp$conc))
+      temp = temp[temp$conc<=clist[nlowconc],]
+      cdf2 = rbind(cdf2,temp)
+    }
+    chem_dict_filter = cdf2
+  }
+  chem_dict_filter = chem_dict_filter[chem_dict_filter$conc<maxconc,]
 
-  #get all the concentration vectors and sample nchem of them with replacement
+  if(!is.null(dtxsid.exclude)) chem_dict_filter = chem_dict_filter[!is.element(chem_dict_filter$dtxsid,dtxsid.exclude),]
+  chem_dict_0 = CHEM_DICT
+
+   #get all the concentration vectors and sample nchem of them with replacement
   concpats = lapply(CHEM_DICT$sample_id, function(x){CHEM_DICT$conc[CHEM_DICT$sample_id == x]}) #get concentration patterns
-#  nconcs = sapply(concpats, function(x) {length(unique(x))})
+
+  #  nconcs = sapply(concpats, function(x) {length(unique(x))})
   nconcs = sapply(concpats, function(x) {length(x)})
   concpats = concpats[nconcs >= 4] #don't use concs with <4 values
   concpats = concpats[nconcs <= 8] #don't use concs with >8 values
@@ -39,8 +65,11 @@ randomdata = function(basedir="../input/fcdata/",
   n = length(concs)
   #load fcmat
   file <- paste0(basedir,"FCMAT2_",dataset,".RData")
-  load(file)
   cat("  file:",file,"\n")
+  load(file)
+  sk.list = chem_dict_filter$sample_key
+  FCMAT2 = FCMAT2[sk.list,]
+
   fcmat2_0 <- FCMAT2
   cat("  dim:",dim(FCMAT2),"\n")
 

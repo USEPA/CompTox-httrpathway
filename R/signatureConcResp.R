@@ -98,6 +98,10 @@ signatureConcResp <- function(sigset="pilot_tiny",
   cat("> signatureConcResp 5\n")
 
   #lapply with inner function: signatureConcRespCore_pval
+
+  #file = "../input/txcplfit2_test.RData"
+  #save(list=c("signaturescoremat","fitmodels","bmr_scale","aicc"),file=file)
+  #browser()
   if(mc.cores > 1){
     cat("> signatureConcResp 6\n")
     cl = makePSOCKcluster(mc.cores)
@@ -107,12 +111,13 @@ signatureConcResp <- function(sigset="pilot_tiny",
                         "gnls" , "gnlsderivobj", "hillfn", "hitcontinner","hitloginner","tcplfit2_core","tcplhit2_core", "loggnls", "loghill", "nestselect",
                         "poly1", "poly2", "pow", "tcplObj", "toplikelihood"))
     SIGNATURE_CR = parLapplyLB(cl = cl, X=signaturescoremat, fun=concRespCore, fitmodels = fitmodels, bmr_scale=bmr_scale,
-                             conthits =conthits, aicc = aicc, verbose=FALSE, chunk.size = ceiling(length(signaturescoremat)/5/mc.cores) )
+                             conthits =conthits, aicc = aicc,bmd_low_bnd=0.1,bmd_up_bnd=10, verbose=FALSE, chunk.size = ceiling(length(signaturescoremat)/5/mc.cores) )
     cat("> signatureConcResp 7\n")
   } else {
     cat("> signatureConcResp 6\n")
+
     SIGNATURE_CR = lapply(X=signaturescoremat, FUN =concRespCore, fitmodels = fitmodels, bmr_scale=bmr_scale,
-                          conthits= conthits, aicc = aicc,verbose=F)
+                          conthits= conthits, aicc = aicc,bmd_low_bnd=0.1,bmd_up_bnd=10,verbose=F)
     cat("> signatureConcResp 7\n")
   }
 

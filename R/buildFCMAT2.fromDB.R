@@ -14,13 +14,18 @@
 #' and the chemical dictionary (CHEM_DICT) which translates form the sample key
 #' (sample_id_conc_time) to the individual components
 #'
-#'mcf7_ph1_pe1_normal_good_pg
-#'heparg2d_toxcast_pfas_pe1_normal
-#'u2os_toxcast_pfas_pe1_normal
-#'mcf7_ph1_pe1_normal_block_123
+#' mcf7_ph1_pe1_normal_good_pg
+#' heparg2d_toxcast_pfas_pe1_normal
+#' u2os_toxcast_pfas_pe1_normal
+#' mcf7_ph1_pe1_normal_block_123
+#' u2os_pilot_pe1_normal_null_full
+#' u2os_pilot_pe1_normal_null_pilot
+#' u2os_pilot_pe1_normal_null_pilot_lowconc
+#' u2os_pilot_pe1_normal_null_pilot_lowconc_lowchem
+#'
 #--------------------------------------------------------------------------------------
-buildFCMAT2.fromDB <- function(dataset="mcf7_ph1_pe1_normal_block_123",
-                               time=6,
+buildFCMAT2.fromDB <- function(dataset="u2os_pilot_pe1_normal_null_pilot_lowconc_lowchem",
+                               time=24,
                                media="DMEM",
                                dir="../input/fcdata/",
                                method="gene",
@@ -55,6 +60,12 @@ buildFCMAT2.fromDB <- function(dataset="mcf7_ph1_pe1_normal_block_123",
   file <- paste0(dir,"CHEM_DICT_",dataset,".RData")
   save(CHEM_DICT,file=file)
 
+  if(is.element("gene_symbol",names(mat))) {
+    x = names(mat)
+    x[is.element(x,"gene_symbol")] = "gene"
+    names(mat) = x
+  }
+  #browser()
   cat("  build FCMAT2\n")
   if(method=="gene") {
     mat2 <- mat[,c("sample_key","gene","l2fc")]

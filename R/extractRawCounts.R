@@ -19,7 +19,10 @@
 #--------------------------------------------------------------------------------------
 extractRawCounts <- function(dir="../input/rawdata/mcf7_screen/") {
   printCurrentFunction()
-  source("../../httrpl/httrpl/Rlib/httrpl.R", chdir=T)
+  cwd = getwd()
+  nwd = "../../httrpl/httrpl/"
+  #source("../../httrpl/httrpl/Rlib/httrpl.R", chdir=T)
+  #source("./Rlib/httrpl.R", chdir=T)
   #collection <- openMongo(host="fe.epa.gov", db="fe.epa.gov", username="readonly", passwd="ccte", collection="httr_mcf7_ph1")
 
   options(httrDefaultHost="fe.epa.gov")
@@ -33,12 +36,9 @@ extractRawCounts <- function(dir="../input/rawdata/mcf7_screen/") {
     newdir <- paste0(dir,"pg_",pg,"/")
     dir.create(dir, showWarnings = F)
     my_samples <- getWellInfo(db_host="fe.epa.gov", db_name="httr_mcf7_ph1", pg_id=pg)$sample_id
+    browser()
     well_data <- getWellCounts(db_host="fe.epa.gov", db_name="httr_mcf7_ph1", sample_ids=my_samples)
 
     browser()
-
-
-
   }
-
 }

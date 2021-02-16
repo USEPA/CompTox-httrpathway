@@ -10,10 +10,12 @@
 #' mcf7_ph1_pe1_normal_block_123
 #' u2os_toxcast_pfas_pe1_normal
 #' heparg2d_toxcast_pfas_pe1_normal
+#' u2os_pilot_pe1_normal_null_pilot_lowconc
+#'
 #--------------------------------------------------------------------------------------
 fixSuperTarget <- function(do.read=T,
-                           dataset="mcf7_ph1_pe1_normal_block_123",
-                           sigcatalog="signatureDB_master_catalog 2020-10-29",
+                           dataset="u2os_pilot_pe1_normal_null_pilot_lowconc",
+                           sigcatalog="signatureDB_master_catalog 2021-02-10",
                            sigset="screen_large",
                            method="fc") {
   printCurrentFunction(paste0(dataset,sigset,method))
@@ -49,5 +51,6 @@ fixSuperTarget <- function(do.read=T,
 
   SIGNATURE_CR <- mat
   file <- paste0("../output/signature_conc_resp_summary/fixed/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_0.05_conthits.RData")
+  cat("saving ...\n",file,"\n")
   save(SIGNATURE_CR,file=file)
 }

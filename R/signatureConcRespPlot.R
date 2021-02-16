@@ -22,12 +22,13 @@
 #'   }
 #'   Other elements are ignored.
 #' @param CYTOTOX The cytotoxicity data for all chemicals
+#' @param plotrange The x-range of the plot as a vector of 2 elements, this can be changed for special cases, but defaults to 0.001 to 100
 #' @return No output.
 #' @export
 #'
 #' @importFrom stringr str_split
 #' @importFrom grDevices rgb
-signatureConcRespPlot <- function(row,CYTOTOX=NULL) {
+signatureConcRespPlot <- function(row,CYTOTOX=NULL,plotrange=c(0.001,100)) {
 
   dtxsid <- row[1,"dtxsid"]
   sample_id <- row[1,"sample_id"]
@@ -50,7 +51,7 @@ signatureConcRespPlot <- function(row,CYTOTOX=NULL) {
   col.list <- c("black","cyan","red")
 
   #empty plot to start with
-  plotrange = c(0.001,100)
+
   plot(c(1,1),type="n",xlab="conc (uM)",ylab="Score",xlim=plotrange,ylim=c(ymin,ymax),
        log="x",main=paste(proper_name,"\n",signature),cex.main=0.9,cex.lab=1.5,cex.axis=1.5)
 
@@ -58,14 +59,14 @@ signatureConcRespPlot <- function(row,CYTOTOX=NULL) {
   yval <- ymin
 
   #cutoffs and gray rectangular noise region
-  rect(xleft=0.0001,ybottom=-cutoff,xright=1000,ytop=cutoff,col="lightgray")
-  lines(c(0.0001,1000),c(cutoff,cutoff),lwd=1)
-  lines(c(0.0001,1000),c(-cutoff,-cutoff),lwd=1)
+  rect(xleft=0.000001,ybottom=-cutoff,xright=1000,ytop=cutoff,col="lightgray")
+  lines(c(0.000001,1000),c(cutoff,cutoff),lwd=1)
+  lines(c(0.000001,1000),c(-cutoff,-cutoff),lwd=1)
 
   #thick line at 0 and bmrs
-  lines(c(0.0001,1000),c(0,0),lwd=2)
-  lines(c(0.0001,1000),c(bmr,bmr),lwd=1)
-  lines(c(0.0001,1000),c(-bmr,-bmr),lwd=1)
+  lines(c(0.000001,1000),c(0,0),lwd=2)
+  lines(c(0.000001,1000),c(bmr,bmr),lwd=1)
+  lines(c(0.000001,1000),c(-bmr,-bmr),lwd=1)
 
   #height for top labels
   yplot <- ymax*0.95
@@ -73,7 +74,7 @@ signatureConcRespPlot <- function(row,CYTOTOX=NULL) {
   xplot = 10^(seq(log10(plotrange[1]), log10(plotrange[2]), length.out = 8))[-8]
 
   #Top label headings
-#  text(xplot[1],yplot,"mthd",pos=4)
+  #  text(xplot[1],yplot,"mthd",pos=4)
   text(xplot[1],yplot,"AC50",pos=4)
   text(xplot[2],yplot,"BMD",pos=4)
   text(xplot[3],yplot,"Top",pos=4)
@@ -117,7 +118,7 @@ signatureConcRespPlot <- function(row,CYTOTOX=NULL) {
   text(xplot[2],yplot,format(bmd,digits=2),pos=4, col = "green")
   text(xplot[3],yplot,format(top,digits=2),pos=4)
   text(xplot[4],yplot,format(top_over_cutoff,digits=2),pos=4)
-e95 <- exp(er)*qt(.975,4) - exp(er)*qt(.025,4)
+  e95 <- exp(er)*qt(.975,4) - exp(er)*qt(.025,4)
   text(xplot[5],yplot,format(e95,digits=2),pos=4, col = "blue")
 
   #Bottom left info

@@ -12,26 +12,28 @@ library(openxlsx)
 #' @param pval Desired cutoff p-value.
 #' @param nametag Optional descriptor tag to attach to file outputs for
 #'   experimental/non-default runs.
-#
+#' @param plotrange The x-range of the plot as a vector of 2 elements, this can be changed for special cases, but defaults to 0.001 to 100
+#'
 #' @import data.table
 #' @import parallel
 #' @import openxlsx
 #'
 #' @export
-#'
+#' PFAS_HepaRG
 #' heparg2d_toxcast_pfas_pe1_normal
 #' mcf7_ph1_pe1_normal_good_pg
 #' u2os_toxcast_pfas_pe1_normal
 #'----------------------------------------------------------------------------------
 signatureConcRespPlotWrapper <- function(sigset="screen_large",
-                                         dataset="u2os_toxcast_pfas_pe1_normal",
+                                         dataset="PFAS_U2OS",
                                          sigcatalog,
                                          method="fc",
                                          bmr_scale=1.349,
                                          mc.cores=20,
                                          do.load=T,
                                          pval = .05,
-                                         nametag = "_conthits") {
+                                         nametag = "_conthits",
+                                         plotrange=c(0.001,100)) {
 
   printCurrentFunction(paste(dataset,sigset,method,nametag))
   if(do.load) {
@@ -76,10 +78,10 @@ signatureConcRespPlotWrapper <- function(sigset="screen_large",
     cat("run with cores:",mc.cores,"\n")
     output = clusterEvalQ(cl, library(stringr))
     output = parLapply(cl = cl, X=as.list(pnames), fun=plotouter,
-                       SIGNATURE_CR = SIGNATURE_CR, foldname = foldname)
+                       SIGNATURE_CR = SIGNATURE_CR, foldname = foldname, plotrange=plotrange)
   } else {
     cat("run with cores:",mc.cores,"\n")
-    output = lapply(X=as.list(pnames), plotouter,SIGNATURE_CR = SIGNATURE_CR, foldname = foldname)
+    output = lapply(X=as.list(pnames), plotouter,SIGNATURE_CR = SIGNATURE_CR, foldname = foldname, plotrange=plotrange)
   }
 
   if(mc.cores > 1) stopCluster(cl)
@@ -96,11 +98,12 @@ signatureConcRespPlotWrapper <- function(sigset="screen_large",
 #' @param proper_name Chemical name to be used in file name.
 #' @param SIGNATURE_CR Dataframe output of signatureConcResp_pval.
 #' @param foldname Folder name for output file.
+#' @param plotrange The x-range of the plot as a vector of 2 elements, this can be changed for special cases, but defaults to 0.001 to 100
 #' @import grDevices
 #'
 #' @return No output.
 #' @export
-plotouter = function(proper_name, SIGNATURE_CR, foldname){
+plotouter = function(proper_name, SIGNATURE_CR, foldname,plotrange=c(0.001,100)){
   #open pdf for plots
   #printCurrentFunction(proper_name)
   temp <- SIGNATURE_CR[SIGNATURE_CR$proper_name == proper_name,]
@@ -120,7 +123,7 @@ plotouter = function(proper_name, SIGNATURE_CR, foldname){
 
     #cycle through signatures (rows) and run signatureConcRespPlot
     for(i in 1:nrow(subframe)){
-      signatureConcRespPlot(subframe[i,])
+      signatureConcRespPlot(subframe[i,],plotrange=plotrange)
     }
     dev.off()
   }

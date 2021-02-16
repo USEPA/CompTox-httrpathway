@@ -12,16 +12,18 @@ library(RColorBrewer)
 #'
 #' Error bars are exp(er)*qt(.025,4) = exp(er)*2.7765
 #' heparg2d_toxcast_pfas_pe1_normal
-#' mcf7_ph1_pe1_normal_good_pg
-#' u2os_meanncnt0_5-plateteffect_1-shrinkage_normal
+#' mcf7_ph1_pe1_normal_block_123
+#' u2os_toxcast_pfas_pe1_normal
 #--------------------------------------------------------------------------------------
 signatureConcRepFilter <- function(to.file=F,
+                                   do.plot=F,
                                    do.load=F,
-                                   hccut=0.8,
-                                   tccut=2.0,
-                                   dataset="u2os_meanncnt0_5-plateteffect_1-shrinkage_normal",
+                                   hccut=0.9,
+                                   tccut=1.5,
+                                   dataset="u2os_toxcast_pfas_pe1_normal",
                                    sigset="screen_large",
-                                   method="mygsea") {
+                                   method="fc",
+                                   do.pfas=F) {
   printCurrentFunction(paste(dataset,sigset,method))
 
   if(do.load) {
@@ -36,13 +38,7 @@ signatureConcRepFilter <- function(to.file=F,
   #######################################################################################
   # Do all chemicals
   #######################################################################################
-  if(to.file) {
-    fname <- paste0("../output/signature_conc_resp_filtered/signature_conc_resp_filtered ",dataset,"_",sigset,"_",hccut,"_",tccut,".pdf")
-    pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
-  }
-  par(mfrow=c(3,2),mar=c(4,4,2,2))
   mat <- MAT
-  mat <- ma
   cat(nrow(mat),"\n")
   mat <- mat[mat$top_over_cutoff>tccut,]
   cat(nrow(mat),"\n")
@@ -54,22 +50,29 @@ signatureConcRepFilter <- function(to.file=F,
   file <- paste0("../output/signature_conc_resp_filtered/signature_conc_resp_filtered ",dataset,"_",sigset,"_",hccut,"_",tccut,".RData")
   SIGNATURE_CR <- mat
   save(SIGNATURE_CR,file=file)
+  if(do.plot) {
+    if(to.file) {
+      fname <- paste0("../output/signature_conc_resp_filtered/signature_conc_resp_filtered ",dataset,"_",sigset,"_",hccut,"_",tccut,".pdf")
+      pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
+    }
+    par(mfrow=c(3,2),mar=c(4,4,2,2))
+    for(i in 1:nrow(mat)){
+      if(i%%1000==0) cat(i," out of ",nrow(mat),"\n")
+      tryCatch({
+        signatureConcRespPlot(mat[i,])
+        if(!to.file) browser()
+      }, warning = function(w) {
+        cat("WARNING:\n")
+      }, error = function(e) {
+        cat("ERROR\n")
+      })
+    }
 
-  for(i in 1:nrow(mat)){
-    if(i%%1000==0) cat(i," out of ",nrow(mat),"\n")
-    tryCatch({
-      signatureConcRespPlot(mat[i,])
-      if(!to.file) browser()
-    }, warning = function(w) {
-      cat("WARNING:\n")
-    }, error = function(e) {
-      cat("ERROR\n")
-    })
+    if(!to.file) browser()
+    else dev.off()
   }
 
-  if(!to.file) browser()
-  else dev.off()
-
+  if(do.pfas) {
   #######################################################################################
   # Do PFAS chemicals
   #######################################################################################
@@ -84,7 +87,7 @@ signatureConcRepFilter <- function(to.file=F,
       pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
     }
     par(mfrow=c(3,2),mar=c(4,4,2,2))
-    file <- paste0("../output/signature_conc_resp_filtered/signature_conc_resp_filtered pfas ",dataset,"_",sigset,"_",hccut,"_",tccut,".RData")
+    file <- paste0("../output/signature_conc_resp_fsignatureConcRepFilteriltered/signature_conc_resp_filtered pfas ",dataset,"_",sigset,"_",hccut,"_",tccut,".RData")
     SIGNATURE_CR <- mat
     save(SIGNATURE_CR,file=file)
 
@@ -99,8 +102,9 @@ signatureConcRepFilter <- function(to.file=F,
         cat("ERROR\n")
       })
     }
-
+    signatureConcRepFilter
     if(!to.file) browser()
     else dev.off()
+  }
   }
 }
