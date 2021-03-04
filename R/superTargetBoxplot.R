@@ -7,15 +7,19 @@
 #' PFAS_HepaRG
 #' PFAS_U2OS
 #' u2os_pilot_pe1_normal_null_pilot_lowconc
+#' u2os_toxcast_pfas_pe1_normal_refchems
+#' heparg2d_toxcast_pfas_pe1_normal_refchems
 #'
-
+#' After running this, run the following ...
+#' superTargetPODplot
+#' superTargetStats
 #--------------------------------------------------------------------------------------
 superTargetBoxplot <- function(to.file=F,
                                do.load=F,
-                               dataset="mcf7_ph1_pe1_normal_block_123",
+                               dataset="PFAS_U2OS",
                                sigset="screen_large",
                                method="fc",
-                               celltype="MCF7",
+                               celltype="HepaRG",
                                hccut=0.95,
                                tccut=1.5,
                                minconc=0.0001,
@@ -38,12 +42,17 @@ superTargetBoxplot <- function(to.file=F,
     MAT <<- mat
   }
   mat = MAT
+  #x1 = mat[is.element(mat$super_target,"RAR"),]
+  #x1 = x1[is.element(x1$name,"all-trans-Retinoic acid"),]
   mat[is.na(mat$bmd),"bmd"] = 1000
   mat[is.na(mat$top_over_cutoff),"top_over_cutoff"] = 0
   mat[mat$hitcall<hccut,"bmd"] = 1000
   mat[mat$hitcall<hccut,"hitcall"] = 0
   mat[mat$top_over_cutoff<tccut,"bmd"] = 1000
   mat[mat$top_over_cutoff<tccut,"hitcall"] = 0
+  #x2 = mat[is.element(mat$super_target,"RAR"),]
+  #x2 = x2[is.element(x2$name,"all-trans-Retinoic acid"),]
+  #browser()
   st.list = sort(unique(mat$super_target))
   name.list = c("sample_id","dtxsid","name","use_class","targets","super_target","chem_super_target","bmd_median","match_chem","active")
   res1chem = as.data.frame(matrix(nrow=length(st.list),ncol=length(name.list)))
@@ -79,9 +88,9 @@ superTargetBoxplot <- function(to.file=F,
   #mat = mat[is.element(mat$name,"Butylparaben"),]
   chem.list = sort(unique(mat$name))
   for(chem in chem.list) {
-    temp0 = mat[is.element(mat$name,chem),]
-    dtxsid = temp0[1,"dtxsid"]
-    name = temp0[1,"name"]
+    tempchem = mat[is.element(mat$name,chem),]
+    dtxsid = tempchem[1,"dtxsid"]
+    name = tempchem[1,"name"]
     chem_annotation = NULL
     chem_use = NULL
     chem_super_target = NULL
@@ -97,10 +106,9 @@ superTargetBoxplot <- function(to.file=F,
       chem_super_target = str_split(chem_super_target,"\\|")[[1]]
       print(chem_super_target)
     }
-    sid.list = unique(temp0$sample_id)
+    sid.list = unique(tempchem$sample_id)
     for(sid in sid.list) {
-      temp = temp0[is.element(temp0$sample_id,sid),]
-
+      temp = tempchem[is.element(tempchem$sample_id,sid),]
       suse = paste(chem_use,collapse="|")
       star = paste(chem_annotation,collapse="|")
       pod_st = 1000
@@ -250,6 +258,7 @@ superTargetBoxplot <- function(to.file=F,
         if(nrow(res)>nmax) {
           res$useme = 0
           res[res$match_chem==1,"useme"] = 1
+          res[is.element(res$super_target,"Stress"),"useme"] = 1
           n0 = nrow(res[res$useme==1,])
           for(kk in 1:nrow(res)) {
             if(n0<nmax) {
@@ -318,6 +327,9 @@ superTargetBoxplot <- function(to.file=F,
               nnk = paste(nnk,"*")
               cols[k] = "red"
             }
+            if(is.element(nnk,"Stress")) {
+              cols[k] = "orange"
+            }
             newnames[k] = nnk
           }
           if(length(yy1)>0) {
@@ -370,10 +382,10 @@ superTargetBoxplot <- function(to.file=F,
     }
   }
   if(to.file) dev.off()
-  file <- paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_summary.xlsx")
+  file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_summary.xlsx")
   write.xlsx(summary,file)
-  file <- paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_all.xlsx")
-  write.xlsx(res.all,file)
+  file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_all.RData")
+  save(res.all,file=file)
   cat(counter,nrow(summary),"\n")
 }
 
