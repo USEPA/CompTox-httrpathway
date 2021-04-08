@@ -35,7 +35,7 @@ geneConcResp <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
                          aicc = F,
                          fitmodels = c("cnst", "hill", "poly1", "poly2", "pow", "exp2", "exp3",
                                        "exp4", "exp5"),
-                         genefile="../output/PFAS/pfasImmuneRefchemHeatmap_immunosuppression strong_signature_genecounts_HepaRG.xlsx"
+                         genefile=NULL#"../output/PFAS/pfasImmuneRefchemHeatmap_immunosuppression strong_signature_genecounts_HepaRG.xlsx"
                          ) {
 
   printCurrentFunction(dataset)
