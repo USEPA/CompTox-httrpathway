@@ -53,8 +53,9 @@ signatureConcRespPlot <- function(row,CYTOTOX=NULL,plotrange=c(0.001,100)) {
   #empty plot to start with
 
   plot(c(1,1),type="n",xlab="conc (uM)",ylab="Score",xlim=plotrange,ylim=c(ymin,ymax),
-       log="x",main=paste(proper_name,"\n",signature),cex.main=0.9,cex.lab=1.5,cex.axis=1.5)
-
+       log="x",main=paste(proper_name,"\n",signature),cex.main=0.9,cex.lab=1.4,cex.axis=1.4,
+       xaxt="n")
+  axis(side=1,at=c(0.001,0.01,0.1,1,10,100),cex=1.4)
   delta <- (ymax-ymin)/16
   yval <- ymin
 
@@ -79,8 +80,7 @@ signatureConcRespPlot <- function(row,CYTOTOX=NULL,plotrange=c(0.001,100)) {
   text(xplot[2],yplot,"BMD",pos=4)
   text(xplot[3],yplot,"Top",pos=4)
   text(xplot[4],yplot,"T/C",pos=4)
-  text(xplot[5],yplot,"E95",pos=4)
-  text(xplot[6],yplot,"Hitcall",pos=4)
+  text(xplot[5],yplot,"Hitcall",pos=4)
 
   j = 1 #j = 1 is black
   conc <- conc[!is.na(resp)]
@@ -109,23 +109,19 @@ signatureConcRespPlot <- function(row,CYTOTOX=NULL,plotrange=c(0.001,100)) {
   }
 
   yplot <- yplot-(ymax-ymin)*0.05 #second row for top labels
-  #points(xplot[1],yplot,pch=19,col=col.list[j]) #dot at top left
 
   #Fill in top labels second row
-  #text(xplot[1],yplot,time,pos=4)
-  #text(xplot[2],yplot,fit_method,pos=4)
-  text(xplot[1],yplot,format(ac50,digits=2),pos=4, col = "red")
-  text(xplot[2],yplot,format(bmd,digits=2),pos=4, col = "green")
+  text(xplot[1],yplot,format(ac50,digits=2),pos=4, col = "black")
+  text(xplot[2],yplot,format(bmd,digits=2),pos=4, col = "black")
   text(xplot[3],yplot,format(top,digits=2),pos=4)
   text(xplot[4],yplot,format(top_over_cutoff,digits=2),pos=4)
-  e95 <- exp(er)*qt(.975,4) - exp(er)*qt(.025,4)
-  text(xplot[5],yplot,format(e95,digits=2),pos=4, col = "blue")
 
   #Bottom left info
-  text(xplot[1],0.85*ymin,paste("class: ",super_target,"\nsize: ",signature_size,"\nmethod:",
-                                fit_method,"\nCutoff=",format(cutoff,digits=2),sep=""),pos=4)
+  text(xplot[1],0.85*ymin,paste("target class: ",super_target,"\nsize: ",signature_size,"\nmethod: ",
+                                fit_method,"\ncutoff: ",format(cutoff,digits=2),sep=""),pos=4)
 
-  text(10,ymin,sample_id)
+  text(1,ymin*0.9,dtxsid,pos=4)
+  text(1,ymin,sample_id,pos=4)
   #color hitcall based on whether it's a hit
   color <- "black"
   font <- 1
@@ -133,7 +129,7 @@ signatureConcRespPlot <- function(row,CYTOTOX=NULL,plotrange=c(0.001,100)) {
     color <- "red"
     font <- 2
   }
-  text(xplot[6],yplot,format(hitcall, digits = 2),pos=4,col=color,cex=1,font=font)
+  text(xplot[5],yplot,format(hitcall, digits = 2),pos=4,col=color,cex=1,font=font)
 
   #plot green bmd with range
   if(hitcall>0) {

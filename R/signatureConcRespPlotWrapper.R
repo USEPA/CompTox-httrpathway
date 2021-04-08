@@ -19,23 +19,27 @@ library(openxlsx)
 #' @import openxlsx
 #'
 #' @export
-#' PFAS_HepaRG
 #' heparg2d_toxcast_pfas_pe1_normal
-#' mcf7_ph1_pe1_normal_good_pg
+#' mcf7_ph1_pe1_normal_block_123
 #' u2os_toxcast_pfas_pe1_normal
+#' PFAS_HepaRG
+#' PFAS_U2OS
+#' u2os_pilot_pe1_normal_null_pilot_lowconc
+#' u2os_toxcast_pfas_pe1_normal_refchems
+#' heparg2d_toxcast_pfas_pe1_normal_refchems
 #'----------------------------------------------------------------------------------
 signatureConcRespPlotWrapper <- function(sigset="screen_large",
-                                         dataset="PFAS_U2OS",
-                                         sigcatalog,
+                                         dataset="u2os_pilot_pe1_normal_null_pilot_lowconc",
+                                         sigcatalog="signatureDB_master_catalog 2021-03-05",
                                          method="fc",
                                          bmr_scale=1.349,
                                          mc.cores=20,
                                          do.load=T,
                                          pval = .05,
                                          nametag = "_conthits",
-                                         plotrange=c(0.001,100)) {
+                                         plotrange=c(0.0001,100)) {
 
-  printCurrentFunction(paste(dataset,sigset,method,nametag))
+  printCurrentFunction(paste(dataset,sigset,method))
   if(do.load) {
     file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_", pval,nametag,".RData")
     if(bmr_scale!=1.349) file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_bmr_scale_",bmr_scale,"_", pval,nametag,".RData")
@@ -54,9 +58,17 @@ signatureConcRespPlotWrapper <- function(sigset="screen_large",
   SIGNATURE_CR$proper_name = gsub(":","",SIGNATURE_CR$proper_name)
   SIGNATURE_CR$proper_name = gsub("%","Percent",SIGNATURE_CR$proper_name)
 
-  temp <- SIGNATURE_CR[SIGNATURE_CR$hitcall>0.8,]
+  temp = SIGNATURE_CR[SIGNATURE_CR$hitcall>0.9,]
+  temp = temp[temp$top_over_cutoff>1.5,]
   if(nrow(temp)<10) temp <- SIGNATURE_CR[1:10,]
   SIGNATURE_CR <- temp
+
+  ###########################################################################
+  #dlist = unique(SIGNATURE_CR$dtxsid)
+  #dlist= dlist[1:5]
+  #SIGNATURE_CR = SIGNATURE_CR[is.element(SIGNATURE_CR$dtxsid,dlist),]
+  #if(nrow(SIGNATURE_CR)>10) SIGNATURE_CR=SIGNATURE_CR[1:10,]
+  ###########################################################################
 
   dir.create("../output/signature_conc_resp_plots/", showWarnings = F)
   foldname = paste0("../output/signature_conc_resp_plots/",sigset,"_",dataset,"_",method,"_", pval, nametag)
@@ -112,6 +124,7 @@ plotouter = function(proper_name, SIGNATURE_CR, foldname,plotrange=c(0.001,100))
     fname <- paste0(foldname,"/conc_resp_",proper_name," ",sid,".pdf")
     pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
     par(mfrow=c(3,2),mar=c(4,4,2,2))
+    par(mfrow=c(3,2),mar=c(5,5,4,2))
 
     #narrow down to given chemical / and sample_id
     subframe = temp[is.element(temp$sample_id,sid),]

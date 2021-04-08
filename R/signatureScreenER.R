@@ -5,10 +5,10 @@
 signatureScreenER <- function(to.file=F,
                               do.load=F,
                               do.prep=F,
-                              dataset="DMEM_6hr_screen_normal_pe_1",
+                              dataset="mcf7_ph1_pe1_normal_block_123",
                               sigset="screen_large",
-                              sigcatalog="signatureDB_master_catalog 2020-04-05",
-                              method="mygsea") {
+                              sigcatalog="signatureDB_master_catalog 2021-02-17",
+                              method="fc") {
   printCurrentFunction()
   if(to.file) {
     fname <- paste0("../output/signature_ER/signature_ER_",dataset,"_",sigset,"_",method,".pdf")
@@ -17,15 +17,20 @@ signatureScreenER <- function(to.file=F,
   par(mfrow=c(2,1),mar=c(5,4,4,3))
 
   if(do.load) {
-    file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset.screen,"_",dataset.screen,"_",method,"_0.05_conthits hits.RData")
+    file = paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_0.05_conthits.RData")
     print(file)
-    load(file)
-    SIGNATURE_CR.screen <<- SIG_CONC_RESPONSE_ACTIVE
+    load(file=file)
+    mat = SIGNATURE_CR
+    mat = mat[mat$hitcall>0.9,]
+    mat = mat[mat$top_over_cutoff>1.5,]
+
+    SIGNATURE_CR <<- mat
   }
 
   if(do.prep) {
-    screen <- SIGNATURE_CR.screen
+    screen <- SIGNATURE_CR
     file <- "../output/signature_ER/ER_model_data 2020-03-26.xlsx"
+    file <- "../input/ER/ER_model_data 2019-11-01.xlsx"
     erdata <- read.xlsx(file)
     erdata <- erdata[erdata$AC50meanFromAUC<2,]
     dtxsid.list <- erdata$dtxsid
@@ -34,14 +39,15 @@ signatureScreenER <- function(to.file=F,
     name.list <- c("dtxsid","casrn","name","AC50meanFromAUC")
     mat <- erdata[,name.list]
     mat$ermodel.AC50 <- mat$AC50meanFromAUC
-    screen <- screen[is.element(screen$super_target,"estrogen"),]
+
+    screen <- screen[is.element(screen$super_target,"Estrogen"),]
     screen <- screen[is.element(screen$dtxsid,dtxsid.list),]
 
     x <- screen[is.element(screen$dtxsid,dtxsid.list[1:10]),]
     x <- x[x$bmd<1,]
     y <- as.data.frame(table(x$signature))
     y <- y[order(y$Freq,decreasing=T),]
-    sig.list <- y[y$Freq>=10,"Var1"]
+    sig.list <- y[y$Freq>=3,"Var1"]
     screen <- screen[is.element(screen$signature,sig.list),]
     mat$ERsignature.median <- NA
     mat$ERsignature.uci <- NA
@@ -49,13 +55,17 @@ signatureScreenER <- function(to.file=F,
 
     for(i in 1:nrow(mat)) {
       dtxsid <- mat[i,"dtxsid"]
-      bmd <- screen[is.element(screen$dtxsid,dtxsid),"bmd"]
+      bmd <- median(screen[is.element(screen$dtxsid,dtxsid),"bmd"])
       lbmd <- log10(bmd)
-      q <- quantile(lbmd,probs=seq(0,1,0.025))
-      mat[i,"ERsignature.lci"] <- q[2]
-      mat[i,"ERsignature.uci"] <- q[40]
-      mat[i,"ERsignature.median"] <- q[21]
+      cat(dtxsid,lbmd,"\n")
+      if(!is.na(lbmd)) {
+        q <- quantile(lbmd,probs=seq(0,1,0.025))
+        mat[i,"ERsignature.lci"] <- q[2]
+        mat[i,"ERsignature.uci"] <- q[40]
+        mat[i,"ERsignature.median"] <- q[21]
+      }
     }
+    mat = mat[!is.na(mat$ERsignature.median),]
     file <- paste0("../output/signature_ER/signature_ER_",dataset,"_",sigset,"_",method,".xlsx")
     write.xlsx(mat,file)
     MAT.ER <<- mat
@@ -71,7 +81,7 @@ signatureScreenER <- function(to.file=F,
   rmse <- sres$sigma
   main <- paste0("R2=",format(r2,digits=2),"   RMSE=",format(rmse,digits=2))
 
-  plot(c(1,1),type="n",xlab="ER Model log(AC50)",ylab="HTTr log(BMD)",
+  plot(c(1,1),type="n",xlab="ER Model log(AC50, uM)",ylab="HTTr log(BMD, uM)",
        xlim=c(-3,2),ylim=c(-3,2),cex.axis=1.2,cex.lab=1.2,
        main=main)
   lines(c(-5,5),c(-5,5))

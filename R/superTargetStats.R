@@ -1,20 +1,21 @@
 #--------------------------------------------------------------------------------------
 #' Generate hit statistics by super_target
 #'
-#' heparg2d_toxcast_pfas_pe1_normal
-#' mcf7_ph1_pe1_normal_block_123
-#' u2os_toxcast_pfas_pe1_normal
-#' PFAS_HepaRG
-#' PFAS_U2OS
-#' u2os_pilot_pe1_normal_null_pilot_lowconc
+#'  heparg2d_toxcast_pfas_pe1_normal
+#'  mcf7_ph1_pe1_normal_block_123
+#'  u2os_toxcast_pfas_pe1_normal
+#'  PFAS_HepaRG
+#'  PFAS_U2OS
+#'  u2os_pilot_pe1_normal_null_pilot_lowconc
+#'  u2os_toxcast_pfas_pe1_normal_refchems
+#'  heparg2d_toxcast_pfas_pe1_normal_refchems
 #'
-
 #--------------------------------------------------------------------------------------
 superTargetStats <- function(do.load=F,
-                             dataset="PFAS_HepaRG",
+                             dataset="u2os_toxcast_pfas_pe1_normal_refchems",
                              sigset="screen_large",
                              method="fc",
-                             celltype="HepaRG",
+                             celltype="U2OS",
                              hccut=0.95,
                              tccut=1.5) {
   printCurrentFunction(paste(dataset,sigset,method))

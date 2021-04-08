@@ -25,17 +25,17 @@ podAcrossDomains <- function(to.file=F) {
 
   dataset="mcf7_ph1_pe1_normal_block_123"
   celltype="MCF7"
-  file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,".xlsx")
+  file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_summary.xlsx")
   httr.mcf7 = read.xlsx(file)
 
   dataset="u2os_toxcast_pfas_pe1_normal"
   celltype="U2OS"
-  file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,".xlsx")
+  file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_summary.xlsx")
   httr.u2os = read.xlsx(file)
 
   dataset="heparg2d_toxcast_pfas_pe1_normal"
   celltype="HepaRG"
-  file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,".xlsx")
+  file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_summary.xlsx")
   httr.heparg = read.xlsx(file)
 
   file = "../toxcast/toxcast_pod.xlsx"
@@ -103,7 +103,7 @@ podAcrossDomains <- function(to.file=F) {
   }
 
   if(to.file) {
-    fname = paste0("../output/super_target_boxplot/podAcrossDomains.pdf")
+    fname = paste0("../output/super_target_boxplot/podAcrossDomains ",Sys.Date(),".pdf")
     pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
   }
   par(mfrow=c(3,2),mar=c(4,4,4,2))
@@ -128,7 +128,7 @@ podAcrossDomains <- function(to.file=F) {
   }
   if(!to.file) browser()
   else dev.off()
-  file <- paste0("../output/super_target_boxplot/podAcrossDomains.xlsx")
+  file <- paste0("../output/super_target_boxplot/podAcrossDomains ",Sys.Date(),".xlsx")
   write.xlsx(mat,file)
 }
 

@@ -6,7 +6,7 @@
 #--------------------------------------------------------------------------------------
 pfasDatasetPrep <- function(do.load=F,
                             dataset="heparg2d_toxcast_pfas_pe1_normal",
-                            sigset="screen_large",
+                            sigset="dorothea",
                             method="fc",
                             celltype="HepaRG") {
   printCurrentFunction(paste(dataset,sigset,method))
@@ -42,16 +42,5 @@ pfasDatasetPrep <- function(do.load=F,
   print(file)
   SIGNATURE_CR = mat
   save(SIGNATURE_CR,file=file)
-
-  #file = paste0("../output/signature_refchemdb/validated_signatures_merged.xlsx")
-  #temp=read.xlsx(file)
-  #sig.list = temp$signature
-  #mat = mat[is.element(mat$signature,sig.list),]
-  #mat = mat[mat$hitcall>=0.95,]
-  #dataset = paste0("PFAS_",celltype,"_filtered")
-  #file = paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_0.05_conthits.RData")
-  #print(file)
-  #SIGNATURE_CR = mat
-  #save(SIGNATURE_CR,file=file)
 }
 

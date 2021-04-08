@@ -11,12 +11,12 @@
 #--------------------------------------------------------------------------------------
 superTargetSummary <- function(do.load=F,
                                verbose=F,
-                               dataset="u2os_toxcast_pfas_pe1_normal",
+                               dataset="PFAS_HepaRG",
                                sigset="screen_large",
                                method="fc",
-                               celltype="U2OS",
+                               celltype="HepaRG",
                                hccut=0.95,
-                               tccut=2.5) {
+                               tccut=1.5) {
   printCurrentFunction(paste(dataset,sigset,method))
 
   if(do.load) {
@@ -36,11 +36,13 @@ superTargetSummary <- function(do.load=F,
   res = as.data.frame(matrix(nrow=length(st.list),ncol=length(name.list)))
   names(res) = name.list
   res$celltype = celltype
-  file = "../input/chemicals/httr_chemical_annotations 2020-09-14.xlsx"
+  file = "../input/chemicals/HTTR_chemical_annotations_2021-02-17.xlsx"
+  print(file)
   rcdb = read.xlsx(file)
   rcdb = rcdb[is.element(rcdb$dtxsid,dtxsid.list),]
 
-  file <- paste0("../output/super_target_boxplot/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,".xlsx")
+  #file <- paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_summary.xlsx")
+  file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_summary.xlsx")
   print(file)
   chems = read.xlsx(file)
 

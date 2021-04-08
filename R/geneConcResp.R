@@ -26,62 +26,95 @@
 #'
 #' @return If to.file = F, data frame containing results; otherwise, nothing.
 #' @export
-geneConcResp <- function(dataset="ph1_100normal_pid",
-                                 mc.cores=1,
-                                 to.file=F,
-                                 pval = .05,
-                                 nametag = NULL,
-                                 conthits = F,
-                                 aicc = F,
-                                 fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3",
-                                               "exp4", "exp5")) {
+geneConcResp <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
+                         mc.cores=20,
+                         to.file=T,
+                         pval = .05,
+                         nametag = NULL,
+                         conthits = T,
+                         aicc = F,
+                         fitmodels = c("cnst", "hill", "poly1", "poly2", "pow", "exp2", "exp3",
+                                       "exp4", "exp5"),
+                         genefile="../output/PFAS/pfasImmuneRefchemHeatmap_immunosuppression strong_signature_genecounts_HepaRG.xlsx"
+                         ) {
 
+  printCurrentFunction(dataset)
   starttime = proc.time()
-
   if(is.null(nametag) && conthits) nametag = "conthits"
   if(!is.null(nametag)) nametag = paste0("_", nametag)
 
   #get FCMAT and CHEM_DICT
   file <- paste0("../input/fcdata/FCMAT2_",dataset,".RData")
   load(file)
-
   file <- paste0("../input/fcdata/CHEM_DICT_",dataset,".RData")
   load(file)
+  if(!is.null(genefile)) {
+    temp = read.xlsx(genefile)
+    temp = temp[temp[,2]>2,]
+    genelist = temp[,1]
+    genelist = genelist[is.element(genelist,colnames(FCMAT2))]
+    FCMAT2 = FCMAT2[,genelist]
+  }
 
+  ################################################################
+  # dlist = unique(CHEM_DICT$dtxsid)
+  # dlist =dlist[1:10]
+  # CHEM_DICT = CHEM_DICT[is.element(CHEM_DICT$dtxsid,dlist),]
+  # sk.list = CHEM_DICT$sample_key
+  # FCMAT2 = FCMAT2[sk.list,1:10]
+  ################################################################
+
+  cat("files read\n")
+  print(dim(FCMAT2))
   #melt FCMAT to create one row per value data table
-  genemat = melt(FCMAT2, value.name = "l2fc",variable.factor = F)
+  genemat = reshape2::melt(FCMAT2, value.name = "l2fc",variable.factor = F)
   colnames(genemat)[1:2] = c("sample_key", "gene")
   genemat = genemat[!is.na(genemat$l2fc),]
   genemat = cbind(genemat, CHEM_DICT[genemat$sample_key,colnames(CHEM_DICT) != "sample_key"])
+  cat("genemat built\n")
+  genemat$gene = as.character(genemat$gene)
+  genemat$sample_key = as.character(genemat$sample_key)
 
   #get noise estimate from two lowest concs (could alternatively use semat)
   lowresps = genemat[genemat$conc <= .1, c("gene", "l2fc")]
-  stats = setDT(lowresps)[, list(cutoff = quantile(abs(l2fc),1-pval), onesd = sd(l2fc), bmed = median(l2fc)), by = list(gene)]
+  stats = setDT(lowresps)[, list(cutoff = quantile(abs(l2fc),1-pval), onesd = sd(l2fc), bmed = 0), by = list(gene)]
   genemat$cutoff = stats$cutoff[match(genemat$gene, stats$gene)]
   genemat$bmed = stats$bmed[match(genemat$gene, stats$gene)]
   genemat$onesd = stats$onesd[match(genemat$gene, stats$gene)]
 
   #aggregate genemat by unique sample/signature per row; data table is considerably faster than aggregate
   genemat = setDT(genemat)[, list(conc = list(conc),resp = list(l2fc)),
-                                     by = list(sample_id, dtxsid, casrn, name, time, gene, bmed, cutoff, onesd)]
+                           by = list(sample_id, dtxsid, casrn, name, time, gene, bmed, cutoff, onesd)]
 
   ordering = order(tolower(genemat$name), tolower(genemat$gene))
   genemat = genemat[ordering,]
 
   genemat = as.list(as.data.frame(t(genemat), stringsAsFactors = F))
+  cat("genemat as list\n")
 
   #loop through signatureConcRespcore_pval, which is generic for any conc/resp
   if(mc.cores > 1){
+    cat("start running multi core\n")
     cl = makePSOCKcluster(mc.cores)
     clusterExport(cl, c("acy", "acgnlsobj", "bmdbounds", "bmdobj", "cnst", "exp2", "exp3", "exp4", "exp5", "fitcnst", "fithill", "fitgnls",
                         "fitcnst", "fitpoly1", "fitpoly2", "fitpow", "fitexp2", "fitexp3","fitexp4", "fitexp5",
-                        "gnls" , "gnlsderivobj", "hillfn", "hitcontinner","hitloginner","httrFit", "loggnls", "loghill", "nestselect",
+                        "gnls" , "gnlsderivobj", "hillfn", "hitcontinner","hitloginner","loggnls", "loghill", "nestselect",
                         "poly1", "poly2", "pow", "tcplObj", "toplikelihood"))
-    GENE_CR = parLapplyLB(cl = cl, X=genemat, fun=signatureConcRespCore_pval, fitmodels = fitmodels,
-                             conthits =conthits, aicc = aicc, chunk.size = ceiling(length(genemat)/5/mc.cores) )
+    GENE_CR = parLapplyLB(cl = cl, X=genemat, fun=concRespCore, fitmodels = fitmodels,
+                          conthits =conthits, aicc = aicc, chunk.size = ceiling(length(genemat)/5/mc.cores) )
   } else {
-    GENE_CR = lapply(X=genemat, FUN = signatureConcRespCore_pval, fitmodels = fitmodels, conthits= conthits, aicc = aicc)
+    cat("start running single core\n")
+
+    # GENE_CR = NULL
+    # for(i in 1:length(genemat)) {
+    #   resp = concRespCore(genemat[[i]],fitmodels,force.fit=T,verbose=T,aicc=aicc)
+    #   GENE_CR = rbind(GENE_CR,resp)
+    #   browser()
+    # }
+
+    GENE_CR = lapply(X=genemat, FUN = concRespCore, fitmodels = fitmodels, conthits= conthits, aicc = aicc)
   }
+  cat("finish running\n")
 
   #reformat and save
   GENE_CR = as.data.frame(rbindlist(GENE_CR))
@@ -91,6 +124,7 @@ geneConcResp <- function(dataset="ph1_100normal_pid",
     file <- paste0("../output/gene_conc_resp_summary/GENE_CR_",dataset,"_", pval, nametag ,".RData")
     save(GENE_CR,file=file)
   } else return(GENE_CR)
+  cat("finish writing\n")
 
   if(mc.cores > 1) stopCluster(cl)
   print(proc.time() - starttime)

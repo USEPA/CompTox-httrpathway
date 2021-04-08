@@ -1,21 +1,21 @@
 #--------------------------------------------------------------------------------------
 #' Generate chemicalwise boxplot of the BMD distributions by super_target
 #'
-#' heparg2d_toxcast_pfas_pe1_normal
-#' mcf7_ph1_pe1_normal_block_123
-#' u2os_toxcast_pfas_pe1_normal
-#' PFAS_HepaRG
-#' PFAS_U2OS
-#' u2os_pilot_pe1_normal_null_pilot_lowconc
-#' u2os_toxcast_pfas_pe1_normal_refchems
-#' heparg2d_toxcast_pfas_pe1_normal_refchems
+#'  heparg2d_toxcast_pfas_pe1_normal
+#'  mcf7_ph1_pe1_normal_block_123
+#'  u2os_toxcast_pfas_pe1_normal
+#'  PFAS_HepaRG
+#'  PFAS_U2OS
+#'  u2os_pilot_pe1_normal_null_pilot_lowconc
+#'  u2os_toxcast_pfas_pe1_normal_refchems
+#'  heparg2d_toxcast_pfas_pe1_normal_refchems
 #'
 #--------------------------------------------------------------------------------------
 superTargetPODplot <- function(to.file=F,
-                               dataset="mcf7_ph1_pe1_normal_block_123",
+                               dataset="PFAS_U2OS",
                                sigset="screen_large",
                                method="fc",
-                               celltype="MCF7",
+                               celltype="U2OS",
                                hccut=0.95,
                                tccut=1.5) {
   printCurrentFunction(paste(dataset,sigset,method))

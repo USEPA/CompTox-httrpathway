@@ -32,7 +32,7 @@
 #'  mat: The results as a 1-row data frame
 #'  @export
 #--------------------------------------------------------------------------------------
-TxT<<- function(tp,fp,fn,tn,do.p=TRUE,rowname=NA) {
+TxT <<- function(tp,fp,fn,tn,do.p=TRUE,rowname=NA) {
   sens <- tp/(tp+fn)
   spec <- tn/(tn+fp)
   ppv  <- tp/(tp+fp)

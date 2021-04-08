@@ -11,11 +11,14 @@
 #' u2os_toxcast_pfas_pe1_normal
 #' heparg2d_toxcast_pfas_pe1_normal
 #' u2os_pilot_pe1_normal_null_pilot_lowconc
-#'
+#' PFAS_HepaRG
+#' PFAS_U2OS
+#' u2os_toxcast_pfas_pe1_normal_refchems
+#' heparg2d_toxcast_pfas_pe1_normal_refchems
 #--------------------------------------------------------------------------------------
 fixSuperTarget <- function(do.read=T,
-                           dataset="u2os_pilot_pe1_normal_null_pilot_lowconc",
-                           sigcatalog="signatureDB_master_catalog 2021-02-10",
+                           dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
+                           sigcatalog="signatureDB_master_catalog 2021-03-05",
                            sigset="screen_large",
                            method="fc") {
   printCurrentFunction(paste0(dataset,sigset,method))

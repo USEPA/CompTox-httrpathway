@@ -121,6 +121,7 @@ signatureScore <- function(FCMAT2,
     cat("  signatureScore: save signaturescoremat\n")
     file <- paste0("../output/signature_score_summary/signaturescoremat_",sigset,"_",dataset,"_",method,"_directional.RData")
     cat("   ",file,"\n")
+    #browser()
     save(signaturescoremat,file=file)
   }
   #call gsva scoring

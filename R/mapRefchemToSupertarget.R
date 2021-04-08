@@ -5,8 +5,8 @@
 #' @return the trimmed signature table
 #' @export
 mapRefchemToSupertarget <- function(sigset="screen_large",
-                                    sigcatalog="signatureDB_master_catalog 2021-02-10",
-                                    chem.annotation.file = "../input/chemicals/HTTR_chemical_annotations_2021-02-12.xlsx") {
+                                    sigcatalog="signatureDB_master_catalog 2021-02-17",
+                                    chem.annotation.file = "../input/chemicals/HTTR_chemical_annotations_2021-02-17.xlsx") {
 
   printCurrentFunction()
 

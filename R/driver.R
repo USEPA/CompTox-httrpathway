@@ -6,43 +6,38 @@ library(reshape2)
 #--------------------------------------------------------------------------------------
 #' Code to run all calculations
 #' @param method signature scoring method in c("fc", "gsva", "mygsea")
+#'
 #' heparg2d_toxcast_pfas_pe1_normal
-#' mcf7_ph1_pe1_normal_good_pg
-#' mcf7_ph1_pe1_normal_all_pg
-#' u2os_toxcast_pfas_pe1_normal
-#' DMEM_6hr_pilot_normal_pe_1
-#' mcf7_ph1_pe1_normal_all_pg
 #' mcf7_ph1_pe1_normal_block_123
-#'
-#' u2os_pilot_pe1_normal_null_full
-#' u2os_pilot_pe1_normal_null_pilot
+#' u2os_toxcast_pfas_pe1_normal
+#' PFAS_HepaRG
+#' PFAS_U2OS
 #' u2os_pilot_pe1_normal_null_pilot_lowconc
-#' u2os_pilot_pe1_normal_null_pilot_lowconc_lowchem
 #'
-#'  signatureDB_wgcna_mcf7_ph1_pe1_normal_good_pg_MCF7_12_10_catalog
-#'  signatureDB_master_catalog 2020-07-10 / screen_large
+#' DMEM_6hr_pilot_normal_pe_1 - MCF7 pilot
 #'
-#'
+#' u2os_toxcast_pfas_pe1_normal_refchems
+#' heparg2d_toxcast_pfas_pe1_normal_refchems
 #'
 #--------------------------------------------------------------------------------------
-driver <- function(dataset="u2os_pilot_pe1_normal_null_pilot_lowconc",
-                   sigcatalog="signatureDB_master_catalog 2020-12-16",
+driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
+                   sigcatalog="signatureDB_master_catalog 2021-03-05",
                    sigset="screen_large",
-                   nullset=NULL,#u2os_toxcast_pfas_pe1_normal_RAND1000",
+                   nullset=NULL,
                    nrandom.chems=1000,
                    normfactor=7500,
                    mc.cores=20,
                    bmr_scale=1.349,
                    plotrange=c(0.0001,100),
                    method="fc",
-                   celltype="U2OS",
-                   do.build.random=F,
+                   celltype="MCF7",
+                   do.build.random=T,
                    do.run.random=T,
                    do.run.all=T,
                    do.scr.plots=T,
                    do.signature.summary.plot=T,
                    do.signature.pod=T,
-                   do.signature.pod.laneplot=F,
+                   do.signature.pod.laneplot=T,
                    do.supertarget.boxplot=T,
                    do.all=F) {
   printCurrentFunction(paste(dataset,":",sigset))
