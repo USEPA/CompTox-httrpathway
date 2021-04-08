@@ -15,10 +15,12 @@ cd existing-project
 git init
 git add --all
 git commit -m "Initial Commit"
-git remote add origin ssh://git@ncct-bitbucket.epa.gov:7999/httrpat/httrpathway.git
+git remote add origin ssh://git@ccte-bitbucket.epa.gov:7999/httrpat/httrpathway.git
+
+git remote set-url origin ssh://git@ccte-bitbucket.epa.gov:7999/httrpat/httrpathway.git
 git push -u origin master
 
-https://ncct-bitbucket.epa.gov/projects/HTTRPAT/repos/httrpathway/browse
+https://ccte-bitbucket.epa.gov/projects/HTTRPAT/repos/httrpathway/browse
 
 Pointing to pdflatex ...
 
