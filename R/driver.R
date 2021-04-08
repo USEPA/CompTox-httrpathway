@@ -4,9 +4,32 @@ library(stringr)
 library(stringi)
 library(reshape2)
 #--------------------------------------------------------------------------------------
-#' Code to run all calculations
-#' @param method signature scoring method in c("fc", "gsva", "mygsea")
+#' Code to run all signature concentration-response calculations
 #'
+#' @param dataset Name of the data set, produced by buildFCMAT2
+#' @param sigcatalog Name of the signature catalog
+#' @param sigset Name if the signature set. THis corresponds to a column in the signature catalog file
+#' @param nullset The name of the NULL set if it is custom, default is NULL
+#' @param nrandom.chems Number of random chemicals for the NULL distribution calculation, default is 1000
+#' @param normfactor Normalization factor for the conc-reap plots, default is 7500
+#' @param mc.cores Number of cores for paralell processing. Only works under Linux
+#' @param bmr_scale Scaling factor from the NULL SD to BMD, default is 1.349,
+#' @param plotrange The concentration range for the conc-resp plots in uM, default is c(0.0001,100),
+#' @param method signature scoring method in c("fc", "gsva", "mygsea"), default is fc
+#' @param celltype Name of the cull type, e.g. MCF7
+#' @param do.build.random If TRUE, build the random dataset
+#' @param do.run.random If True, run the calculations on the random data set. This is used
+#'  to generate the NULL distribution
+#' @param do.run.all If true, run the calculations on the real data set
+#' @param do.scr.plots If TRUE, generate the signature concentration response plots
+#' @param do.signature.summary.plot if TRUE, generate the summary plots
+#' @param do.signature.pod If TRUE, generate the signature PODs
+#' @param do.signature.pod.laneplot If TRUE, generate the signature lane plots (only useful for small sets of chemicals)
+#' @param do.supertarget.boxplot If TRUE, generate the super target box plots
+#' @param do.all If TRUE, do all stesp from do.build.random to the end
+#'
+#'
+#' Available data sets
 #' heparg2d_toxcast_pfas_pe1_normal
 #' mcf7_ph1_pe1_normal_block_123
 #' u2os_toxcast_pfas_pe1_normal
