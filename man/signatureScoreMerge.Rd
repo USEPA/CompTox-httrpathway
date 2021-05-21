@@ -5,11 +5,11 @@
 \title{Merge the up and down halves of the pathway data}
 \usage{
 signatureScoreMerge(
-  sigset = "pilot_small",
-  sigcatalog = "signatureDB_master_catalog 2020-01-31",
-  dataset = "DMEM_6hr_pilot_normal_pe_1_RAND1000",
+  sigset = "screen_large",
+  sigcatalog = "signatureDB_master_catalog 2020-04-04",
+  dataset = "DMEM_6hr_screen_normal_pe_1_RAND1000",
   method = "mygsea",
-  nullset = "DMEM_6hr_pilot_normal_pe_1_RAND1000"
+  nullset = "DMEM_6hr_screen_normal_pe_1_RAND1000"
 )
 }
 \arguments{

@@ -4,7 +4,15 @@
 \alias{signatureScoreCoreFC}
 \title{Signature Score Core - FC}
 \usage{
-signatureScoreCoreFC(fcdata, sigset, dataset, chem_dict, signature_data)
+signatureScoreCoreFC(
+  fcdata,
+  sigset,
+  dataset,
+  chem_dict,
+  signature_data,
+  ngenemax = NULL,
+  verbose = F
+)
 }
 \arguments{
 \item{fcdata}{Sample by gene matrix of log2(fold change)'s. Rownames are
@@ -19,6 +27,9 @@ sample_key, sample_id, conc, time, casrn, name, dtxsid.}
 
 \item{signature_data}{Named ist of gene name vectors. Each element is one
 signature, defined by the genes it contains.}
+
+\item{ngenemax}{If ngene is not NULL, then tonly the most extreme n genes of the
+signature will be used for the "in" set}
 }
 \value{
 Dataframe with one row per chemical/conc/signature combination. Columns

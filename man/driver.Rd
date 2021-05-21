@@ -2,29 +2,84 @@
 % Please edit documentation in R/driver.R
 \name{driver}
 \alias{driver}
-\title{Code to run all calculations}
+\title{Code to run all signature concentration-response calculations}
 \usage{
 driver(
-  dataset = "DMEM_6hr_pilot_normal_pe_1",
-  sigcatalog = "signatureDB_master_catalog 2020-01-31",
-  sigset = "pilot_tiny",
+  dataset = "mcf7_ph1_pe1_normal_block_123_allPG",
+  sigcatalog = "signatureDB_master_catalog 2021-05-10",
+  sigset = "screen_large",
+  nullset = NULL,
   nrandom.chems = 1000,
-  mc.cores = 1,
+  normfactor = 7500,
+  mc.cores = 25,
+  bmr_scale = 1.349,
+  plotrange = c(1e-04, 100),
   method = "mygsea",
-  do.build.fcmat1.all = F,
-  do.build.fcmat2.all = F,
-  do.build.random = F,
-  do.run.random = F,
-  do.run.all = F,
-  do.signature.summary.plot = F,
-  do.signature.pod = F,
-  do.signature.pod.laneplot = F,
+  celltype = "MCF7",
+  do.build.random = T,
+  do.run.random = T,
+  do.run.all = T,
+  do.scr.plots = T,
+  do.signature.pod = T,
+  do.supertarget.boxplot = T,
   do.all = F
 )
 }
 \arguments{
-\item{method}{signature scoring method in c("fc", "gsva", "mygsea")}
+\item{dataset}{Name of the data set, produced by buildFCMAT2}
+
+\item{sigcatalog}{Name of the signature catalog}
+
+\item{sigset}{Name if the signature set. THis corresponds to a column in the signature catalog file}
+
+\item{nullset}{The name of the NULL set if it is custom, default is NULL}
+
+\item{nrandom.chems}{Number of random chemicals for the NULL distribution calculation, default is 1000}
+
+\item{normfactor}{Normalization factor for the conc-reap plots, default is 7500}
+
+\item{mc.cores}{Number of cores for paralell processing. Only works under Linux}
+
+\item{bmr_scale}{Scaling factor from the NULL SD to BMD, default is 1.349,}
+
+\item{plotrange}{The concentration range for the conc-resp plots in uM, default is c(0.0001,100),}
+
+\item{method}{signature scoring method in c("fc", "gsva", "mygsea"), default is fc}
+
+\item{celltype}{Name of the cull type, e.g. MCF7}
+
+\item{do.build.random}{If TRUE, build the random dataset}
+
+\item{do.run.random}{If True, run the calculations on the random data set. This is used
+to generate the NULL distribution}
+
+\item{do.run.all}{If true, run the calculations on the real data set}
+
+\item{do.scr.plots}{If TRUE, generate the signature concentration response plots}
+
+\item{do.signature.pod}{If TRUE, generate the signature PODs}
+
+\item{do.supertarget.boxplot}{If TRUE, generate the super target box plots}
+
+\item{do.all}{If TRUE, do all steps from do.build.random to the end
+
+
+Available data sets
+* heparg2d_toxcast_pfas_pe1_normal
+* mcf7_ph1_pe1_normal_block_123_allPG
+* mcf7_ph1_pe1_normal_block_123_excludePG
+* u2os_toxcast_pfas_pe1_normal
+* PFAS_HepaRG
+* PFAS_U2OS
+* u2os_pilot_pe1_normal_null_pilot_lowconc
+* u2os_toxcast_pfas_pe1_normal_refchems
+* heparg2d_toxcast_pfas_pe1_normal_refchems
+* DMEM_6hr_pilot_normal_pe_1 - MCF7 pilot}
+
+\item{do.signature.summary.plot}{if TRUE, generate the summary plots}
+
+\item{do.signature.pod.laneplot}{If TRUE, generate the signature lane plots (only useful for small sets of chemicals)}
 }
 \description{
-Code to run all calculations
+Code to run all signature concentration-response calculations
 }

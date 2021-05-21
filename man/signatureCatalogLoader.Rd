@@ -5,8 +5,8 @@
 \title{Merge the up and down halves of the pathway data}
 \usage{
 signatureCatalogLoader(
-  sigset = "pilot_small",
-  sigcatalog = "signatureDB_master_catalog 2020-01-31"
+  sigset = "wgcna",
+  sigcatalog = "signatureDB_wgcna_mcf7_ph1_pe1_normal_good_pg_MCF7_12_10_catalog"
 )
 }
 \arguments{

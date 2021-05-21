@@ -4,9 +4,24 @@
 \alias{signaturePOD}
 \title{Build lane plots by chemical list and signature class, across the datasets}
 \usage{
-signaturePOD(sigset, dataset, method, hit.threshold = 0.5)
+signaturePOD(
+  do.load = F,
+  sigset = "screen_large",
+  dataset = "PFAS_U2OS",
+  method = "fc",
+  bmr_scale = 1.349,
+  hccut = 0.95
+)
 }
 \arguments{
+\item{sigset}{Name of signature set.}
+
+\item{dataset}{Name of data set.}
+
+\item{method}{Pathway scoring method in c("fc", "gsva", "mygsea")}
+
+\item{bmr_scale}{bmr scaling factor. Default = 1.349}
+
 \item{to.file}{If TRUE, write plots to a file}
 }
 \description{

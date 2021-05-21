@@ -4,7 +4,7 @@
 \alias{signatureConcRespPlot}
 \title{Pathway Concentration Response Plot}
 \usage{
-signatureConcRespPlot(row, CYTOTOX)
+signatureConcRespPlot(row, CYTOTOX = NULL, plotrange = c(0.001, 100))
 }
 \arguments{
 \item{row}{Named list containing:
@@ -26,6 +26,8 @@ signatureConcRespPlot(row, CYTOTOX)
 Other elements are ignored.}
 
 \item{CYTOTOX}{The cytotoxicity data for all chemicals}
+
+\item{plotrange}{The x-range of the plot as a vector of 2 elements, this can be changed for special cases, but defaults to 0.001 to 100}
 }
 \value{
 No output.

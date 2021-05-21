@@ -5,10 +5,11 @@
 \title{Pathway Concentration Response (P-value)}
 \usage{
 signatureConcResp(
-  sigset,
-  sigcatalog,
-  dataset,
+  sigset = "pilot_tiny",
+  sigcatalog = "signatureDB_master_catalog 2020-03-12",
+  dataset = "DMEM_6hr_screen_normal_pe_1_pgnorm",
   method = "mygsea",
+  bmr_scale = 1.349,
   nullset,
   mc.cores = 1,
   to.file = T,
@@ -18,8 +19,8 @@ signatureConcResp(
   conthits = T,
   aicc = F,
   minsigsize = 10,
-  fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4",
-    "exp5"),
+  fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3",
+    "exp4", "exp5"),
   CYTOTOX
 )
 }
@@ -29,6 +30,8 @@ signatureConcResp(
 \item{dataset}{Name of the data set.}
 
 \item{method}{Pathway scoring method in c("fc", "gsva", "mygsea")}
+
+\item{bmr_scale}{bmr scaling factor. Default = 1.349}
 
 \item{nullset}{Name of the null data set.}
 
@@ -53,6 +56,8 @@ regular AIC.}
 with less than this number of non-missing l2fc's will be discarded.}
 
 \item{fitmodels}{Vector of model names to use. Probably should include "cnst".}
+
+\item{CYTOTOX}{The daat set of cytotoxicity data from ToxCast. No longer used}
 }
 \value{
 If to.file = T, nothing. If to.file = F, dataframe with signature CR

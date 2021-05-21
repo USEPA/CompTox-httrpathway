@@ -11,6 +11,7 @@ signatureScore(
   sigcatalog,
   dataset,
   method,
+  normfactor = 7500,
   mc.cores = 1,
   minsigsize = 10
 )

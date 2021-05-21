@@ -7,6 +7,7 @@
 signatureScoreCoreMYGSEA(
   sk.list,
   method = "mygsea",
+  normfactor = 7500,
   sigset,
   dataset,
   fcmat,

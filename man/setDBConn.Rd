@@ -4,7 +4,7 @@
 \alias{setDBConn}
 \title{set SQL connection to the database}
 \usage{
-setDBConn(server = "mysql-res1.epa.gov", user = "rjudson", password = NA)
+setDBConn(server = "ccte-mysql-res.epa.gov", user = "rjudson", password = NA)
 }
 \arguments{
 \item{server}{SQL server on which relevant database lives}
