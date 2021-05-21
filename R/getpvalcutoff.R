@@ -17,7 +17,7 @@
 #' @param pvals Vector of p-values to get cutoff for.
 #' @param numsds Vector of number of standard deviations to get cutoff for.
 #'   For instance, numsds = 1 will return cutoffs at 1 standard deviation.
-#'
+#' @param verbose If TRUE, write extra output
 #' @import data.table
 #'
 #' @return Dataframe with 4 or 5 columns: signature, cutoff, bmed (median of

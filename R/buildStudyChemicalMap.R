@@ -1,8 +1,7 @@
 #--------------------------------------------------------------------------------------
-#' Visualize the variance by signature - this supplants signatureVariance.R
+#' Build a catalog of the chemicals in a dataset
 #'
-#' @param min.ngene Signatures will only be saved if the number of genes is >= this value
-#' @param max.ngene Signatures will only be saved if the number of genes is <= this value
+#' @param dataset The name of the HTTr dataset
 #' @return No output.
 #' @export
 #--------------------------------------------------------------------------------------

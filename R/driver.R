@@ -40,7 +40,7 @@ library(reshape2)
 #' * u2os_toxcast_pfas_pe1_normal_refchems
 #' * heparg2d_toxcast_pfas_pe1_normal_refchems
 #' * DMEM_6hr_pilot_normal_pe_1 - MCF7 pilot
-#'
+#' @export
 #--------------------------------------------------------------------------------------
 driver <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
                    sigcatalog="signatureDB_master_catalog 2021-05-10",

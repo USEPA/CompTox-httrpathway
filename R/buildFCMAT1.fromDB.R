@@ -9,13 +9,14 @@ library(tidyverse)
 #' @param dataset The name to give to the data set
 #' @param dir The directory from which to read all of the raw files
 #' @param infile The nae of the input file
+#' @param pg.filter.file An optional file to use in filtering out bad plate groups
+#' @do.load If TRUE, read the large input data file into memory
 #' @return A file with the FCMAT1 data is written to "../input/fcdata/FCMAT1_",dataset,".RData"
 #'
 #' @export
 #--------------------------------------------------------------------------------------
 buildFCMAT1.fromDB <- function(dataset="mcf7_ph1_pe1_normal_block_123_excludePG",
                                dir="../input/fcdata/new_versions/",
-                               #infile="httr_mcf7_ph1_FCmat1_meanncnt0_5-plateteffect_1-shrinkage_normal_good_pg.RData",
                                infile="httr_mcf7_ph1_bl123_FCmat1_meanncnt0_5-plateteffect_1-shrinkage_normal.RData",
                                pg.filter.file="httr_mcf7_ph1_flagged_pg_block_123_exclude.xlsx",
                                do.load=T){

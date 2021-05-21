@@ -4,12 +4,12 @@ source("./httrpl/Rlib/httrpl.R",chdir=T)
 #' Gene the baseline gene counts for the cell atlas project
 #'
 #' @param db The name of the Mongo database
-#' @param collection THe name of the collection to export
 #' @param dir The directory where the data will be stored
 #'
 #' This functions takes files created by export_mongo_httr_well()
-#'httr_cell_atlas
-#'httr_tox21_cpp2
+#' * httr_cell_atlas
+#' * httr_tox21_cpp2
+#' @export
 #-------------------------------------------------------------------------------------
 baseline_gene_counts <- function(db="httr_cell_atlas",dir="../input/rawdata/cellatlas/") {
   printCurrentFunction()

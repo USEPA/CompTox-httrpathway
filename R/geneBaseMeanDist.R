@@ -1,9 +1,11 @@
 library(e1071)
 #--------------------------------------------------------------------------------------
-#' get the bse mean distributio nfor each gene
+#' get the base mean distribution for each gene
 #'
-#' @param min.ngene Signatures will only be saved if the number of genes is >= this value
-#' @param max.ngene Signatures will only be saved if the number of genes is <= this value
+#' @param to.file If TRUE, plot to a file
+#' @param do.read If TRUE, read the input file into memory
+#' @param dataset The name of the dataset
+#'
 #' @return No output.
 #' @export
 #--------------------------------------------------------------------------------------

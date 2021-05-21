@@ -1,11 +1,14 @@
 #--------------------------------------------------------------------------------------
 #'
-#' Build lane plots by chemical list and signature class, across the datasets
-#' @param to.file If TRUE, write plots to a file
-#' @param dataset Name of data set.
+#' Calculate PODs at the signature level
+#' @param do.laod If TRUE, load the input data into memory
 #' @param sigset Name of signature set.
+#' @param dataset Name of data set.
 #' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
 #' @param bmr_scale	bmr scaling factor. Default = 1.349
+#' @param hccut Remove rows with hitcall less than this value
+#'
+#' @export
 #--------------------------------------------------------------------------------------
 signaturePOD <- function(do.load=F,
                          sigset="screen_large",

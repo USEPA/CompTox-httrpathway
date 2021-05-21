@@ -17,8 +17,10 @@
 #' @param CHEM_DICT Dataframe with one row per sample key and seven columns:
 #'   sample_key, sample_id, conc, time, casrn, name, dtxsid.
 #' @param sigset Name of signature set.
+#' @param sigcatalog Name of the signature catalog file
 #' @param dataset Name of data set.
 #' @param method Signature scoring method in c("fc", "gsva", "mygsea")
+#' @param normfactor Value passed ot the plotting code to scale the y values
 #' @param mc.cores Number of cores to use.
 #' @param minsigsize Minimum allowed signature size BEFORE accounting for
 #'   missing values.

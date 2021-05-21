@@ -4,17 +4,16 @@
 #' This is the method to use when there are conc-response profiles of refchems
 #'
 #' @param dataset The name to give to the data set
-#' @param dir The directory from which to read all of the raw filesatalog file
-#' @param mc.cores The number of cores to use in reading the tsv files
+#' @param time The time in hours that the chemical dosing was run
+#' @param media THe name of the media used
+#' @param dir The directory from which to read all of the raw files
 #' @param method Either "gene" or "probe"
 #' @param do.read If TRUE, read in the FCMAT1 file and place in a global.
-#' @param chemical.file The required map from sample keys to chemical information
-#' @param dsstox.file The information mapping chemicals to DSSTox IDs
-#/
+#'
 #' @return Global variables are created for the FC matrix (FCMAT2), the SE matrix (SEMAT2)
 #' and the chemical dictionary (CHEM_DICT) which translates form the sample key
 #' (sample_id_conc_time) to the individual components
-#'
+#' @export
 #--------------------------------------------------------------------------------------
 buildFCMAT2.fromDB.refchems <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
                                         time=24,

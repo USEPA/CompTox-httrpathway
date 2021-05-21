@@ -16,7 +16,7 @@
 #'   signature, defined by the genes it contains.
 #' @param ngenemax If ngene is not NULL, then tonly the most extreme n genes of the
 #' signature will be used for the "in" set
-#'
+#' @param verbose If TRUE, weite extra diagnostic output
 #' @import openxlsx
 #'
 #' @return Dataframe with one row per chemical/conc/signature combination. Columns

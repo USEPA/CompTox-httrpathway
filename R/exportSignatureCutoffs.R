@@ -4,8 +4,8 @@
 #' @param do.load If TRUE, load hte large data file
 #' @param dataset The name of the HTTr data set to use
 #' @param sigset The name of the signature set to use
-#' @param THe scoring method to use
-#'
+#' @param method The scoring method to use
+#' @export
 #--------------------------------------------------------------------------------------
 exportSignatureCutoffs <- function(do.load=F,
                                    dataset="mcf7_ph1_pe1_normal_block_123_excludePG",

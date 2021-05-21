@@ -29,7 +29,6 @@ library(tcplfit2)
 #' @param minsigsize Minimum allowed signature size. Sample/signature combinations
 #'   with less than this number of non-missing l2fc's will be discarded.
 #' @param fitmodels Vector of model names to use. Probably should include "cnst".
-#' @param CYTOTOX The daat set of cytotoxicity data from ToxCast. No longer used
 #'
 #' @import data.table
 #' @import parallel
@@ -53,8 +52,7 @@ signatureConcResp <- function(sigset="pilot_tiny",
                               aicc = F,
                               minsigsize = 10,
                               fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3",
-                                            "exp4", "exp5"),
-                              CYTOTOX) {
+                                            "exp4", "exp5")) {
 
   printCurrentFunction(paste(dataset,sigset,method))
   starttime = proc.time()

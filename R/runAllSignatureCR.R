@@ -11,14 +11,17 @@
 #' @param basedir Folder that stores FCMAT2 and CHEM_DICT files.
 #' @param dataset Name of data set.
 #' @param sigset Name of signature set.
+#' @param sigcatalog Name of the signature catalog
 #' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
 #' @param bmr_scale	bmr scaling factor. Default = 1.349
+#' @param normfactor Factor to scale the native units up by to get onto a reasonable plotting value (~ -1 to 1)
 #' @param minsigsize Minimum signature size.
 #' @param conthits conthits = T uses continous hitcall; conthits = F uses discrete
 #'   hitcalls.
 #' @param nullset Name of null dataset. Set nullset = NULL to skip CR.
 #' @param do.plot do.plot = T generates a CR plot for every sample/signature
 #'   combination.
+#' @param do.cr Run the concentration-response step (set to FALSE for the null set)
 #' @param pval P-value to use for noise estimation.
 #' @param mc.cores Vector with two values: number of cores to use for signature
 #'   scoring and number of cores to use for CR. CR can usually handle the maximum
@@ -70,16 +73,12 @@ runAllSignatureCR = function(basedir="../input/fcdata/",
   signatureScoreMerge(sigset,sigcatalog,dataset,method,nullset)
 
   if(do.cr) {
-    file <- "../input/cytotoxicity summary wide allchems.xlsx"
-    CYTOTOX <- read.xlsx(file)
-    rownames(CYTOTOX) <- CYTOTOX$dtxsid
 
     #run conc/resp
     cat("runAllSignatureCR: Start signatureConcResp\n")
     signatureConcResp(sigset,sigcatalog,dataset,method=method, bmr_scale=bmr_scale, nullset = nullset, mc.cores=mc.cores[2], do.plot = do.plot,
                       to.file=T, pval = pval, minsigsize = minsigsize, conthits = conthits,
-                      fitmodels = fitmodels,
-                      CYTOTOX=CYTOTOX)
+                      fitmodels = fitmodels)
   }
 
 }

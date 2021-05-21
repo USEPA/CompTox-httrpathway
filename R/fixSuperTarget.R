@@ -2,11 +2,13 @@
 #' Replace the super_target values in the signature output file
 #' with ones from a new catalog
 #'
+#' @param do.read If TRUE, read in FCMAT2 to a global
 #' @param dataset The L2fc matrix data set
-#' @param dir The directory where the data file lives
-#' @param do.read If TRUE, read in FCMAT2 to a gloabal
+#' @param sigcatalog THe name of the signature catalog file
+#' @param sigset The name of the signature set to use
+#' @method The scoring method
 #' @return
-#'
+#' @export
 #--------------------------------------------------------------------------------------
 fixSuperTarget <- function(do.read=T,
                            dataset="PFAS_U2OS",

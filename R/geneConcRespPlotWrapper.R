@@ -1,20 +1,16 @@
 #' Wrapper for all of the conc-response plotting o genes
 #'
-#' @param sigset Name of the signature set.
 #' @param dataset Name of the data set.
-#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
-#' @param bmr_scale	bmr scaling factor. Default = 1.349
 #' @param mc.cores Number of cores to parallelize with.
 #' @param do.load If TRUE, load the SIGNATURE_CR file, otherwiseassume that it is in memory
-#' to.file to.file = T saves the output to a file; otherwise it's returned.
+#' @param to.file to.file = T saves the output to a file; otherwise it's returned.
 #' @param pval Desired cutoff p-value.
 #' @param nametag Optional descriptor tag to attach to file outputs for
 #'   experimental/non-default runs.
 #' @param plotrange The x-range of the plot as a vector of 2 elements, this can be changed for special cases, but defaults to 0.001 to 100
+#' @param onefile If TRUE, put all plots into one file, instead of one filer per chemical
+#' @param chemfile A file of chemicals to use. If NULL, plot all chemicals
 #'
-#' @import data.table
-#' @import parallel
-#' @import openxlsx
 #' @export
 #----------------------------------------------------------------------------------
 geneConcRespPlotWrapper <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",

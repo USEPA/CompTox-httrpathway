@@ -1,10 +1,10 @@
 #--------------------------------------------------------------------------------------
-#' Filter the conc-response data for jsut the most potent results
+#' Filter the conc-response data for just the most potent results
 #' and plot the conc-response curves if desired
 #'
 #' @param to.file If TRUE, send plots to a file
 #' @param do.plot If TRUE do the plotting
-#' @param If TRUE, load the data file
+#' @param do.load If TRUE, load the data file
 #' @param hccut Exclude rows with hitcall below this value
 #' @param tccut Exclude rows with top_over_cutoff below this value
 #' @param dataset Dataset to use
