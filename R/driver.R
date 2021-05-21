@@ -26,12 +26,13 @@ library(reshape2)
 #' @param do.signature.pod If TRUE, generate the signature PODs
 #' @param do.signature.pod.laneplot If TRUE, generate the signature lane plots (only useful for small sets of chemicals)
 #' @param do.supertarget.boxplot If TRUE, generate the super target box plots
-#' @param do.all If TRUE, do all stesp from do.build.random to the end
+#' @param do.all If TRUE, do all steps from do.build.random to the end
 #'
 #'
 #' Available data sets
 #' heparg2d_toxcast_pfas_pe1_normal
-#' mcf7_ph1_pe1_normal_block_123
+#' mcf7_ph1_pe1_normal_block_123_allPG
+#' mcf7_ph1_pe1_normal_block_123_excludePG
 #' u2os_toxcast_pfas_pe1_normal
 #' PFAS_HepaRG
 #' PFAS_U2OS
@@ -43,24 +44,22 @@ library(reshape2)
 #' heparg2d_toxcast_pfas_pe1_normal_refchems
 #'
 #--------------------------------------------------------------------------------------
-driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
-                   sigcatalog="signatureDB_master_catalog 2021-03-05",
+driver <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
+                   sigcatalog="signatureDB_master_catalog 2021-05-10",
                    sigset="screen_large",
                    nullset=NULL,
                    nrandom.chems=1000,
                    normfactor=7500,
-                   mc.cores=20,
+                   mc.cores=25,
                    bmr_scale=1.349,
                    plotrange=c(0.0001,100),
-                   method="fc",
+                   method="mygsea",
                    celltype="MCF7",
                    do.build.random=T,
                    do.run.random=T,
                    do.run.all=T,
                    do.scr.plots=T,
-                   do.signature.summary.plot=T,
                    do.signature.pod=T,
-                   do.signature.pod.laneplot=T,
                    do.supertarget.boxplot=T,
                    do.all=F) {
   printCurrentFunction(paste(dataset,":",sigset))
@@ -110,13 +109,6 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
                                  pval = .05,
                                  plotrange=plotrange)
   }
-  if(do.signature.summary.plot || do.all) {
-    signatureClassSummaryPlot(to.file=T,dataset=dataset,
-                              sigcatalog=sigcatalog,
-                              sigset=sigset,
-                              method = method,
-                              bmr_scale=bmr_scale)
-  }
   if(do.signature.pod || do.all) {
     signaturePOD(do.load=T,
                  sigset=sigset,
@@ -124,14 +116,6 @@ driver <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
                  method=method,
                  bmr_scale=bmr_scale,
                  hccut=0.9)
-  }
-  if(do.signature.pod.laneplot) {
-    podLaneplot(to.file=T,
-                dataset=dataset,
-                sigset=sigset,
-                method=method,
-                hccut=0.9,
-                plot.signature_min=F)
   }
   if(do.supertarget.boxplot) {
     superTargetBoxplot(to.file=T,

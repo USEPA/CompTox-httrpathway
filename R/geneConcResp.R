@@ -26,7 +26,21 @@
 #'
 #' @return If to.file = F, data frame containing results; otherwise, nothing.
 #' @export
-geneConcResp <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
+#'
+#'  heparg2d_toxcast_pfas_pe1_normal
+#' mcf7_ph1_pe1_normal_block_123_allPG
+#'  u2os_toxcast_pfas_pe1_normal
+#' PFAS_HepaRG
+#' PFAS_U2OS
+#' u2os_pilot_pe1_normal_null_pilot_lowconc
+#'
+#' DMEM_6hr_pilot_normal_pe_1 - MCF7 pilot
+#'
+#'  u2os_toxcast_pfas_pe1_normal_refchems
+#' heparg2d_toxcast_pfas_pe1_normal_refchems
+#'
+
+geneConcResp <- function(dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
                          mc.cores=20,
                          to.file=T,
                          pval = .05,
@@ -35,7 +49,7 @@ geneConcResp <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
                          aicc = F,
                          fitmodels = c("cnst", "hill", "poly1", "poly2", "pow", "exp2", "exp3",
                                        "exp4", "exp5"),
-                         genefile=NULL#"../output/PFAS/pfasImmuneRefchemHeatmap_immunosuppression strong_signature_genecounts_HepaRG.xlsx"
+                         genefile=NULL
                          ) {
 
   printCurrentFunction(dataset)
@@ -48,6 +62,7 @@ geneConcResp <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
   load(file)
   file <- paste0("../input/fcdata/CHEM_DICT_",dataset,".RData")
   load(file)
+
   if(!is.null(genefile)) {
     temp = read.xlsx(genefile)
     temp = temp[temp[,2]>2,]
@@ -56,30 +71,45 @@ geneConcResp <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
     FCMAT2 = FCMAT2[,genelist]
   }
 
+
+  sk.list = CHEM_DICT$sample_key
+  FCMAT2 = FCMAT2[sk.list,]
+  rownames(CHEM_DICT) = CHEM_DICT$sample_key
+  CHEM_DICT0 = CHEM_DICT
+  FCMAT20 = FCMAT2
   ################################################################
   # dlist = unique(CHEM_DICT$dtxsid)
-  # dlist =dlist[1:10]
   # CHEM_DICT = CHEM_DICT[is.element(CHEM_DICT$dtxsid,dlist),]
-  # sk.list = CHEM_DICT$sample_key
-  # FCMAT2 = FCMAT2[sk.list,1:10]
+  # nr = nrow(CHEM_DICT)
+  # FCMAT2 = FCMAT2[rownames(CHEM_DICT),1:500]
   ################################################################
 
   cat("files read\n")
   print(dim(FCMAT2))
   #melt FCMAT to create one row per value data table
+  cat("reshape\n")
   genemat = reshape2::melt(FCMAT2, value.name = "l2fc",variable.factor = F)
+  genemat[,1] = as.character(genemat[,1])
+  genemat[,2] = as.character(genemat[,2])
   colnames(genemat)[1:2] = c("sample_key", "gene")
-  genemat = genemat[!is.na(genemat$l2fc),]
-  genemat = cbind(genemat, CHEM_DICT[genemat$sample_key,colnames(CHEM_DICT) != "sample_key"])
-  cat("genemat built\n")
   genemat$gene = as.character(genemat$gene)
   genemat$sample_key = as.character(genemat$sample_key)
+  cat("merge\n")
+
+  genetab = data.table(genemat,key="sample_key")
+  chemtab = data.table(CHEM_DICT,key="sample_key")
+  temptab = merge(genetab,chemtab)
+  temp = as.data.table(temptab)
+  genemat = temp
+  cat("remove NAs\n")
+  genemat = genemat[!is.na(genemat$l2fc),]
+  cat("genemat built\n")
 
   #get noise estimate from two lowest concs (could alternatively use semat)
   lowresps = genemat[genemat$conc <= .1, c("gene", "l2fc")]
   stats = setDT(lowresps)[, list(cutoff = quantile(abs(l2fc),1-pval), onesd = sd(l2fc), bmed = 0), by = list(gene)]
   genemat$cutoff = stats$cutoff[match(genemat$gene, stats$gene)]
-  genemat$bmed = stats$bmed[match(genemat$gene, stats$gene)]
+  genemat$bmed = 0#stats$bmed[match(genemat$gene, stats$gene)]
   genemat$onesd = stats$onesd[match(genemat$gene, stats$gene)]
 
   #aggregate genemat by unique sample/signature per row; data table is considerably faster than aggregate
@@ -96,7 +126,7 @@ geneConcResp <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
   if(mc.cores > 1){
     cat("start running multi core\n")
     cl = makePSOCKcluster(mc.cores)
-    clusterExport(cl, c("acy", "acgnlsobj", "bmdbounds", "bmdobj", "cnst", "exp2", "exp3", "exp4", "exp5", "fitcnst", "fithill", "fitgnls",
+    clusterExport(cl, c("acy", "acgnlsobj", "bmdbounds", "bmdobj",  "cnst", "exp2", "exp3", "exp4", "exp5", "fitcnst", "fithill", "fitgnls",
                         "fitcnst", "fitpoly1", "fitpoly2", "fitpow", "fitexp2", "fitexp3","fitexp4", "fitexp5",
                         "gnls" , "gnlsderivobj", "hillfn", "hitcontinner","hitloginner","loggnls", "loghill", "nestselect",
                         "poly1", "poly2", "pow", "tcplObj", "toplikelihood"))

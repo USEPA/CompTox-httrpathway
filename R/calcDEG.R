@@ -1,8 +1,9 @@
 #--------------------------------------------------------------------------------------
-#' Calculate teh relative variability of genes to get the DEGs
+#' Calculate the relative variability of genes to get the DEGs
 #'
 #' @param dataset The name to give to the data set
 #' @param dir The directory from which to read all of the raw filesatalog file
+#' @param do.read If TRUE, read in the HTTr data file
 #'
 #'mcf7_ph1_pe1_normal_good_pg
 #'heparg2d_toxcast_pfas_pe1_normal

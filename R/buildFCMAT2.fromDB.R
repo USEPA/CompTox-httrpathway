@@ -14,17 +14,17 @@
 #' and the chemical dictionary (CHEM_DICT) which translates form the sample key
 #' (sample_id_conc_time) to the individual components
 #'
-#' mcf7_ph1_pe1_normal_good_pg
 #' heparg2d_toxcast_pfas_pe1_normal
 #' u2os_toxcast_pfas_pe1_normal
-#' mcf7_ph1_pe1_normal_block_123
+#' mcf7_ph1_pe1_normal_block_123_allPG
+#' mcf7_ph1_pe1_normal_block_123_excludePG
 #' u2os_pilot_pe1_normal_null_full
 #' u2os_pilot_pe1_normal_null_pilot
 #' u2os_pilot_pe1_normal_null_pilot_lowconc
 #' u2os_pilot_pe1_normal_null_pilot_lowconc_lowchem
 #'
 #--------------------------------------------------------------------------------------
-buildFCMAT2.fromDB <- function(dataset="u2os_pilot_pe1_normal_null_pilot_lowconc_lowchem",
+buildFCMAT2.fromDB <- function(dataset="mcf7_ph1_pe1_normal_block_123_excludePG",
                                time=24,
                                media="DMEM",
                                dir="../input/fcdata/",

@@ -1,6 +1,12 @@
 #--------------------------------------------------------------------------------------
 #'
 #' Generate the sample_key x sample x DSSTox file
+#' @param dataset Name of hte HTTr dataset
+#' @param dsstox.file Name of the DSStox chemical file
+#' @param dir Directory where the FCMAT1 files lives
+#' @param outfile Name of the output file
+#' @param do.read If TRUE, read in the input FCMAT1 file
+#'
 #--------------------------------------------------------------------------------------
 buildSampleMap <- function(dataset="DMEM_6hr_pilot_normal_pe_1",
                            dsstox.file="../input/DSSTox/DSSTox_sample_map.xlsx",

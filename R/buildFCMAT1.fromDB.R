@@ -19,10 +19,11 @@
 #                               do.load=T){
   library(tidyverse)
 #--------------------------------------------------------------------------------------
-buildFCMAT1.fromDB <- function(dataset="mcf7_ph1_pe1_normal_block_123",
+buildFCMAT1.fromDB <- function(dataset="mcf7_ph1_pe1_normal_block_123_excludePG",
                                dir="../input/fcdata/new_versions/",
-                               infile="httr_mcf7_ph1_FCmat1_meanncnt0_5-plateteffect_1-shrinkage_normal_good_pg.RData",
-                               pg.filter.file="httr_mcf7_ph1_flagged_pg_block_123.xlsx",
+                               #infile="httr_mcf7_ph1_FCmat1_meanncnt0_5-plateteffect_1-shrinkage_normal_good_pg.RData",
+                               infile="httr_mcf7_ph1_bl123_FCmat1_meanncnt0_5-plateteffect_1-shrinkage_normal.RData",
+                               pg.filter.file="httr_mcf7_ph1_flagged_pg_block_123_exclude.xlsx",
                                do.load=T){
   printCurrentFunction()
   if(do.load) {
@@ -35,6 +36,12 @@ buildFCMAT1.fromDB <- function(dataset="mcf7_ph1_pe1_normal_block_123",
   }
   FCMAT1 = FCMAT1.0
   cat("initial:",dataset,":",nrow(FCMAT1),"\n")
+
+  temp = unique(FCMAT1[,c("chem_id","chem_name","dtxsid","pg_id","block_id")])
+  names(temp) = c("sample_id","name","dtxsid","pg_id","block_id")
+  file = paste0(dir,"PG_MAP_",dataset,".xlsx")
+  write.xlsx(temp,file=file)
+  browser()
 
   filter = NULL
   if(!is.null(pg.filter.file)) {

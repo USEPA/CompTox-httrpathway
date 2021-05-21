@@ -24,7 +24,7 @@
 #'   all samples for that signature), pvalue (pvalue corresponding to each cutoff),
 #'   numsd (number of sds corresponding to each cutoff).
 #' @export
-getpvalcutoff = function(pathset, nullset, method, pvals = NULL, numsds = NULL,verbose=F){
+getpvalcutoff = function(pathset, nullset, method, pvals = NULL, numsds = NULL,verbose=T){
   printCurrentFunction(paste(pathset,":",nullset))
 
   #get null signature scores

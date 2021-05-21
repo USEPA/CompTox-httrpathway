@@ -1,14 +1,26 @@
 #--------------------------------------------------------------------------------------
-#' Generate chemicalwise boxplot of the BMD distributions by super_target
+#' Generate chemical-wise boxplot of the BMD distributions by super_target
 #'
-#'  heparg2d_toxcast_pfas_pe1_normal
-#'  mcf7_ph1_pe1_normal_block_123
-#' u2os_toxcast_pfas_pe1_normal
-#'  PFAS_HepaRG
-#'  PFAS_U2OS
-#'  u2os_pilot_pe1_normal_null_pilot_lowconc
-#'  u2os_toxcast_pfas_pe1_normal_refchems
-#'  heparg2d_toxcast_pfas_pe1_normal_refchems
+#' @param to.file If TRUE, send the plots to a file
+#' @param do.load If TRUE, load hte large HTTr data set into memory
+#' @param dataset Name of the HTTr data set
+#' @param sigcatalog Name of the signature catalog to use
+#' @param sigset Name of the signature set
+#' @param method Scoring method
+#' @param celltype Name of the cell type
+#' @param hccut Exclude rows in the data set with hitcall less than this value
+#' @param tccut Exclude rows in the data set with top_over_cutoff less than this value
+#' @param minconc Minimum concentration used in the plots
+#' @param maxconc Maximum concentration used in the plots
+#'
+#'   heparg2d_toxcast_pfas_pe1_normal
+#'   mcf7_ph1_pe1_normal_block_123_allPG
+#'   u2os_toxcast_pfas_pe1_normal
+#'   PFAS_HepaRG
+#'   PFAS_U2OS
+#'   u2os_pilot_pe1_normal_null_pilot_lowconc
+#'   u2os_toxcast_pfas_pe1_normal_refchems
+#'   heparg2d_toxcast_pfas_pe1_normal_refchems
 #'
 #' MCF7_HTTr_Water_Samples
 #'
@@ -16,12 +28,13 @@
 #' superTargetPODplot
 #' superTargetStats
 #--------------------------------------------------------------------------------------
-superTargetBoxplot <- function(to.file=F,
-                               do.load=F,
-                               dataset="MCF7_HTTr_Water_Samples",
+superTargetBoxplot <- function(to.file=T,
+                               do.load=T,
+                               dataset="heparg2d_toxcast_pfas_pe1_normal",
+                               sigcatalog="signatureDB_master_catalog 2021-04-24",
                                sigset="screen_large",
                                method="fc",
-                               celltype="MCF7",
+                               celltype="HepaRG",
                                hccut=0.95,
                                tccut=1.5,
                                minconc=0.001,
@@ -35,6 +48,10 @@ superTargetBoxplot <- function(to.file=F,
   }
   toxcast = TOXCAST
 
+  catalog = read.xlsx(paste0("../input/signatures/",sigcatalog,".xlsx"))
+  catalog = catalog[catalog[,sigset]==1,]
+  temp = unique(catalog[,c("parent","super_target")])
+  sttot = table(temp$super_target)
   file = "../input/chemicals/PFAS synonyms.xlsx"
   synonyms = read.xlsx(file)
   synonyms = synonyms[!is.na(synonyms$nickname),]
@@ -342,7 +359,8 @@ superTargetBoxplot <- function(to.file=F,
             if(length(top)>0) {
               np = length(top[top>0])
               nm = length(top[top<0])
-              nnk = paste0(nnk," (",np,",",nm,")")
+              ntot = sttot[nnk]
+              nnk = paste0(nnk," (",np,",",nm,"|",ntot,")")
             }
             if(is.element(nnk0,chem_super_target)) {
               nnk = paste(nnk,"*")

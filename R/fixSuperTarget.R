@@ -17,8 +17,8 @@
 #' heparg2d_toxcast_pfas_pe1_normal_refchems
 #--------------------------------------------------------------------------------------
 fixSuperTarget <- function(do.read=T,
-                           dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
-                           sigcatalog="signatureDB_master_catalog 2021-03-05",
+                           dataset="PFAS_U2OS",
+                           sigcatalog="signatureDB_master_catalog 2021-05-10",
                            sigset="screen_large",
                            method="fc") {
   printCurrentFunction(paste0(dataset,sigset,method))

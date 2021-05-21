@@ -1,7 +1,9 @@
 #--------------------------------------------------------------------------------------
 #'
 #' Summarize the POD overlap with ToxCast
-#' @param to.file If TRUE, write plots to a file
+#' @param sigset THe name of the signature set
+#' @param dataset Name of the HTTr data set
+#' @param method THe signature scoring method
 #--------------------------------------------------------------------------------------
 signaturePODsummary <- function(sigset="pilot_large_all_100CMAP",
                          dataset="DMEM_6hr_pilot_normal_pe_1",

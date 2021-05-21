@@ -1,9 +1,10 @@
 #--------------------------------------------------------------------------------------
 #'
 #' Generate the sample x DSSTox file
-#exportDSSToxSample <- function(infile="../input/chemicals/httr_mcf7_ph1_chem.xlsx",
-#                               outfile="../input/chemicals/HTTr_screen_sample_map.xlsx") {
-#
+#' @param outfile Name of the file to eb written
+#' exportDSSToxSample <- function(infile="../input/chemicals/httr_mcf7_ph1_chem.xlsx",
+#'                               outfile="../input/chemicals/HTTr_screen_sample_map.xlsx") {
+#'
 #--------------------------------------------------------------------------------------
 exportDSSToxSample <- function(outfile="../input/DSSTox/DSSTox_sample_map.xlsx") {
   printCurrentFunction()

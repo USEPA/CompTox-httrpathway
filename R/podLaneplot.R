@@ -2,8 +2,13 @@
 #'
 #' Build lane plots by chemical list and signature class, across the datasets
 #'
-#' @param bmd.mode percent or abs
 #' @param to.file If TRUE, write plots to a file
+#' @param dataset The data set to use
+#' @param sigset THe signature set to use
+#' @param method Scoring method
+#' @param hccut Exclude rows with hitcall less than this value
+#' @param plot.signature.min If TRUE, plot the minimum signature
+#' @param bmd.mode percent or abs
 #--------------------------------------------------------------------------------------
 podLaneplot <- function(to.file=F,
                         dataset="DMEM_6hr_pilot_normal_pe_1",

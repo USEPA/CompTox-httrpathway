@@ -29,6 +29,7 @@ library(tcplfit2)
 #' @param minsigsize Minimum allowed signature size. Sample/signature combinations
 #'   with less than this number of non-missing l2fc's will be discarded.
 #' @param fitmodels Vector of model names to use. Probably should include "cnst".
+#' @param CYTOTOX The daat set of cytotoxicity data from ToxCast. No longer used
 #'
 #' @import data.table
 #' @import parallel

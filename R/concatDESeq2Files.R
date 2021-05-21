@@ -1,6 +1,9 @@
 #--------------------------------------------------------------------------------------
 #'
 #' Concatenate the input DESeq2 files
+#' @param dataset The name of the HTTr dataset
+#' @param indir The director to read from
+#' @param outdir The directory to write to
 #--------------------------------------------------------------------------------------
 concatDESeq2Files <- function(dataset="DMEM_6hr_screen_normal_pe_1",
                               indir="../input/httr_mcf7_screen/meanncnt0_5-plateteffect_0-shrinkage_normal_DMEM_6/",
