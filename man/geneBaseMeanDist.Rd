@@ -2,7 +2,7 @@
 % Please edit documentation in R/geneBaseMeanDist.R
 \name{geneBaseMeanDist}
 \alias{geneBaseMeanDist}
-\title{get the bse mean distributio nfor each gene}
+\title{get the base mean distribution for each gene}
 \usage{
 geneBaseMeanDist(
   to.file = F,
@@ -11,13 +11,15 @@ geneBaseMeanDist(
 )
 }
 \arguments{
-\item{min.ngene}{Signatures will only be saved if the number of genes is >= this value}
+\item{to.file}{If TRUE, plot to a file}
 
-\item{max.ngene}{Signatures will only be saved if the number of genes is <= this value}
+\item{do.read}{If TRUE, read the input file into memory}
+
+\item{dataset}{The name of the dataset}
 }
 \value{
 No output.
 }
 \description{
-get the bse mean distributio nfor each gene
+get the base mean distribution for each gene
 }

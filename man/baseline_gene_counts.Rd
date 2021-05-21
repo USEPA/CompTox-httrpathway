@@ -15,10 +15,8 @@ baseline_gene_counts(
 \item{dir}{The directory where the data will be stored
 
 This functions takes files created by export_mongo_httr_well()
-httr_cell_atlas
-httr_tox21_cpp2}
-
-\item{collection}{THe name of the collection to export}
+* httr_cell_atlas
+* httr_tox21_cpp2}
 }
 \description{
 Gene the baseline gene counts for the cell atlas project

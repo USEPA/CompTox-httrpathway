@@ -24,6 +24,8 @@ getpvalcutoff(
 
 \item{numsds}{Vector of number of standard deviations to get cutoff for.
 For instance, numsds = 1 will return cutoffs at 1 standard deviation.}
+
+\item{verbose}{If TRUE, write extra output}
 }
 \value{
 Dataframe with 4 or 5 columns: signature, cutoff, bmed (median of

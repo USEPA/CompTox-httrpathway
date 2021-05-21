@@ -25,9 +25,13 @@ sample_key, sample_id, conc, time, casrn, name, dtxsid.}
 
 \item{sigset}{Name of signature set.}
 
+\item{sigcatalog}{Name of the signature catalog file}
+
 \item{dataset}{Name of data set.}
 
 \item{method}{Signature scoring method in c("fc", "gsva", "mygsea")}
+
+\item{normfactor}{Value passed ot the plotting code to scale the y values}
 
 \item{mc.cores}{Number of cores to use.}
 

@@ -21,8 +21,9 @@ geneConcRespPlotWrapper(
 
 \item{mc.cores}{Number of cores to parallelize with.}
 
-\item{do.load}{If TRUE, load the SIGNATURE_CR file, otherwiseassume that it is in memory
-to.file to.file = T saves the output to a file; otherwise it's returned.}
+\item{do.load}{If TRUE, load the SIGNATURE_CR file, otherwiseassume that it is in memory}
+
+\item{to.file}{to.file = T saves the output to a file; otherwise it's returned.}
 
 \item{pval}{Desired cutoff p-value.}
 
@@ -31,11 +32,9 @@ experimental/non-default runs.}
 
 \item{plotrange}{The x-range of the plot as a vector of 2 elements, this can be changed for special cases, but defaults to 0.001 to 100}
 
-\item{sigset}{Name of the signature set.}
+\item{onefile}{If TRUE, put all plots into one file, instead of one filer per chemical}
 
-\item{method}{Pathway scoring method in c("fc", "gsva", "mygsea")}
-
-\item{bmr_scale}{bmr scaling factor. Default = 1.349}
+\item{chemfile}{A file of chemicals to use. If NULL, plot all chemicals}
 }
 \description{
 Wrapper for all of the conc-response plotting o genes

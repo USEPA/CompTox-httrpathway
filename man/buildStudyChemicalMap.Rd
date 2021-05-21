@@ -2,18 +2,16 @@
 % Please edit documentation in R/buildStudyChemicalMap.R
 \name{buildStudyChemicalMap}
 \alias{buildStudyChemicalMap}
-\title{Visualize the variance by signature - this supplants signatureVariance.R}
+\title{Build a catalog of the chemicals in a dataset}
 \usage{
 buildStudyChemicalMap(dataset = "DMEM_6hr_screen_normal_pe_1")
 }
 \arguments{
-\item{min.ngene}{Signatures will only be saved if the number of genes is >= this value}
-
-\item{max.ngene}{Signatures will only be saved if the number of genes is <= this value}
+\item{dataset}{The name of the HTTr dataset}
 }
 \value{
 No output.
 }
 \description{
-Visualize the variance by signature - this supplants signatureVariance.R
+Build a catalog of the chemicals in a dataset
 }

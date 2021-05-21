@@ -21,14 +21,13 @@
 #'     \item time, signature, signature_class, signature_size - other identifiers
 #'   }
 #'   Other elements are ignored.
-#' @param CYTOTOX The cytotoxicity data for all chemicals
 #' @param plotrange The x-range of the plot as a vector of 2 elements, this can be changed for special cases, but defaults to 0.001 to 100
 #' @return No output.
 #' @export
 #'
 #' @importFrom stringr str_split
 #' @importFrom grDevices rgb
-signatureConcRespPlot <- function(row,CYTOTOX=NULL,plotrange=c(0.001,100)) {
+signatureConcRespPlot <- function(row,plotrange=c(0.001,100)) {
 
   dtxsid <- row[1,"dtxsid"]
   sample_id <- row[1,"sample_id"]

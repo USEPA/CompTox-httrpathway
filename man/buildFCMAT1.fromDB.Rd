@@ -19,6 +19,10 @@ buildFCMAT1.fromDB(
 \item{dir}{The directory from which to read all of the raw files}
 
 \item{infile}{The nae of the input file}
+
+\item{pg.filter.file}{An optional file to use in filtering out bad plate groups}
+
+\item{do.load}{If TRUE, read the large input data file into memory}
 }
 \value{
 A file with the FCMAT1 data is written to "../input/fcdata/FCMAT1_",dataset,".RData"

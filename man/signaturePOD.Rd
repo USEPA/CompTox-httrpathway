@@ -2,7 +2,7 @@
 % Please edit documentation in R/signaturePOD.R
 \name{signaturePOD}
 \alias{signaturePOD}
-\title{Build lane plots by chemical list and signature class, across the datasets}
+\title{Calculate PODs at the signature level}
 \usage{
 signaturePOD(
   do.load = F,
@@ -22,8 +22,10 @@ signaturePOD(
 
 \item{bmr_scale}{bmr scaling factor. Default = 1.349}
 
-\item{to.file}{If TRUE, write plots to a file}
+\item{hccut}{Remove rows with hitcall less than this value}
+
+\item{do.laod}{If TRUE, load the input data into memory}
 }
 \description{
-Build lane plots by chemical list and signature class, across the datasets
+Calculate PODs at the signature level
 }

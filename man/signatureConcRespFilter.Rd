@@ -2,7 +2,7 @@
 % Please edit documentation in R/signatureConcRespFilter.R
 \name{signatureConcRespFilter}
 \alias{signatureConcRespFilter}
-\title{Filter the conc-response data for jsut the most potent results
+\title{Filter the conc-response data for just the most potent results
 and plot the conc-response curves if desired}
 \usage{
 signatureConcRespFilter(
@@ -22,6 +22,8 @@ signatureConcRespFilter(
 
 \item{do.plot}{If TRUE do the plotting}
 
+\item{do.load}{If TRUE, load the data file}
+
 \item{hccut}{Exclude rows with hitcall below this value}
 
 \item{tccut}{Exclude rows with top_over_cutoff below this value}
@@ -32,11 +34,9 @@ signatureConcRespFilter(
 
 \item{method}{signature scoring method in c("fc", "gsva", "mygsea")}
 
-\item{If}{TRUE, load the data file}
-
 \item{do.pfas=F}{Error bars are exp(er)*qt(.025,4) = exp(er)*2.7765}
 }
 \description{
-Filter the conc-response data for jsut the most potent results
+Filter the conc-response data for just the most potent results
 and plot the conc-response curves if desired
 }

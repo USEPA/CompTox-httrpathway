@@ -20,8 +20,7 @@ signatureConcResp(
   aicc = F,
   minsigsize = 10,
   fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3",
-    "exp4", "exp5"),
-  CYTOTOX
+    "exp4", "exp5")
 )
 }
 \arguments{
@@ -56,8 +55,6 @@ regular AIC.}
 with less than this number of non-missing l2fc's will be discarded.}
 
 \item{fitmodels}{Vector of model names to use. Probably should include "cnst".}
-
-\item{CYTOTOX}{The daat set of cytotoxicity data from ToxCast. No longer used}
 }
 \value{
 If to.file = T, nothing. If to.file = F, dataframe with signature CR

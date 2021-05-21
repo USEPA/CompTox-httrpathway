@@ -30,9 +30,13 @@ runAllSignatureCR(
 
 \item{sigset}{Name of signature set.}
 
+\item{sigcatalog}{Name of the signature catalog}
+
 \item{method}{Pathway scoring method in c("fc", "gsva", "mygsea")}
 
 \item{bmr_scale}{bmr scaling factor. Default = 1.349}
+
+\item{normfactor}{Factor to scale the native units up by to get onto a reasonable plotting value (~ -1 to 1)}
 
 \item{minsigsize}{Minimum signature size.}
 
@@ -43,6 +47,8 @@ hitcalls.}
 
 \item{do.plot}{do.plot = T generates a CR plot for every sample/signature
 combination.}
+
+\item{do.cr}{Run the concentration-response step (set to FALSE for the null set)}
 
 \item{pval}{P-value to use for noise estimation.}
 

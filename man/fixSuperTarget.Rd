@@ -14,11 +14,15 @@ fixSuperTarget(
 )
 }
 \arguments{
-\item{do.read}{If TRUE, read in FCMAT2 to a gloabal}
+\item{do.read}{If TRUE, read in FCMAT2 to a global}
 
 \item{dataset}{The L2fc matrix data set}
 
-\item{dir}{The directory where the data file lives}
+\item{sigcatalog}{THe name of the signature catalog file}
+
+\item{sigset}{The name of the signature set to use}
+
+\item{method}{The scoring method}
 }
 \value{
 

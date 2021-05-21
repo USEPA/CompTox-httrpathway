@@ -4,7 +4,7 @@ THis file contains instructions ofr managing code (git, documentation, ...)
 ---------------------------------------------------------------------------------------------
 Code Documentation
 ---------------------------------------------------------------------------------------------
-run the follwoing repeatedly iuntil no errors exist ot get the code docuemntation clean
+run the follwoing repeatedly until no errors exist ot get the code docuemntation clean
 
 devtools::document()
 
@@ -48,7 +48,8 @@ git push -u origin master
 
 https://ccte-bitbucket.epa.gov/projects/HTTRPAT/repos/httrpathway/browse
 
-
-
+---------------------------------------------------------------------------------------------
+Installing other required packages
+---------------------------------------------------------------------------------------------
 To install tcplfit2 from git ...
 devtools::install_git("http://ccte-bitbucket.epa.gov/scm/tcplFit2/tcplFit2")

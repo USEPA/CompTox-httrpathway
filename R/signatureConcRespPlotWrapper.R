@@ -4,6 +4,7 @@ library(openxlsx)
 
 #' @param sigset Name of the signature set.
 #' @param dataset Name of the data set.
+#' @param sigcatalog Name of the signature catalog
 #' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
 #' @param bmr_scale	bmr scaling factor. Default = 1.349
 #' @param mc.cores Number of cores to parallelize with.

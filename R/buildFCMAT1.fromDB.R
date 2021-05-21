@@ -10,7 +10,7 @@ library(tidyverse)
 #' @param dir The directory from which to read all of the raw files
 #' @param infile The nae of the input file
 #' @param pg.filter.file An optional file to use in filtering out bad plate groups
-#' @do.load If TRUE, read the large input data file into memory
+#' @param do.load If TRUE, read the large input data file into memory
 #' @return A file with the FCMAT1 data is written to "../input/fcdata/FCMAT1_",dataset,".RData"
 #'
 #' @export

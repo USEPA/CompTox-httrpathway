@@ -17,8 +17,9 @@ export_mongo_httr_well(
 
 \item{dir}{The directory where the data will be stored
 
-httr_cell_atlas
-httr_tox21_cpp2}
+Collections
+* httr_cell_atlas
+* httr_tox21_cpp2}
 }
 \description{
 Get the raw counts from the Mongo database

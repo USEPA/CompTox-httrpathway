@@ -6,7 +6,7 @@
 #' @param dataset The L2fc matrix data set
 #' @param sigcatalog THe name of the signature catalog file
 #' @param sigset The name of the signature set to use
-#' @method The scoring method
+#' @param method The scoring method
 #' @return
 #' @export
 #--------------------------------------------------------------------------------------

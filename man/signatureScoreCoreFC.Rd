@@ -30,6 +30,8 @@ signature, defined by the genes it contains.}
 
 \item{ngenemax}{If ngene is not NULL, then tonly the most extreme n genes of the
 signature will be used for the "in" set}
+
+\item{verbose}{If TRUE, weite extra diagnostic output}
 }
 \value{
 Dataframe with one row per chemical/conc/signature combination. Columns

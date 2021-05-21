@@ -18,7 +18,7 @@ exportSignatureCutoffs(
 
 \item{sigset}{The name of the signature set to use}
 
-\item{THe}{scoring method to use}
+\item{method}{The scoring method to use}
 }
 \description{
 Export the signature-wise cutoffs

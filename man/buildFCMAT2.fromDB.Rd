@@ -17,17 +17,15 @@ buildFCMAT2.fromDB(
 \arguments{
 \item{dataset}{The name to give to the data set}
 
-\item{dir}{The directory from which to read all of the raw filesatalog file}
+\item{time}{The time in hours that the chemical dosing was run}
+
+\item{media}{THe name of the media used}
+
+\item{dir}{The directory from which to read all of the raw files}
 
 \item{method}{Either "gene" or "probe"}
 
 \item{do.read}{If TRUE, read in the FCMAT1 file and place in a global.}
-
-\item{mc.cores}{The number of cores to use in reading the tsv files}
-
-\item{chemical.file}{The required map from sample keys to chemical information}
-
-\item{dsstox.file}{The information mapping chemicals to DSSTox IDs}
 }
 \value{
 Global variables are created for the FC matrix (FCMAT2), the SE matrix (SEMAT2)

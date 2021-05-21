@@ -4,7 +4,7 @@
 \alias{geneConcRespPlot}
 \title{Pathway Concentration Response Plot}
 \usage{
-geneConcRespPlot(row, CYTOTOX = NULL, plotrange = c(0.001, 100))
+geneConcRespPlot(row, plotrange = c(0.001, 100))
 }
 \arguments{
 \item{row}{Named list containing:
@@ -24,8 +24,6 @@ geneConcRespPlot(row, CYTOTOX = NULL, plotrange = c(0.001, 100))
   \item time, signature, signature_class, signature_size - other identifiers
 }
 Other elements are ignored.}
-
-\item{CYTOTOX}{The cytotoxicity data for all chemicals}
 
 \item{plotrange}{The x-range of the plot as a vector of 2 elements, this can be changed for special cases, but defaults to 0.001 to 100}
 }
