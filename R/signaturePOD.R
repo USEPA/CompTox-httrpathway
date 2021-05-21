@@ -6,12 +6,6 @@
 #' @param sigset Name of signature set.
 #' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
 #' @param bmr_scale	bmr scaling factor. Default = 1.349
-
-#' heparg2d_toxcast_pfas_pe1_normal
-#' mcf7_ph1_pe1_normal_good_pg
-#' u2os_toxcast_pfas_pe1_normal
-#' PFAS_HepaRG
-#' PFAS_U2OS
 #--------------------------------------------------------------------------------------
 signaturePOD <- function(do.load=F,
                          sigset="screen_large",

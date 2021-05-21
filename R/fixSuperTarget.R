@@ -7,14 +7,6 @@
 #' @param do.read If TRUE, read in FCMAT2 to a gloabal
 #' @return
 #'
-#' mcf7_ph1_pe1_normal_block_123
-#' u2os_toxcast_pfas_pe1_normal
-#' heparg2d_toxcast_pfas_pe1_normal
-#' u2os_pilot_pe1_normal_null_pilot_lowconc
-#' PFAS_HepaRG
-#' PFAS_U2OS
-#' u2os_toxcast_pfas_pe1_normal_refchems
-#' heparg2d_toxcast_pfas_pe1_normal_refchems
 #--------------------------------------------------------------------------------------
 fixSuperTarget <- function(do.read=T,
                            dataset="PFAS_U2OS",

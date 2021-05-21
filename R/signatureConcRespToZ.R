@@ -8,16 +8,6 @@
 #' @param celltype name of cell type ebing used
 #' @param hccut Exclude signature rows with hitcall less than this value
 #' @param tccut Exclude signature rows with top_over_cutoff less than this value
-#'
-#'   heparg2d_toxcast_pfas_pe1_normal
-#'   mcf7_ph1_pe1_normal_block_123_allPG
-#'   u2os_toxcast_pfas_pe1_normal
-#'   PFAS_HepaRG
-#'   PFAS_U2OS
-#'   u2os_pilot_pe1_normal_null_pilot_lowconc
-#'   u2os_toxcast_pfas_pe1_normal_refchems
-#'   heparg2d_toxcast_pfas_pe1_normal_refchems
-#'
 #--------------------------------------------------------------------------------------
 signatureConcRespToZ <- function(do.load=T,
                                  mc.cores=2,

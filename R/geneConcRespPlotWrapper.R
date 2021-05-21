@@ -1,7 +1,5 @@
-library(openxlsx)
 #' Wrapper for all of the conc-response plotting o genes
 #'
-
 #' @param sigset Name of the signature set.
 #' @param dataset Name of the data set.
 #' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
@@ -17,17 +15,8 @@ library(openxlsx)
 #' @import data.table
 #' @import parallel
 #' @import openxlsx
-#'
 #' @export
-#' heparg2d_toxcast_pfas_pe1_normal
-#' mcf7_ph1_pe1_normal_block_123
-#' u2os_toxcast_pfas_pe1_normal
-#' PFAS_HepaRG
-#' PFAS_U2OS
-#' u2os_pilot_pe1_normal_null_pilot_lowconc
-#' u2os_toxcast_pfas_pe1_normal_refchems
-#' heparg2d_toxcast_pfas_pe1_normal_refchems
-#'----------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------
 geneConcRespPlotWrapper <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
                                     mc.cores=20,
                                     do.load=T,

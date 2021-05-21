@@ -5,13 +5,6 @@
 #' @param dataset The name of the HTTr data set to use
 #' @param sigset The name of the signature set to use
 #' @param THe scoring method to use
-#' heparg2d_toxcast_pfas_pe1_normal
-#' mcf7_ph1_pe1_normal_block_123_allPG
-#' mcf7_ph1_pe1_normal_block_123_excludePG
-#' u2os_toxcast_pfas_pe1_normal
-#' PFAS_HepaRG
-#' PFAS_U2OS
-#' u2os_pilot_pe1_normal_null_pilot_lowconc
 #'
 #--------------------------------------------------------------------------------------
 exportSignatureCutoffs <- function(do.load=F,

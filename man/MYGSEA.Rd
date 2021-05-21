@@ -15,11 +15,11 @@ MYGSEA(
 )
 }
 \arguments{
-\item{X}{Transposed FCMAT2; i.e a gene by sample matrix of l2fc's including 
+\item{X}{Transposed FCMAT2; i.e a gene by sample matrix of l2fc's including
 rownames and colnames. Equivalent to expr in gsva.}
 
 \item{geneSets}{Named list of signature definitions. Each element is a vector
-of gene names. Each element name is a signature name.E quivalent to 
+of gene names. Each element name is a signature name.E quivalent to
 gset.idx.list in gsva.}
 
 \item{min.sz}{Minimum signature size (deprecated).}

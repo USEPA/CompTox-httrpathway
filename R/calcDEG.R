@@ -5,9 +5,6 @@
 #' @param dir The directory from which to read all of the raw filesatalog file
 #' @param do.read If TRUE, read in the HTTr data file
 #'
-#'mcf7_ph1_pe1_normal_good_pg
-#'heparg2d_toxcast_pfas_pe1_normal
-#'u2os_toxcast_pfas_pe1_normal
 #--------------------------------------------------------------------------------------
 calcDEG <- function(dataset="mcf7_ph1_pe1_normal_good_pg",
                     dir="../input/fcdata/",

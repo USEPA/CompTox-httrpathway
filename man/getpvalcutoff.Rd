@@ -4,7 +4,14 @@
 \alias{getpvalcutoff}
 \title{Get P-Value Cutoff}
 \usage{
-getpvalcutoff(pathset, nullset, method, pvals = NULL, numsds = NULL)
+getpvalcutoff(
+  pathset,
+  nullset,
+  method,
+  pvals = NULL,
+  numsds = NULL,
+  verbose = T
+)
 }
 \arguments{
 \item{pathset}{Name of signature set used to score null data.}

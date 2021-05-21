@@ -5,15 +5,16 @@
 \title{Gene Concentration Response}
 \usage{
 geneConcResp(
-  dataset = "ph1_100normal_pid",
-  mc.cores = 1,
-  to.file = F,
+  dataset = "heparg2d_toxcast_pfas_pe1_normal_refchems",
+  mc.cores = 20,
+  to.file = T,
   pval = 0.05,
   nametag = NULL,
-  conthits = F,
+  conthits = T,
   aicc = F,
-  fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4",
-    "exp5")
+  fitmodels = c("cnst", "hill", "poly1", "poly2", "pow", "exp2", "exp3", "exp4",
+    "exp5"),
+  genefile = NULL
 )
 }
 \arguments{

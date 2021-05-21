@@ -4,10 +4,30 @@
 \alias{podLaneplot}
 \title{Build lane plots by chemical list and signature class, across the datasets}
 \usage{
-podLaneplot(to.file = F, dataset, sigset, method, plot.signature_min = F)
+podLaneplot(
+  to.file = F,
+  dataset = "DMEM_6hr_pilot_normal_pe_1",
+  sigset = "pilot_large_all_100CMAP",
+  method = "mygsea",
+  hccut = 0.9,
+  plot.signature_min = F,
+  bmd.mode = "percent"
+)
 }
 \arguments{
 \item{to.file}{If TRUE, write plots to a file}
+
+\item{dataset}{The data set to use}
+
+\item{sigset}{THe signature set to use}
+
+\item{method}{Scoring method}
+
+\item{hccut}{Exclude rows with hitcall less than this value}
+
+\item{bmd.mode}{percent or abs}
+
+\item{plot.signature.min}{If TRUE, plot the minimum signature}
 }
 \description{
 Build lane plots by chemical list and signature class, across the datasets

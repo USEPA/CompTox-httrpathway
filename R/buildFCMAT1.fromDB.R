@@ -1,3 +1,4 @@
+library(tidyverse)
 #--------------------------------------------------------------------------------------
 #' Build the FCMAT1 data set
 #'
@@ -11,13 +12,6 @@
 #' @return A file with the FCMAT1 data is written to "../input/fcdata/FCMAT1_",dataset,".RData"
 #'
 #' @export
-#' httr_mcf7_ph1_FCmat1_meanncnt0_5-plateteffect_1-shrinkage_normal
-#buildFCMAT1.fromDB <- function(dataset="mcf7_ph1_pe1_normal_block_123",
-#                               dir="../input/fcdata/new_versions/",
-#                               infile="httr_mcf7_ph1_FCmat1_meanncnt0_5-plateteffect_1-shrinkage_normal_good_pg.RData",
-#                               pg.filter.file="httr_mcf7_ph1_flagged_pg_block_123.xlsx",
-#                               do.load=T){
-  library(tidyverse)
 #--------------------------------------------------------------------------------------
 buildFCMAT1.fromDB <- function(dataset="mcf7_ph1_pe1_normal_block_123_excludePG",
                                dir="../input/fcdata/new_versions/",

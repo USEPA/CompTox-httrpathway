@@ -26,20 +26,6 @@
 #'
 #' @return If to.file = F, data frame containing results; otherwise, nothing.
 #' @export
-#'
-#'  heparg2d_toxcast_pfas_pe1_normal
-#' mcf7_ph1_pe1_normal_block_123_allPG
-#'  u2os_toxcast_pfas_pe1_normal
-#' PFAS_HepaRG
-#' PFAS_U2OS
-#' u2os_pilot_pe1_normal_null_pilot_lowconc
-#'
-#' DMEM_6hr_pilot_normal_pe_1 - MCF7 pilot
-#'
-#'  u2os_toxcast_pfas_pe1_normal_refchems
-#' heparg2d_toxcast_pfas_pe1_normal_refchems
-#'
-
 geneConcResp <- function(dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
                          mc.cores=20,
                          to.file=T,

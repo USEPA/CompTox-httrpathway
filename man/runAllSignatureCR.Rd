@@ -10,13 +10,17 @@ runAllSignatureCR(
   sigset,
   sigcatalog,
   method = "mygsea",
+  bmr_scale = 1.349,
+  normfactor = 7500,
   minsigsize = 10,
   conthits = T,
   nullset,
   do.plot = T,
+  do.cr = T,
   pval = 0.05,
   mc.cores = c(1, 1),
-  fitmodels = c("cnst", "hill", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5")
+  fitmodels = c("cnst", "hill", "poly1", "poly2", "pow", "exp2", "exp3", "exp4",
+    "exp5")
 )
 }
 \arguments{
@@ -27,6 +31,8 @@ runAllSignatureCR(
 \item{sigset}{Name of signature set.}
 
 \item{method}{Pathway scoring method in c("fc", "gsva", "mygsea")}
+
+\item{bmr_scale}{bmr scaling factor. Default = 1.349}
 
 \item{minsigsize}{Minimum signature size.}
 

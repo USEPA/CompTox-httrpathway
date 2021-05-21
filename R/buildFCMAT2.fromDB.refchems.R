@@ -1,7 +1,7 @@
 #--------------------------------------------------------------------------------------
 #' Transpose and filter the fold change matrix FCMAT1 in long format into a
 #' gene x sample format.
-#' This is teh method to use when there are conc-response profiles of refchems
+#' This is the method to use when there are conc-response profiles of refchems
 #'
 #' @param dataset The name to give to the data set
 #' @param dir The directory from which to read all of the raw filesatalog file
@@ -15,9 +15,6 @@
 #' and the chemical dictionary (CHEM_DICT) which translates form the sample key
 #' (sample_id_conc_time) to the individual components
 #'
-#'mcf7_ph1_pe1_normal_good_pg
-#'heparg2d_toxcast_pfas_pe1_normal
-#'u2os_toxcast_pfas_pe1_normal
 #--------------------------------------------------------------------------------------
 buildFCMAT2.fromDB.refchems <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
                                         time=24,

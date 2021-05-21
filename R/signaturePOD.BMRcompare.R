@@ -1,17 +1,12 @@
 #--------------------------------------------------------------------------------------
 #'
-#' Compare teh PODs with different BMR values
+#' Compare the PODs with different BMR values
 #' @param to.file If TRUE, write plots to a file
 #' @param dataset Name of data set.
 #' @param sigset Name of signature set.
-#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
+#' @param method Pathway scoring method
 #' @param bmr_scale	bmr scaling factor. Default = 1.349
-
-#' heparg2d_toxcast_pfas_pe1_normal
-#' mcf7_ph1_pe1_normal_good_pg
-#' u2os_toxcast_pfas_pe1_normal
-#' PFAS_HepaRG
-#' PFAS_U2OS
+#' @param hccut Remove rows with hitcall less than this value
 #--------------------------------------------------------------------------------------
 signaturePOD.BMRcompare <- function(to.file=F,
                                     dataset="mcf7_ph1_pe1_normal_block_123",
