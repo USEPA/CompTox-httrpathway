@@ -15,18 +15,12 @@ Description: This package generates pathway (signature) scores with associated c
   ../input - various input files
   ../input/chemicals - collections of chemical information, not used in the standard calculations
   ../input/signatures - the signature data, inluding the catalog (an Excel file) and the lists of genes per signature
-  ../input/fcdata - where the l2fc data goes. See the functions buildFCMAT1 and buildFCMAT2 for
-  more information. These functions may need to be customizedfor the source of your data 
+  ../input/fcdata - where the l2fc data goes. See the functions buildFCMAT1 and buildFCMAT2 for more information. These functions may need to be customizedfor the source of your data 
   ../output - where all of the output goes [not clear if the subfolders are created on demand]
-  There are a series of data sets / objects that are names and carried around
-  * dataset - this is the name of the data set being used. It corresponds to an experiment and the name
-    ususally contains hte cell type, the type of normalization, the time, media, etc. All input and output files 
-    will contain this dataset name
-  * sigcatalog - THis is the name of the signature catalog. THis is an excel file taht lives in ../input/signatures.
-    This file contains one row persignature and contains matching annotations such as the super_target
-  * sigset - One always uses a subset of the total set of signtures, indicated by haveing a value of 1 in
-    the sigset column at the right hand of the signature catalog
-  
+  There are a series of data sets / objects that are names and carried around: 
+  * dataset - this is the name of the data set being used. It corresponds to an experiment and the name ususally contains the cell type, the type of normalization, the time, media, etc. All input and output files will contain this dataset name
+  * sigcatalog - This is the name of the signature catalog. This is an excel file that lives in ../input/signatures.This file contains one row per signature and contains matching annotations such as the super_target
+  * sigset - One always uses a subset of the total set of signtures, indicated by haveing a value of 1 in the sigset column at the right hand of the signature catalog
 Imports: stats,
   stringr,
   grDevices,
