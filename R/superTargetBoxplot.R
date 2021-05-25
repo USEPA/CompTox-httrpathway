@@ -10,6 +10,8 @@
 #' @param celltype Name of the cell type
 #' @param hccut Exclude rows in the data set with hitcall less than this value
 #' @param tccut Exclude rows in the data set with top_over_cutoff less than this value
+#' @param cutoff The minimum number of signatures hat have to be active in a super
+#' target for the super target to be considered active
 #' @param minconc Minimum concentration used in the plots
 #' @param maxconc Maximum concentration used in the plots
 #'
@@ -19,13 +21,14 @@
 #--------------------------------------------------------------------------------------
 superTargetBoxplot <- function(to.file=T,
                                do.load=T,
-                               dataset="heparg2d_toxcast_pfas_pe1_normal",
+                               dataset="u2os_toxcast_pfas_pe1_normal_refchems",
                                sigcatalog="signatureDB_master_catalog 2021-04-24",
                                sigset="screen_large",
                                method="fc",
-                               celltype="HepaRG",
+                               celltype="U2OS",
                                hccut=0.95,
                                tccut=1.5,
+                               cutoff=5,
                                minconc=0.001,
                                maxconc=100) {
   printCurrentFunction(paste(dataset,sigset,method))
@@ -164,7 +167,7 @@ superTargetBoxplot <- function(to.file=T,
         tempst = temp[is.element(temp$super_target,st),]
         tempst0 = tempst[tempst$hitcall==0,]
         tempst1 = tempst[tempst$hitcall>0,]
-        if(nrow(tempst1)>0) {
+        if(nrow(tempst1)>=cutoff) {
           res1chem[is.element(res1chem$super_target,st),"nhit_up"] = nrow(tempst1[tempst1$top>0,])
           res1chem[is.element(res1chem$super_target,st),"nhit_dn"] = nrow(tempst1[tempst1$top<0,])
           res1chem[is.element(res1chem$super_target,st),"active"] = 1
@@ -409,7 +412,9 @@ superTargetBoxplot <- function(to.file=T,
                   ylim=c(minconc,100),log="x",xlab="BMD (uM)",ylab="",
                   horizontal=T,las=1,par(cex.lab=1,cex.axis=1.0),names=newnames,col=cols)
           for(bmd in c(100,10,1,0.1,0.01,0.001,0.0001,0.00001)) lines(c(bmd,bmd),c(0,1000000))
-          lines(c(burst_pod_st,burst_pod_st),c(0,1000000),lwd=4,col="cyan")
+          median.signature.bmd
+          lines(c(burst_pod_sig,burst_pod_sig),c(0,1000000),lwd=4,col="cyan")
+          #lines(c(burst_pod_st,burst_pod_st),c(0,1000000),lwd=4,col="cyan")
           counter = counter+1
           if(!to.file) browser()
         }
