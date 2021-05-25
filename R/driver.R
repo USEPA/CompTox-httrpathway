@@ -123,6 +123,25 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
                        method=method,
                        celltype=celltype,
                        hccut=0.95,
-                       tccut=1.5)
+                       tccut=1.5,
+                       cutoff=5)
+
+    superTargetPODplot(to.file=T,
+                       dataset=dataset,
+                       sigset=sigset,
+                       method=method,
+                       celltype=celltype,
+                       hccut=0.95,
+                       tccut=1.5,
+                       cutoff=5)
+
+    superTargetStats(do.load=T,
+                    dataset=dataset,
+                    sigset=sigset,
+                    method=method,
+                    celltype=celltype,
+                    hccut=0.95,
+                    tccut=1.5,
+                    cutoff=5)
   }
 }
