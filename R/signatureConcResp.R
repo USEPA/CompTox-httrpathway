@@ -13,7 +13,7 @@ library(tcplfit2)
 #'
 #' @param sigset Name of the signature set.
 #' @param dataset Name of the data set.
-#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
+#' @param method Pathway scoring method in c("fc", "gsva", "gsea")
 #' @param bmr_scale	bmr scaling factor. Default = 1.349
 #' @param nullset Name of the null data set.
 #' @param mc.cores Number of cores to parallelize with.
@@ -40,7 +40,7 @@ library(tcplfit2)
 signatureConcResp <- function(sigset="pilot_tiny",
                               sigcatalog="signatureDB_master_catalog 2020-03-12",
                               dataset="DMEM_6hr_screen_normal_pe_1_pgnorm",
-                              method="mygsea",
+                              method="gsea",
                               bmr_scale=1.349,
                               nullset,
                               mc.cores=1,

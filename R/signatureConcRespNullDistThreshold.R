@@ -4,7 +4,7 @@
 #' and the given sigset and method.
 #' @param sigset Name of the signature set.
 #' @param dataset Name of the data set.
-#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
+#' @param method Pathway scoring method in c("fc", "gsva", "gsea")
 #' @param pval Desired cutoff p-value.
 #'
 signatureConcRespNullDistThreshold <- function(sigset="screen_large",

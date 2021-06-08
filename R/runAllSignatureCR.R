@@ -12,7 +12,7 @@
 #' @param dataset Name of data set.
 #' @param sigset Name of signature set.
 #' @param sigcatalog Name of the signature catalog
-#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
+#' @param method Pathway scoring method in c("fc", "gsva", "gsea")
 #' @param bmr_scale	bmr scaling factor. Default = 1.349
 #' @param normfactor Factor to scale the native units up by to get onto a reasonable plotting value (~ -1 to 1)
 #' @param minsigsize Minimum signature size.
@@ -38,7 +38,7 @@ runAllSignatureCR = function(basedir="../input/fcdata/",
                              dataset="DMEM_6hr_pilot_normal_pe_1",
                              sigset,
                              sigcatalog,
-                             method = "mygsea",
+                             method = "gsea",
                              bmr_scale=1.349,
                              normfactor=7500,
                              minsigsize = 10,

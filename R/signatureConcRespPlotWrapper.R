@@ -5,7 +5,7 @@ library(openxlsx)
 #' @param sigset Name of the signature set.
 #' @param dataset Name of the data set.
 #' @param sigcatalog Name of the signature catalog
-#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
+#' @param method Pathway scoring method in c("fc", "gsva", "gsea")
 #' @param bmr_scale	bmr scaling factor. Default = 1.349
 #' @param mc.cores Number of cores to parallelize with.
 #' @param do.load If TRUE, load the SIGNATURE_CR file, otherwiseassume that it is in memory

@@ -4,7 +4,7 @@
 #' @param do.laod If TRUE, load the input data into memory
 #' @param sigset Name of signature set.
 #' @param dataset Name of data set.
-#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
+#' @param method Pathway scoring method in c("fc", "gsva", "gsea")
 #' @param bmr_scale	bmr scaling factor. Default = 1.349
 #' @param hccut Remove rows with hitcall less than this value
 #'

@@ -3,8 +3,8 @@
 #' Computes and saves signature scores.
 #'
 #' signatureScore is a driver for various scoring methods. The three that are
-#' currently available are "gsva", "mygsea", "fc", and "mygsea_norank" (a version
-#' of mygsea that uses fold changes instead of ranks as weights). Deprecated
+#' currently available are "gsva", "gsea", "fc", and "gsea_norank" (a version
+#' of gsea that uses fold changes instead of ranks as weights). Deprecated
 #' methods include the Fisher method and gsvae (gsva with empirical cdfs).
 #' Beware running out of memory on large runs with gsva, Linux, and many cores.
 #' Signature size is counted according to number of genes in the signature that are
@@ -19,7 +19,7 @@
 #' @param sigset Name of signature set.
 #' @param sigcatalog Name of the signature catalog file
 #' @param dataset Name of data set.
-#' @param method Signature scoring method in c("fc", "gsva", "mygsea")
+#' @param method Signature scoring method in c("fc", "gsva", "gsea")
 #' @param normfactor Value passed ot the plotting code to scale the y values
 #' @param mc.cores Number of cores to use.
 #' @param minsigsize Minimum allowed signature size BEFORE accounting for
@@ -136,10 +136,10 @@ signatureScore <- function(FCMAT2,
                            signature_data=signature_data,
                            mc.cores=mc.cores)
   }
-  #call mygsea scoring
-  if(method=="mygsea") {
-    signatureScoreCoreMYGSEA(sk.list,
-                             method = "mygsea",
+  #call gsea scoring
+  if(method=="gsea") {
+    signatureScoreCoregsea(sk.list,
+                             method = "gsea",
                              normfactor=normfactor,
                              sigset=sigset,
                              dataset=dataset,
@@ -150,10 +150,10 @@ signatureScore <- function(FCMAT2,
                              normalization = T,
                              useranks = T)
   }
-  #call mygsea scoring without ranks or normalization
-  if(method=="mygsea_norank") {
-    signatureScoreCoreMYGSEA(sk.list,
-                             method = "mygsea_norank",
+  #call gsea scoring without ranks or normalization
+  if(method=="gsea_norank") {
+    signatureScoreCoregsea(sk.list,
+                             method = "gsea_norank",
                              sigset=sigset,
                              dataset=dataset,
                              fcmat=FCMAT2,

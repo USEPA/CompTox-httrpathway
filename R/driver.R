@@ -15,7 +15,7 @@ library(reshape2)
 #' @param mc.cores Number of cores for paralell processing. Only works under Linux
 #' @param bmr_scale Scaling factor from the NULL SD to BMD, default is 1.349,
 #' @param plotrange The concentration range for the conc-resp plots in uM, default is c(0.0001,100),
-#' @param method signature scoring method in c("fc", "gsva", "mygsea"), default is fc
+#' @param method signature scoring method in c("fc", "gsva", "gsea"), default is fc
 #' @param celltype Name of the cull type, e.g. MCF7
 #' @param do.build.random If TRUE, build the random dataset
 #' @param do.run.random If True, run the calculations on the random data set. This is used
@@ -51,7 +51,7 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
                    mc.cores=25,
                    bmr_scale=1.349,
                    plotrange=c(0.0001,100),
-                   method="mygsea",
+                   method="gsea",
                    celltype="MCF7",
                    do.build.random=T,
                    do.run.random=T,

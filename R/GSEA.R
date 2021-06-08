@@ -5,7 +5,7 @@
 #' Based on the GSVA ssGSEA code. Main changes are: NAs are now handled correctly
 #' and rank is now centered on zero instead of beginning at one. Since signature
 #' sizes are undercounted here due to missing values, they are
-#' assessed more accurately in signatureScoreCoreMYGSEA and limits are enforced
+#' assessed more accurately in signatureScoreCoreGSEA and limits are enforced
 #' after scoring.
 #'
 #' @param X Transposed FCMAT2; i.e a gene by sample matrix of l2fc's including
@@ -31,8 +31,8 @@
 #' X = matrix(c(1:3,3:1), nrow = 3)
 #' colnames(X) = c("Sample1", "Sample2")
 #' rownames(X) = c("ABC", "DEF", "GHI")
-#' MYGSEA(X,geneSets)
-MYGSEA = function(X, geneSets, min.sz = 1, max.sz = Inf, alpha = .25, verbose = T, useranks = T) {
+#' GSEA(X,geneSets)
+GSEA = function(X, geneSets, min.sz = 1, max.sz = Inf, alpha = .25, verbose = T, useranks = T) {
   if (nrow(X) < 2) stop("Less than two genes in the input expression data matrix\n")
   mapped.geneSets <- lapply(geneSets, function(x, y) na.omit(match(x, y)), rownames(X))
 
@@ -44,7 +44,7 @@ MYGSEA = function(X, geneSets, min.sz = 1, max.sz = Inf, alpha = .25, verbose = 
   if (length(geneSets) == 0) {
     stop("The gene set list is empty!  Filter may be too stringent.")
   }
-  if (verbose) cat("Estimating MYGSEA scores for", length(geneSets), "gene sets.\n")
+  if (verbose) cat("Estimating GSEA scores for", length(geneSets), "gene sets.\n")
 
   p <- nrow(X)
   n <- ncol(X)

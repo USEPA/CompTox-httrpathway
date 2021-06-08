@@ -1,16 +1,16 @@
-#' Signature Score Core - MYGSEA
+#' Signature Score Core - GSEA
 #'
-#' Computes signature scores for mygsea.
+#' Computes signature scores for gsea.
 #'
-#' This function is a parallelized wrapper for MYGSEA, which does the actual
-#' scoring. mygsea method uses ranks and normalization, while mygsea_norank
+#' This function is a parallelized wrapper for gsea, which does the actual
+#' scoring. gsea method uses ranks and normalization, while gsea_norank
 #' method does not use ranks or normalization. Normalization divides final
 #' scores by difference between max and min score. Without normalization,
 #' scores from individual samples have no impact on each other. Final
 #' signaturescoremat is written to disk.
 #'
 #' @param sk.list Sample keys to use; should correspond to fcmat rownames.
-#' @param method Method name to use in file output. "mygsea" or "mygsea_norank"
+#' @param method Method name to use in file output. "gsea" or "gsea_norank"
 #' @param sigset Name of signature set.
 #' @param dataset Name of data set.
 #' @param fcmat Sample by gene matrix of log2(fold change)'s. Rownames are
@@ -31,40 +31,40 @@
 #'
 #' @return No output.
 #' @export
-signatureScoreCoreMYGSEA <- function(sk.list,
-                                     method = "mygsea",
-                                     normfactor=7500,
-                                     sigset,
-                                     dataset,
-                                     fcmat,
-                                     chem_dict,
-                                     signature_data,
-                                     mc.cores=1,
-                                     normalization = T,
-                                     useranks = T) {
+signatureScoreCoreGSEA <- function(sk.list,
+                                   method = "gsea",
+                                   normfactor=7500,
+                                   sigset,
+                                   dataset,
+                                   fcmat,
+                                   chem_dict,
+                                   signature_data,
+                                   mc.cores=1,
+                                   normalization = T,
+                                   useranks = T) {
 
   printCurrentFunction(paste(dataset,sigset,method))
-  #change NA to zero, although this is no longer necessary; MYGSEA can handle NA now
+  #change NA to zero, although this is no longer necessary; gsea can handle NA now
   data <- fcmat[sk.list,]
   data[is.na(data)] <- 0
 
   success <- F
-  cat("   start MYGSEA:",dim(data),":",mc.cores,"\n")
+  cat("   start GSEA:",dim(data),":",mc.cores,"\n")
   tryCatch({
-    #call MYGSEA for scoring
+    #call GSEA for scoring
     if(mc.cores <= 1){
-      res <- MYGSEA(X=t(data),
-                    geneSets =signature_data,
-                    min.sz=1,
-                    max.sz=Inf,
-                    verbose=F,
-                    useranks = useranks)
+      res <- GSEA(X=t(data),
+                  geneSets =signature_data,
+                  min.sz=1,
+                  max.sz=Inf,
+                  verbose=F,
+                  useranks = useranks)
     } else {
       starts = (0:(mc.cores-1)*nrow(data))%/%mc.cores+1
       ends = (1:mc.cores*nrow(data))%/%mc.cores
       cat("   make datalist\n")
       datalist = lapply(1:length(starts), function(i){t(data)[,seq(starts[i], ends[i]), drop = F ] } )
-      # reslist = mclapply(datalist, MYGSEA, geneSets =signature_data, min.sz=10, max.sz=Inf, verbose=T, useranks = useranks,
+      # reslist = mclapply(datalist, GSEA, geneSets =signature_data, min.sz=10, max.sz=Inf, verbose=T, useranks = useranks,
       #                    mc.cores= mc.cores)
 
 
@@ -75,7 +75,7 @@ signatureScoreCoreMYGSEA <- function(sk.list,
       cat("   eval cluster\n")
       output = clusterEvalQ(cl, library(GSVA))
       cat("   make reslist\n")
-      reslist = parLapply(cl = cl, X=datalist,fun=MYGSEA,geneSets =signature_data, min.sz=10, max.sz=Inf, verbose=F, useranks = useranks)
+      reslist = parLapply(cl = cl, X=datalist,fun=GSEA,geneSets =signature_data, min.sz=10, max.sz=Inf, verbose=F, useranks = useranks)
       cat("   stop cluster\n")
       stopCluster(cl)
       cat("   reduce\n")
@@ -95,7 +95,7 @@ signatureScoreCoreMYGSEA <- function(sk.list,
     print(e)
     success <- F
   })
-  cat("   finish mygsea: ",dim(res),"\n")
+  cat("   finish GSEA: ",dim(res),"\n")
 
   #melt output
   res2 <- reshape2::melt(res,as.is=T)

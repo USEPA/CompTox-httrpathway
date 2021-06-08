@@ -3,7 +3,7 @@
 #' @param sigset Name of the signature set.
 #' @param sigcatlog Nmae of the catalog file
 #' @param dataset Name of the data set.
-#' @param method Pathway scoring method in c("fc", "gsva", "mygsea")
+#' @param method Pathway scoring method in c("fc", "gsva", "gsea")
 #' @param nullset Name of the null data set.
 #'
 #' @import data.table
@@ -15,7 +15,7 @@
 signatureScoreMerge <- function(sigset="screen_large",
                                 sigcatalog="signatureDB_master_catalog 2020-04-04",
                                 dataset="DMEM_6hr_screen_normal_pe_1_RAND1000",
-                                method="mygsea",
+                                method="gsea",
                                 nullset="DMEM_6hr_screen_normal_pe_1_RAND1000") {
 
   printCurrentFunction(paste(dataset,sigset,method))

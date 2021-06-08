@@ -13,7 +13,7 @@
 podLaneplot <- function(to.file=F,
                         dataset="DMEM_6hr_pilot_normal_pe_1",
                         sigset="pilot_large_all_100CMAP",
-                        method="mygsea",
+                        method="gsea",
                         hccut=0.9,
                         plot.signature_min=F,
                         bmd.mode="percent") {

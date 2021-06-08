@@ -9,7 +9,7 @@
 #' @param tccut Exclude rows with top_over_cutoff below this value
 #' @param dataset Dataset to use
 #' @param sigset Signature set to use
-#' @param method signature scoring method in c("fc", "gsva", "mygsea")
+#' @param method signature scoring method in c("fc", "gsva", "gsea")
 #' @param do.pfas=F
 #'
 #' Error bars are exp(er)*qt(.025,4) = exp(er)*2.7765
