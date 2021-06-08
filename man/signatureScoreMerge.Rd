@@ -8,7 +8,7 @@ signatureScoreMerge(
   sigset = "screen_large",
   sigcatalog = "signatureDB_master_catalog 2020-04-04",
   dataset = "DMEM_6hr_screen_normal_pe_1_RAND1000",
-  method = "mygsea",
+  method = "gsea",
   nullset = "DMEM_6hr_screen_normal_pe_1_RAND1000"
 )
 }
@@ -17,7 +17,7 @@ signatureScoreMerge(
 
 \item{dataset}{Name of the data set.}
 
-\item{method}{Pathway scoring method in c("fc", "gsva", "mygsea")}
+\item{method}{Pathway scoring method in c("fc", "gsva", "gsea")}
 
 \item{nullset}{Name of the null data set.}
 

@@ -14,7 +14,7 @@ driver(
   mc.cores = 25,
   bmr_scale = 1.349,
   plotrange = c(1e-04, 100),
-  method = "mygsea",
+  method = "gsea",
   celltype = "MCF7",
   do.build.random = T,
   do.run.random = T,
@@ -44,7 +44,7 @@ driver(
 
 \item{plotrange}{The concentration range for the conc-resp plots in uM, default is c(0.0001,100),}
 
-\item{method}{signature scoring method in c("fc", "gsva", "mygsea"), default is fc}
+\item{method}{signature scoring method in c("fc", "gsva", "gsea"), default is fc}
 
 \item{celltype}{Name of the cull type, e.g. MCF7}
 

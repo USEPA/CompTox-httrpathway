@@ -16,7 +16,7 @@ signatureConcRespNullDistThreshold(
 
 \item{dataset}{Name of the data set.}
 
-\item{method}{Pathway scoring method in c("fc", "gsva", "mygsea")}
+\item{method}{Pathway scoring method in c("fc", "gsva", "gsea")}
 
 \item{pval}{Desired cutoff p-value.}
 }

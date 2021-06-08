@@ -8,7 +8,7 @@ signatureConcResp(
   sigset = "pilot_tiny",
   sigcatalog = "signatureDB_master_catalog 2020-03-12",
   dataset = "DMEM_6hr_screen_normal_pe_1_pgnorm",
-  method = "mygsea",
+  method = "gsea",
   bmr_scale = 1.349,
   nullset,
   mc.cores = 1,
@@ -28,7 +28,7 @@ signatureConcResp(
 
 \item{dataset}{Name of the data set.}
 
-\item{method}{Pathway scoring method in c("fc", "gsva", "mygsea")}
+\item{method}{Pathway scoring method in c("fc", "gsva", "gsea")}
 
 \item{bmr_scale}{bmr scaling factor. Default = 1.349}
 

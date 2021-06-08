@@ -9,7 +9,7 @@ runAllSignatureCR(
   dataset = "DMEM_6hr_pilot_normal_pe_1",
   sigset,
   sigcatalog,
-  method = "mygsea",
+  method = "gsea",
   bmr_scale = 1.349,
   normfactor = 7500,
   minsigsize = 10,
@@ -32,7 +32,7 @@ runAllSignatureCR(
 
 \item{sigcatalog}{Name of the signature catalog}
 
-\item{method}{Pathway scoring method in c("fc", "gsva", "mygsea")}
+\item{method}{Pathway scoring method in c("fc", "gsva", "gsea")}
 
 \item{bmr_scale}{bmr scaling factor. Default = 1.349}
 

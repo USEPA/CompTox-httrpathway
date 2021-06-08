@@ -7,7 +7,7 @@
 signaturePODsummary(
   sigset = "pilot_large_all_100CMAP",
   dataset = "DMEM_6hr_pilot_normal_pe_1",
-  method = "mygsea"
+  method = "gsea"
 )
 }
 \arguments{

@@ -18,7 +18,7 @@ signaturePOD(
 
 \item{dataset}{Name of data set.}
 
-\item{method}{Pathway scoring method in c("fc", "gsva", "mygsea")}
+\item{method}{Pathway scoring method in c("fc", "gsva", "gsea")}
 
 \item{bmr_scale}{bmr scaling factor. Default = 1.349}
 

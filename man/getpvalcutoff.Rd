@@ -18,7 +18,7 @@ getpvalcutoff(
 
 \item{nullset}{Name of null data set.}
 
-\item{method}{Pathway scoring method in c("fc", "gsva", "mygsea")}
+\item{method}{Pathway scoring method in c("fc", "gsva", "gsea")}
 
 \item{pvals}{Vector of p-values to get cutoff for.}
 

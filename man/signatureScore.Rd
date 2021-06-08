@@ -29,7 +29,7 @@ sample_key, sample_id, conc, time, casrn, name, dtxsid.}
 
 \item{dataset}{Name of data set.}
 
-\item{method}{Signature scoring method in c("fc", "gsva", "mygsea")}
+\item{method}{Signature scoring method in c("fc", "gsva", "gsea")}
 
 \item{normfactor}{Value passed ot the plotting code to scale the y values}
 
@@ -46,8 +46,8 @@ Computes and saves signature scores.
 }
 \details{
 signatureScore is a driver for various scoring methods. The three that are
-currently available are "gsva", "mygsea", "fc", and "mygsea_norank" (a version
-of mygsea that uses fold changes instead of ranks as weights). Deprecated
+currently available are "gsva", "gsea", "fc", and "gsea_norank" (a version
+of gsea that uses fold changes instead of ranks as weights). Deprecated
 methods include the Fisher method and gsvae (gsva with empirical cdfs).
 Beware running out of memory on large runs with gsva, Linux, and many cores.
 Signature size is counted according to number of genes in the signature that are

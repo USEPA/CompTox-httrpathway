@@ -32,7 +32,7 @@ signatureConcRespFilter(
 
 \item{sigset}{Signature set to use}
 
-\item{method}{signature scoring method in c("fc", "gsva", "mygsea")}
+\item{method}{signature scoring method in c("fc", "gsva", "gsea")}
 
 \item{do.pfas=F}{Error bars are exp(er)*qt(.025,4) = exp(er)*2.7765}
 }
