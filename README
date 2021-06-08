@@ -4,7 +4,7 @@ THis file contains instructions ofr managing code (git, documentation, ...)
 ---------------------------------------------------------------------------------------------
 Code Documentation
 ---------------------------------------------------------------------------------------------
-run the follwoing repeatedly until no errors exist ot get the code docuemntation clean
+run the following repeatedly until no errors exist ot get the code docuemntation clean
 
 devtools::document()
 
