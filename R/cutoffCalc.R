@@ -23,7 +23,7 @@ cutoffCalc = function(basedir="../input/fcdata/",
                       sigcatalog="signatureDB_master_catalog 2021-05-10",
                       sigset="screen_large",
                       method="fc",
-                      p=0.05,
+                      pval=0.05,
                       seed = 12345,
                       nlowconc=2,
                       dtxsid.exclude=NULL,
@@ -37,13 +37,13 @@ cutoffCalc = function(basedir="../input/fcdata/",
 
   if(do.load) {
     #load chem_dict
-    file <- paste0(basedir,"CHEM_DICT_",dataset,".RData")
+    file = paste0(basedir,"CHEM_DICT_",dataset,".RData")
     load(file)
     chem_dict_filter = CHEM_DICT[CHEM_DICT$conc_index<=nlowconc,]
     if(!is.null(dtxsid.exclude)) chem_dict_filter = chem_dict_filter[!is.element(chem_dict_filter$dtxsid,dtxsid.exclude),]
 
     #load fcmat
-    file <- paste0(basedir,"FCMAT2_",dataset,".RData")
+    file = paste0(basedir,"FCMAT2_",dataset,".RData")
     cat("  file:",file,"\n")
     load(file)
     sk.list = chem_dict_filter$sample_key
@@ -52,7 +52,7 @@ cutoffCalc = function(basedir="../input/fcdata/",
     FCMAT2_lowconc <<- FCMAT2[sk.list,]
 
     file = paste0("../input/signatures/",sigcatalog,".xlsx")
-    catalog <- read.xlsx(file)
+    catalog = read.xlsx(file)
     catalog = catalog[catalog[,sigset]==1,]
     file = paste0("../input/signatures/signatureDB_genelists.RData")
     print(file)
@@ -83,7 +83,7 @@ cutoffCalc = function(basedir="../input/fcdata/",
   #start = 16
   #nsig = 100
   scale = 0.975
-  scale = 1-p/2
+  scale = 1-pval/2
   IG = vector(length=length(allgenes),mode="integer")
   IG[] = 0
   for(j in start:nsig) {
@@ -129,7 +129,6 @@ cutoffCalc = function(basedir="../input/fcdata/",
       upIGout = IG
       upIGout[is.element(allgenes,upgenes.out)] = 1
 
-
       dnIGin = IG
       dnIGin[is.element(allgenes,dngenes.in)] = 1
       dnIGout = IG
@@ -143,17 +142,17 @@ cutoffCalc = function(basedir="../input/fcdata/",
     }
     if(cutoffs[j,"cutoff"]==0) browser()
   }
-  file = paste0("../output/signature_cutoff/signature_cutoff_",sigset,"_",dataset,"_",method,"_",p,"_",nlowconc,"_with_gene_correlations.xlsx")
+  file = paste0("../output/signature_cutoff/signature_cutoff_",sigset,"_",dataset,"_",method,"_",pval,"_",nlowconc,"_with_gene_correlations.xlsx")
   write.xlsx(cutoffs,file)
 
   if(do.compare) {
     if(to.file) {
-      file = paste0("../output/signature_cutoff/signature_cutoff_",sigset,"_",dataset,"_",method,"_",p,"_",nlowconc,"_with_gene_correlations.pdf")
+      file = paste0("../output/signature_cutoff/signature_cutoff_",sigset,"_",dataset,"_",method,"_",pval,"_",nlowconc,"_with_gene_correlations.pdf")
       pdf(file=file,width=5,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
     }
     par(mfrow=c(2,1),mar=c(5,6,6,3))
 
-    file = paste0("../output/signature_cutoff/signature_cutoff_",sigset,"_",dataset,"_",method,"_",p,".xlsx")
+    file = paste0("../output/signature_cutoff/signature_cutoff_",sigset,"_",dataset,"_",method,"_",pval,".xlsx")
     print(file)
     oldcuts = read.xlsx(file)
     rownames(oldcuts) = oldcuts$signature
