@@ -1,3 +1,4 @@
+#####################################################################################################
 #' Calculate the signature-wise cutoffs based on the Setzer method
 #' which does not break any correlations between genes
 #'
@@ -6,9 +7,10 @@
 #' @param sigcatalog The name of the signature catalog to use
 #' @param sigset THe signature set
 #' @param method The scoring method, either fc or gsea
-#' @param p The p-value for the null distribution
+#' @param pval The p-value for the null distribution
 #' @param seed Random seed.
-#' @param nlowconc If not NULL, only include the lowest nlowconc concentrations for each chemical
+#' @param nlowconc Only include the lowest nlowconc concentrations for each chemical
+#' @param mc.cores NUmber of coresto use when running parallel
 #' @param dtxsid.exclude dtxsids to exclude, default NULL
 #' @param do.load If TRUE, reload the FCMAT2 matrix, signature catalog and chemical dictionary, and store in globals
 #' @param do.cov If TRUE, calculate the covariance matrix and store in a global
@@ -18,14 +20,16 @@
 #'
 #' @return No output.
 #' @export
+#####################################################################################################
 cutoffCalc = function(basedir="../input/fcdata/",
-                      dataset="mcf7_ph1_pe1_normal_block_123_allPG",
+                      dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
                       sigcatalog="signatureDB_master_catalog 2021-05-10",
                       sigset="screen_large",
                       method="fc",
                       pval=0.05,
                       seed = 12345,
                       nlowconc=2,
+                      mc.cores = 1,
                       dtxsid.exclude=NULL,
                       do.load=T,
                       do.cov=T,
@@ -70,78 +74,21 @@ cutoffCalc = function(basedir="../input/fcdata/",
   covmat = COVMAT
 
   siglist = sort(unique(catalog$parent))
-  name.list = c("signature","cutoff")
-  cutoffs = as.data.frame(matrix(nrow=length(siglist),ncol=length(name.list)))
-  names(cutoffs) = name.list
-  cutoffs[,1] = siglist
-  cutoffs[,2] = 0
-  rownames(cutoffs) = siglist
   allgenes = colnames(fcmat2)
 
-  nsig = length(siglist)
-  start = 1
-  #start = 16
-  #nsig = 100
-  scale = 0.975
-  scale = 1-pval/2
-  IG = vector(length=length(allgenes),mode="integer")
-  IG[] = 0
-  for(j in start:nsig) {
-    parent = siglist[j]
-    if(verbose) cat(j,nsig,parent,"\n")
-    else {
-      if(j%%1000==0) cat(j,nsig,parent,"\n")
-    }
-    temp = catalog[is.element(catalog$parent,parent),]
-    if(nrow(temp)==1) {
-      sig = temp[1,"signature"]
-      genes = genelists[[sig]]
-      genes.in = genes[is.element(genes,allgenes)]
-      genes.out = allgenes[!is.element(allgenes,genes.in)]
-      min = length(genes.in)
-      mout = length(genes.out)
-      IGin = IG
-      IGin[is.element(allgenes,genes.in)] = 1
-      IGout = IG
-      IGout[is.element(allgenes,genes.out)] = 1
-      wj = IGin / min - IGout / mout
-      sd = sqrt(t(wj)%*%covmat%*%wj)
-      cutoff = qnorm(scale,mean=0,sd=sd)
-      cutoffs[j,"cutoff"] = cutoff
-    }
-    else if (nrow(temp)==2) {
-      sigup = temp[is.element(temp$direction,"up"),"signature"]
-      upgenes = genelists[[sigup]]
-      upgenes.in = upgenes[is.element(upgenes,allgenes)]
-      upgenes.out = allgenes[!is.element(allgenes,upgenes.in)]
-      upmin = length(upgenes.in)
-      upmout = length(upgenes.out)
-
-      sigdn = temp[is.element(temp$direction,"dn"),"signature"]
-      dngenes = genelists[[sigdn]]
-      dngenes.in = dngenes[is.element(dngenes,allgenes)]
-      dngenes.out = allgenes[!is.element(allgenes,dngenes.in)]
-      dnmin = length(dngenes.in)
-      dnmout = length(dngenes.out)
-
-      upIGin = IG
-      upIGin[is.element(allgenes,upgenes.in)] = 1
-      upIGout = IG
-      upIGout[is.element(allgenes,upgenes.out)] = 1
-
-      dnIGin = IG
-      dnIGin[is.element(allgenes,dngenes.in)] = 1
-      dnIGout = IG
-      dnIGout[is.element(allgenes,dngenes.out)] = 1
-
-      wj = upIGin / upmin - upIGout / upmout - dnIGin / dnmin + dnIGout / dnmout
-      sd = sqrt(t(wj)%*%covmat%*%wj)
-
-      cutoff = qnorm(scale,mean=0,sd=sd)
-      cutoffs[j,"cutoff"] = cutoff
-    }
-    if(cutoffs[j,"cutoff"]==0) browser()
+  cat("start calcualting cutoffs\n")
+  if(mc.cores > 1){
+    cl = makePSOCKcluster(mc.cores)
+    clusterExport(cl,c("GENELISTS","COVMAT"))
+    res = parLapply(cl = cl, X=siglist, fun=cutoffCalc.inner.fc, catalog=catalog,allgenes=allgenes,pval=pval)
+    cutoffs = do.call(rbind,res)
   }
+  else {
+    res = lapply(X=siglist,FUN=cutoffCalc.inner.fc,catalog,allgenes,pval)
+    cutoffs = do.call(rbind,res)
+  }
+  if(mc.cores > 1) stopCluster(cl)
+  cat("finish calcualting cutoffs\n")
   file = paste0("../output/signature_cutoff/signature_cutoff_",sigset,"_",dataset,"_",method,"_",pval,"_",nlowconc,"_with_gene_correlations.xlsx")
   write.xlsx(cutoffs,file)
 
@@ -165,4 +112,82 @@ cutoffCalc = function(basedir="../input/fcdata/",
     if(!to.file) browser()
     else dev.off()
   }
+}
+#####################################################################################################
+#' Inner function for the cutoff calculation
+#'
+#' @param parent The name of the signature parent for which the cutoff is to be calculated
+#' @param catalog The signature catalog
+#' @param allgenes THe list of all the genes in the data set
+#' @param pval The p-value for the null distribution
+#' @param covmat THe covariance matrix
+#'
+#' @return vector containing the parent (signature), cutoff, sd, bmed
+#' @export
+#####################################################################################################
+cutoffCalc.inner.fc = function(parent, catalog, allgenes, pval) {
+  name.list = c("signature","sd","bmed","cutoff")
+  cutoffs = as.data.frame(matrix(nrow=1,ncol=length(name.list)))
+  names(cutoffs) = name.list
+  cutoffs[1,"signature"] = parent
+  cutoffs[1,"sd"] = 0
+  cutoffs[1,"bmed"] = 0
+  cutoffs[1,"cutoff"] = 0
+
+  scale = 1-pval/2
+  IG = vector(length=length(allgenes),mode="integer")
+  IG[] = 0
+
+  parent = parent
+  temp = catalog[is.element(catalog$parent,parent),]
+  if(nrow(temp)==1) {
+    sig = temp[1,"signature"]
+    genes = GENELISTS[[sig]]
+    genes.in = genes[is.element(genes,allgenes)]
+    genes.out = allgenes[!is.element(allgenes,genes.in)]
+    min = length(genes.in)
+    mout = length(genes.out)
+    IGin = IG
+    IGin[is.element(allgenes,genes.in)] = 1
+    IGout = IG
+    IGout[is.element(allgenes,genes.out)] = 1
+    wj = IGin / min - IGout / mout
+    sd = sqrt(t(wj)%*%COVMAT%*%wj)
+    cutoffs[1,"sd"] = sd
+    cutoff = qnorm(scale,mean=0,sd=sd)
+    cutoffs[1,"cutoff"] = cutoff
+  }
+  else if (nrow(temp)==2) {
+    sigup = temp[is.element(temp$direction,"up"),"signature"]
+    upgenes = GENELISTS[[sigup]]
+    upgenes.in = upgenes[is.element(upgenes,allgenes)]
+    upgenes.out = allgenes[!is.element(allgenes,upgenes.in)]
+    upmin = length(upgenes.in)
+    upmout = length(upgenes.out)
+
+    sigdn = temp[is.element(temp$direction,"dn"),"signature"]
+    dngenes = GENELISTS[[sigdn]]
+    dngenes.in = dngenes[is.element(dngenes,allgenes)]
+    dngenes.out = allgenes[!is.element(allgenes,dngenes.in)]
+    dnmin = length(dngenes.in)
+    dnmout = length(dngenes.out)
+
+    upIGin = IG
+    upIGin[is.element(allgenes,upgenes.in)] = 1
+    upIGout = IG
+    upIGout[is.element(allgenes,upgenes.out)] = 1
+
+    dnIGin = IG
+    dnIGin[is.element(allgenes,dngenes.in)] = 1
+    dnIGout = IG
+    dnIGout[is.element(allgenes,dngenes.out)] = 1
+
+    wj = upIGin / upmin - upIGout / upmout - dnIGin / dnmin + dnIGout / dnmout
+    sd = sqrt(t(wj)%*%COVMAT%*%wj)
+    cutoffs[1,"sd"] = sd
+
+    cutoff = qnorm(scale,mean=0,sd=sd)
+    cutoffs[1,"cutoff"] = cutoff
+  }
+  return(as.vector(cutoffs))
 }
