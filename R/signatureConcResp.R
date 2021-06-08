@@ -21,6 +21,7 @@ library(tcplfit2)
 #' @param do.plot do.plot = T creates concentration-response plots for every
 #'   sample/signature combination and saves to disk.
 #' @param pval Desired cutoff p-value.
+#' @param nlowconc Only include the lowest nlowconc concentrations for each chemical
 #' @param nametag Optional descriptor tag to attach to file outputs for
 #'   experimental/non-default runs.
 #' @param conthits conthits = T uses continuous hitcalls, otherwise it's discrete.
@@ -38,15 +39,16 @@ library(tcplfit2)
 #'   output.
 #' @export
 signatureConcResp <- function(sigset="pilot_tiny",
-                              sigcatalog="signatureDB_master_catalog 2020-03-12",
-                              dataset="DMEM_6hr_screen_normal_pe_1_pgnorm",
-                              method="gsea",
-                              bmr_scale=1.349,
+                              sigcatalog = "signatureDB_master_catalog 2020-03-12",
+                              dataset = "DMEM_6hr_screen_normal_pe_1_pgnorm",
+                              method = "fc",
+                              bmr_scale = 1.349,
                               nullset,
-                              mc.cores=1,
-                              to.file=T,
+                              mc.cores = 1,
+                              to.file = T,
                               do.plot = F,
                               pval = .05,
+                              nlowconc = 2,
                               nametag = NULL,
                               conthits = T,
                               aicc = F,
@@ -63,14 +65,19 @@ signatureConcResp <- function(sigset="pilot_tiny",
   if(is.null(nametag) && conthits) nametag = "conthits"
   if(!is.null(nametag)) nametag = paste0("_", nametag)
 
+  cat("> signatureConcResp 0\n")
   # get signaturescoremat
   file <- paste0("../output/signature_score_summary/signaturescoremat_",sigset,"_",dataset,"_",method,".RData")
   load(file)
   #remove scores under path limit
   signaturescoremat = signaturescoremat[signaturescoremat$size >= minsigsize,]
 
+  # get the cutoffs
+  file = paste0("../output/signature_cutoff/signature_cutoff_",sigset,"_",dataset,"_",method,"_",pval,"_",nlowconc,"_with_gene_correlations.xlsx")
+  pvalkey = read.xlsx(file)
+
   #attach pval cutoff and bmed
-  pvalkey = getpvalcutoff(sigset, nullset, method, pvals = pval, numsds = 1)
+  #pvalkey = getpvalcutoff(sigset, nullset, method, pvals = pval, numsds = 1)
   cat("> signatureConcResp 1\n")
   signaturescoremat$cutoff = pvalkey$cutoff[!is.na(pvalkey$pvalue)][match(signaturescoremat$signature, pvalkey$signature)]
   signaturescoremat$bmed = pvalkey$bmed[!is.na(pvalkey$pvalue)][match(signaturescoremat$signature, pvalkey$signature)]

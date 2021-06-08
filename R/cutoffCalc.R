@@ -76,10 +76,10 @@ cutoffCalc = function(basedir="../input/fcdata/",
   siglist = sort(unique(catalog$parent))
   allgenes = colnames(fcmat2)
 
-  cat("start calcualting cutoffs\n")
+  cat("start calculating cutoffs\n")
   if(mc.cores > 1){
     cl = makePSOCKcluster(mc.cores)
-    clusterExport(cl,c("GENELISTS","COVMAT"))
+    clusterExport(cl,c("GENELISTS","COVMAT","FCMAT2_lowconc","rowMean"))
     res = parLapply(cl = cl, X=siglist, fun=cutoffCalc.inner.fc, catalog=catalog,allgenes=allgenes,pval=pval)
     cutoffs = do.call(rbind,res)
   }
@@ -88,7 +88,7 @@ cutoffCalc = function(basedir="../input/fcdata/",
     cutoffs = do.call(rbind,res)
   }
   if(mc.cores > 1) stopCluster(cl)
-  cat("finish calcualting cutoffs\n")
+  cat("finish calculating cutoffs\n")
   file = paste0("../output/signature_cutoff/signature_cutoff_",sigset,"_",dataset,"_",method,"_",pval,"_",nlowconc,"_with_gene_correlations.xlsx")
   write.xlsx(cutoffs,file)
 
@@ -126,13 +126,15 @@ cutoffCalc = function(basedir="../input/fcdata/",
 #' @export
 #####################################################################################################
 cutoffCalc.inner.fc = function(parent, catalog, allgenes, pval) {
-  name.list = c("signature","sd","bmed","cutoff")
+  name.list = c("signature","sd","bmed","cutoff","pvalue","numsd")
   cutoffs = as.data.frame(matrix(nrow=1,ncol=length(name.list)))
   names(cutoffs) = name.list
   cutoffs[1,"signature"] = parent
   cutoffs[1,"sd"] = 0
   cutoffs[1,"bmed"] = 0
   cutoffs[1,"cutoff"] = 0
+  cutoffs[1,"pvalue"] = pval
+  cutoffs[1,"numsd"] = 1
 
   scale = 1-pval/2
   IG = vector(length=length(allgenes),mode="integer")
@@ -156,6 +158,13 @@ cutoffCalc.inner.fc = function(parent, catalog, allgenes, pval) {
     cutoffs[1,"sd"] = sd
     cutoff = qnorm(scale,mean=0,sd=sd)
     cutoffs[1,"cutoff"] = cutoff
+
+    mat.in = FCMAT2_lowconc[,genes.in]
+    mat.out = FCMAT2_lowconc[,genes.out]
+    rs.in = rowMean(mat.in)
+    rs.out = rowMean(mat.out)
+    diff = rs.in-rs.out
+    cutoffs[1,"bmed"] = mean(diff)
   }
   else if (nrow(temp)==2) {
     sigup = temp[is.element(temp$direction,"up"),"signature"]
@@ -188,6 +197,20 @@ cutoffCalc.inner.fc = function(parent, catalog, allgenes, pval) {
 
     cutoff = qnorm(scale,mean=0,sd=sd)
     cutoffs[1,"cutoff"] = cutoff
+
+    mat.in = FCMAT2_lowconc[,upgenes.in]
+    mat.out = FCMAT2_lowconc[,upgenes.out]
+    uprs.in = rowMean(mat.in)
+    uprs.out = rowMean(mat.out)
+    mat.in = FCMAT2_lowconc[,dngenes.in]
+    mat.out = FCMAT2_lowconc[,dngenes.out]
+    dnrs.in = rowMean(mat.in)
+    dnrs.out = rowMean(mat.out)
+    diff = uprs.in-uprs.out - dnrs.in+dnrs.out
+    cutoffs[1,"bmed"] = mean(diff)
   }
   return(as.vector(cutoffs))
+}
+rowMean <- function(x) {
+  ret <- apply(x,FUN=mean,MARGIN=1)
 }

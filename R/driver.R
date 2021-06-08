@@ -13,7 +13,11 @@ library(reshape2)
 #' @param nrandom.chems Number of random chemicals for the NULL distribution calculation, default is 1000
 #' @param normfactor Normalization factor for the conc-reap plots, default is 7500
 #' @param mc.cores Number of cores for paralell processing. Only works under Linux
-#' @param bmr_scale Scaling factor from the NULL SD to BMD, default is 1.349,
+#' @param bmr_scale Scaling factor from the NULL SD to BMD, default is 1.349
+#' @param pval Threshold for cutoff distribution confidence interval. Default=0.05 indicates a 95% CI for the baseline distribution
+#' @param nlowconc Only include the lowest nlowconc concentrations for each chemical
+#' @param hccut The threshold for sigantures to be called a hit, default=0.95,
+#' @param tccut The threshold for top/cutoff o be a hit, default =1.5
 #' @param plotrange The concentration range for the conc-resp plots in uM, default is c(0.0001,100),
 #' @param method signature scoring method in c("fc", "gsva", "gsea"), default is fc
 #' @param celltype Name of the cull type, e.g. MCF7
@@ -42,7 +46,7 @@ library(reshape2)
 #' * DMEM_6hr_pilot_normal_pe_1 - MCF7 pilot
 #' @export
 #--------------------------------------------------------------------------------------
-driver <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
+driver <- function(dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
                    sigcatalog="signatureDB_master_catalog 2021-05-10",
                    sigset="screen_large",
                    nullset=NULL,
@@ -50,11 +54,16 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
                    normfactor=7500,
                    mc.cores=25,
                    bmr_scale=1.349,
+                   pval=0.05,
+                   nlowconc=2,
+                   hccut=0.95,
+                   tccut=1.5,
                    plotrange=c(0.0001,100),
-                   method="gsea",
-                   celltype="MCF7",
-                   do.build.random=T,
-                   do.run.random=T,
+                   method="fc",
+                   celltype="HepaRG",
+                   # do.build.random=T,
+                   # do.run.random=T,
+                   do.calc.cutoff=F,
                    do.run.all=T,
                    do.scr.plots=T,
                    do.signature.pod=T,
@@ -62,23 +71,33 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
                    do.all=F) {
   printCurrentFunction(paste(dataset,":",sigset))
 
-  if(do.build.random) {
-    randomdata(dataset=dataset, nchem=nrandom.chems)
+  if(do.calc.cutoff) {
+    cutoffCalc(dataset=dataset,
+               sigcatalog=sigcatalog,
+               sigset=sigset,
+               method=method,
+               pval=pval,
+               nlowconc=nlowconc,
+               mc.cores=mc.cores,
+               do.load=T,do.cov=T,do.compare=F,to.file=F,verbose=F)
   }
-
-  if(is.null(nullset)) nullset <- paste0(dataset,"_RAND",nrandom.chems)
-  if(do.run.random || do.all){
-    runAllSignatureCR(dataset=nullset,
-                      nullset=nullset,
-                      sigset=sigset,
-                      sigcatalog=sigcatalog,
-                      method = method,
-                      normfactor=normfactor,
-                      bmr_scale=bmr_scale,
-                      do.plot = F,
-                      do.cr=F,
-                      mc.cores = c(mc.cores,mc.cores))
-  }
+  # if(do.build.random) {
+  #   randomdata(dataset=dataset, nchem=nrandom.chems)
+  # }
+  #
+  if(is.null(nullset)) nullset = paste0(dataset,"_RAND",nrandom.chems)
+  # if(do.run.random || do.all){
+  #   runAllSignatureCR(dataset=nullset,
+  #                     nullset=nullset,
+  #                     sigset=sigset,
+  #                     sigcatalog=sigcatalog,
+  #                     method = method,
+  #                     normfactor=normfactor,
+  #                     bmr_scale=bmr_scale,
+  #                     do.plot = F,
+  #                     do.cr=F,
+  #                     mc.cores = c(mc.cores,mc.cores))
+  # }
   if(do.run.all || do.all){
     runAllSignatureCR(dataset=dataset,
                       nullset=nullset,
@@ -87,7 +106,9 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
                       method = method,
                       bmr_scale=bmr_scale,
                       normfactor=normfactor,
-                      do.plot = T,
+                      pval=pval,
+                      nlowconc=nlowconc,
+                      do.plot=T,
                       do.cr=T,
                       mc.cores = c(mc.cores,mc.cores))
     cat("Look for output in \n
@@ -104,7 +125,7 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
                                  bmr_scale=bmr_scale,
                                  mc.cores=mc.cores,
                                  do.load=T,
-                                 pval = .05,
+                                 pval=pval,
                                  plotrange=plotrange)
   }
   if(do.signature.pod || do.all) {
@@ -113,7 +134,7 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
                  dataset=dataset,
                  method=method,
                  bmr_scale=bmr_scale,
-                 hccut=0.9)
+                 hccut=hccut)
   }
   if(do.supertarget.boxplot) {
     superTargetBoxplot(to.file=T,
@@ -122,8 +143,8 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
                        sigset=sigset,
                        method=method,
                        celltype=celltype,
-                       hccut=0.95,
-                       tccut=1.5,
+                       hccut=hccut,
+                       tccut=tccut,
                        cutoff=5)
 
     superTargetPODplot(to.file=T,
@@ -131,8 +152,8 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
                        sigset=sigset,
                        method=method,
                        celltype=celltype,
-                       hccut=0.95,
-                       tccut=1.5,
+                       hccut=hccut,
+                       tccut=tccut,
                        cutoff=5)
 
     superTargetStats(do.load=T,
@@ -140,8 +161,8 @@ driver <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
                     sigset=sigset,
                     method=method,
                     celltype=celltype,
-                    hccut=0.95,
-                    tccut=1.5,
+                    hccut=hccut,
+                    tccut=tccut,
                     cutoff=5)
   }
 }

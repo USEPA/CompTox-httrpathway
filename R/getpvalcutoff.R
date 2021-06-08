@@ -33,25 +33,12 @@ getpvalcutoff = function(pathset, nullset, method, pvals = NULL, numsds = NULL,v
   load(file)
   if(verbose) cat("  file loaded\n")
 
-  ###########################################
-  ###########################################
-  debug=F
-  if(debug) {
-    sig <- "CMAP fulvestrant 1e-06 100 8242 100"
-    temp <- signaturescoremat[is.element(signaturescoremat$signature,sig),]
-    mval <- mean(temp$signature_score)
-    cat(pathset,nrow(temp),mean(temp$signature_score),sd(temp$signature_score),"\n")
-    browser()
-  }
-  ###########################################
-  ###########################################
   if(verbose) cat("  find p-value for each signature\n")
   if(!is.null(pvals)){
     pout = as.data.frame(setDT(signaturescoremat)[, list(cutoff = quantile(abs(signature_score-median(signature_score)),1-pvals,na.rm=T),
                                                    bmed = median(signature_score)), by = list(signature)])
     pout$pvalue = rep_len(pvals, nrow(pout))
     if(is.null(numsds)) output = pout else pout$numsd = NA_real_
-
   }
 
   if(verbose) cat("  find x*standard deviation for each signature\n")

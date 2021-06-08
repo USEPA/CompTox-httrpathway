@@ -23,6 +23,7 @@
 #'   combination.
 #' @param do.cr Run the concentration-response step (set to FALSE for the null set)
 #' @param pval P-value to use for noise estimation.
+#' @param nlowconc Only include the lowest nlowconc concentrations for each chemical
 #' @param mc.cores Vector with two values: number of cores to use for signature
 #'   scoring and number of cores to use for CR. CR can usually handle the maximum
 #'   number, but gsva scoring might require a smaller number to avoid memory
@@ -47,6 +48,7 @@ runAllSignatureCR = function(basedir="../input/fcdata/",
                              do.plot = T,
                              do.cr=T,
                              pval = .05,
+                             nlowconc = 2,
                              mc.cores = c(1,1),
                              fitmodels = c("cnst", "hill",  "poly1", "poly2",
                                            "pow", "exp2", "exp3", "exp4", "exp5")){
@@ -62,22 +64,19 @@ runAllSignatureCR = function(basedir="../input/fcdata/",
   load(file)
   rownames(CHEM_DICT) <- CHEM_DICT[,"sample_key"]
 
-  #run signature scores
   cat("runAllSignatureCR: Start signatureScore\n")
   signatureScore(FCMAT2, CHEM_DICT,sigset,sigcatalog,dataset,method=method,
                  normfactor=normfactor,
                  mc.cores=mc.cores[1], minsigsize = minsigsize)
-  if(is.null(nullset)) return()
+  #if(is.null(nullset)) return()
 
   cat("runAllSignatureCR: Start signatureScoreMerge\n")
   signatureScoreMerge(sigset,sigcatalog,dataset,method,nullset)
 
   if(do.cr) {
-
-    #run conc/resp
     cat("runAllSignatureCR: Start signatureConcResp\n")
     signatureConcResp(sigset,sigcatalog,dataset,method=method, bmr_scale=bmr_scale, nullset = nullset, mc.cores=mc.cores[2], do.plot = do.plot,
-                      to.file=T, pval = pval, minsigsize = minsigsize, conthits = conthits,
+                      to.file=T, pval = pval, nlowconc= nlowconc, minsigsize = minsigsize, conthits = conthits,
                       fitmodels = fitmodels)
   }
 
