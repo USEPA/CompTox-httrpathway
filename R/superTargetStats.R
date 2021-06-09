@@ -28,7 +28,6 @@ superTargetStats <- function(do.load=F,
     RES <<- res.all
   }
   mat = RES
-  browser()
   mat[mat$count<2,"active"] = 0
   mat1 = mat[mat$active==1,]
   file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_active.xlsx")
