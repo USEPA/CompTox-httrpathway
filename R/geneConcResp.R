@@ -2,8 +2,7 @@
 #'
 #' Wrapper that performs concentration response modeling for gene or probe l2fc's
 #'
-#' If conthits = T and nametag is NULL, nametag will be set to "conthits". Loads
-#' an FCMAT2 and CHEM_DICT corresponding to given dataset. FCMAT should be
+#' Loads an FCMAT2 and CHEM_DICT corresponding to given dataset. FCMAT should be
 #' chem/conc by gene or chem/conc by probe. Uses two lowest concentration of each
 #' column to estimate noise cutoff (as opposed to signature CR). Also, doesn't
 #' currently contain a plotting option.
@@ -13,10 +12,6 @@
 #' @param to.file If TRUE, results are written to an RData file, otherwise they
 #'   are returned.
 #' @param pval P-value cutoff between 0 and 1.
-#' @param nametag Optional identifier attached to the output name that usually
-#'   is used to signify that an unusual option was used.
-#' @param conthits If conthits = T, continuous hitcalls are calculated; otherwise
-#'   discrete hitcalls are used.
 #' @param aicc If aicc = T, corrected AIC is used insstead of first order
 #'   (regular) AIC.
 #' @param fitmodels Vector of models names to be used. Default is all of them.
@@ -26,22 +21,17 @@
 #'
 #' @return If to.file = F, data frame containing results; otherwise, nothing.
 #' @export
-geneConcResp <- function(dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
+geneConcResp <- function(dataset,
                          mc.cores=20,
                          to.file=T,
                          pval = .05,
-                         nametag = NULL,
-                         conthits = T,
                          aicc = F,
                          fitmodels = c("cnst", "hill", "poly1", "poly2", "pow", "exp2", "exp3",
                                        "exp4", "exp5"),
-                         genefile=NULL
-                         ) {
+                         genefile=NULL) {
 
   printCurrentFunction(dataset)
   starttime = proc.time()
-  if(is.null(nametag) && conthits) nametag = "conthits"
-  if(!is.null(nametag)) nametag = paste0("_", nametag)
 
   #get FCMAT and CHEM_DICT
   file <- paste0("../input/fcdata/FCMAT2_",dataset,".RData")
@@ -117,7 +107,7 @@ geneConcResp <- function(dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
                         "gnls" , "gnlsderivobj", "hillfn", "hitcontinner","hitloginner","loggnls", "loghill", "nestselect",
                         "poly1", "poly2", "pow", "tcplObj", "toplikelihood"))
     GENE_CR = parLapplyLB(cl = cl, X=genemat, fun=concRespCore, fitmodels = fitmodels,
-                          conthits =conthits, aicc = aicc, chunk.size = ceiling(length(genemat)/5/mc.cores) )
+                          aicc = aicc, chunk.size = ceiling(length(genemat)/5/mc.cores) )
   } else {
     cat("start running single core\n")
 
@@ -128,7 +118,7 @@ geneConcResp <- function(dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
     #   browser()
     # }
 
-    GENE_CR = lapply(X=genemat, FUN = concRespCore, fitmodels = fitmodels, conthits= conthits, aicc = aicc)
+    GENE_CR = lapply(X=genemat, FUN = concRespCore, fitmodels = fitmodels, aicc = aicc)
   }
   cat("finish running\n")
 
@@ -137,7 +127,7 @@ geneConcResp <- function(dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
   rm(genemat)
 
   if(to.file){
-    file <- paste0("../output/gene_conc_resp_summary/GENE_CR_",dataset,"_", pval, nametag ,".RData")
+    file <- paste0("../output/gene_conc_resp_summary/GENE_CR_",dataset,"_", pval,"_conthits.RData")
     save(GENE_CR,file=file)
   } else return(GENE_CR)
   cat("finish writing\n")

@@ -1,13 +1,13 @@
 #####################################################################################################
-#' Calculate the signature-wise cutoffs based on the Setzer method
+#' Calculate the signature-wise cutoffs based on the analytical method
 #' which does not break any correlations between genes
 #'
 #' @param basedir Directory that holds FCMAT2 and CHEM_DICT files.
-#' @param dataset Name of actual dataset to base null data on.
+#' @param dataset Name of actual dataset to base cutoff on.
 #' @param sigcatalog The name of the signature catalog to use
 #' @param sigset THe signature set
 #' @param method The scoring method, either fc or gsea
-#' @param pval The p-value for the null distribution
+#' @param pval The p-value for the baseline distribution
 #' @param seed Random seed.
 #' @param nlowconc Only include the lowest nlowconc concentrations for each chemical
 #' @param mc.cores NUmber of coresto use when running parallel
@@ -120,7 +120,7 @@ cutoffCalc = function(basedir="../input/fcdata/",
 #' @param parent The name of the signature parent for which the cutoff is to be calculated
 #' @param catalog The signature catalog
 #' @param allgenes THe list of all the genes in the data set
-#' @param pval The p-value for the null distribution
+#' @param pval The p-value for the baseline distribution
 #' @param covmat THe covariance matrix
 #'
 #' @return vector containing the parent (signature), cutoff, sd, bmed

@@ -5,27 +5,24 @@
 #' @param do.load If TRUE, load the SIGNATURE_CR file, otherwiseassume that it is in memory
 #' @param to.file to.file = T saves the output to a file; otherwise it's returned.
 #' @param pval Desired cutoff p-value.
-#' @param nametag Optional descriptor tag to attach to file outputs for
-#'   experimental/non-default runs.
 #' @param plotrange The x-range of the plot as a vector of 2 elements, this can be changed for special cases, but defaults to 0.001 to 100
 #' @param onefile If TRUE, put all plots into one file, instead of one filer per chemical
 #' @param chemfile A file of chemicals to use. If NULL, plot all chemicals
 #'
 #' @export
 #----------------------------------------------------------------------------------
-geneConcRespPlotWrapper <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
+geneConcRespPlotWrapper <- function(dataset,
                                     mc.cores=20,
                                     do.load=T,
                                     to.file=F,
                                     pval = .05,
-                                    nametag = "_conthits",
                                     plotrange=c(0.0001,100),
                                     onefile=T,
                                     chemfile="../input/PFAS/Immuntox chemical evidence.xlsx") {
 
   printCurrentFunction(paste(dataset))
   if(do.load) {
-    file <- paste0("../output/gene_conc_resp_summary/GENE_CR_",dataset,"_", pval, nametag ,".RData")
+    file <- paste0("../output/gene_conc_resp_summary/GENE_CR_",dataset,"_", pval,"_conthits.RData")
     print(file)
     load(file=file)
 
@@ -50,13 +47,13 @@ geneConcRespPlotWrapper <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
   GENE_CR <- temp
 
   dir.create("../output/gene_conc_resp_plots/", showWarnings = F)
-  foldname = paste0("../output/sgene_conc_resp_plots/",dataset,"_", pval, nametag)
+  foldname = paste0("../output/sgene_conc_resp_plots/",dataset,"_", pval,"_conthits")
   dir.create(foldname, showWarnings = F)
   pnames = unique(GENE_CR$proper_name)
 
   if(onefile) {
     if(to.file) {
-      fname <- paste0("../output/gene_conc_resp_plots/gene_conc_resp_",dataset,"_",pval, nametag,".pdf")
+      fname <- paste0("../output/gene_conc_resp_plots/gene_conc_resp_",dataset,"_",pval,"_conthits.pdf")
       pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
     }
     par(mfrow=c(3,2),mar=c(5,5,4,2))

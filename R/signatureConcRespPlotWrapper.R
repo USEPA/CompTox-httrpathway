@@ -11,8 +11,6 @@ library(openxlsx)
 #' @param do.load If TRUE, load the SIGNATURE_CR file, otherwiseassume that it is in memory
 #' to.file to.file = T saves the output to a file; otherwise it's returned.
 #' @param pval Desired cutoff p-value.
-#' @param nametag Optional descriptor tag to attach to file outputs for
-#'   experimental/non-default runs.
 #' @param plotrange The x-range of the plot as a vector of 2 elements, this can be changed for special cases, but defaults to 0.001 to 100
 #'
 #' @import data.table
@@ -20,30 +18,25 @@ library(openxlsx)
 #' @import openxlsx
 #' @export
 #----------------------------------------------------------------------------------
-signatureConcRespPlotWrapper <- function(sigset="screen_large",
-                                         dataset="u2os_pilot_pe1_normal_null_pilot_lowconc",
-                                         sigcatalog="signatureDB_master_catalog 2021-03-05",
-                                         method="fc",
+signatureConcRespPlotWrapper <- function(sigset,
+                                         dataset,
+                                         sigcatalog,
+                                         method,
                                          bmr_scale=1.349,
                                          mc.cores=20,
                                          do.load=T,
                                          pval = .05,
-                                         nametag = "_conthits",
                                          plotrange=c(0.0001,100)) {
 
   printCurrentFunction(paste(dataset,sigset,method))
   if(do.load) {
-    file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_", pval,nametag,".RData")
-    if(bmr_scale!=1.349) file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_bmr_scale_",bmr_scale,"_", pval,nametag,".RData")
+    file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_", pval,"_conthits.RData")
+    if(bmr_scale!=1.349) file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_bmr_scale_",bmr_scale,"_", pval,"_conthits.RData")
     print(file)
     load(file=file)
     SIGNATURE_CR <<- SIGNATURE_CR
   }
-  #annotations <- signatureCatalogLoader(sigset,sigcatalog)
-  #SIGNATURE_CR$super_target <- annotations$super_target[match(SIGNATURE_CR$signature, annotations$parent)]
-  #file <- paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_", pval, nametag ,"_conthits.RData")
-  #save(SIGNATURE_CR,file=file)
-  #browser()
+
   #fix chemical name so it can be part of a file name
   SIGNATURE_CR$proper_name = gsub("\\)","",SIGNATURE_CR$name)
   SIGNATURE_CR$proper_name = gsub("\\(","",SIGNATURE_CR$proper_name)
@@ -55,17 +48,10 @@ signatureConcRespPlotWrapper <- function(sigset="screen_large",
   if(nrow(temp)<10) temp <- SIGNATURE_CR[1:10,]
   SIGNATURE_CR <- temp
 
-  ###########################################################################
-  #dlist = unique(SIGNATURE_CR$dtxsid)
-  #dlist= dlist[1:5]
-  #SIGNATURE_CR = SIGNATURE_CR[is.element(SIGNATURE_CR$dtxsid,dlist),]
-  #if(nrow(SIGNATURE_CR)>10) SIGNATURE_CR=SIGNATURE_CR[1:10,]
-  ###########################################################################
-
   dir.create("../output/signature_conc_resp_plots/", showWarnings = F)
-  foldname = paste0("../output/signature_conc_resp_plots/",sigset,"_",dataset,"_",method,"_", pval, nametag)
+  foldname = paste0("../output/signature_conc_resp_plots/",sigset,"_",dataset,"_",method,"_", pval,"_conthits")
   if(bmr_scale!=1.349)
-    foldname = paste0("../output/signature_conc_resp_plots/",sigset,"_",dataset,"_",method,"_", pval, nametag,"_bmr_scale_",bmr_scale)
+    foldname = paste0("../output/signature_conc_resp_plots/",sigset,"_",dataset,"_",method,"_", pval,"_conthits_bmr_scale_",bmr_scale)
   dir.create(foldname, showWarnings = F)
   pnames = unique(SIGNATURE_CR$proper_name)
 

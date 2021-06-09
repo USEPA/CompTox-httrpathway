@@ -3,13 +3,13 @@
 #' which does not break any correlations between genes
 #'
 #' @param basedir Directory that holds FCMAT2 and CHEM_DICT files.
-#' @param dataset Name of actual dataset to base null data on.
+#' @param dataset Name of actual dataset to base cutoff on.
 #' @param sigcatalog The name of the signature catalog to use
 #' @param sigset THe signature set
 #' @param method The scoring method, either fc or gsea
-#' @param pval The p-value for the null distribution
+#' @param pval The p-value for the baseline distribution
 #' @param nlowconc Only include the lowest nlowconc concentrations for each chemical
-#' @param mc.cores NUmber of coresto use when running parallel
+#' @param mc.cores NUmber of cores to use when running parallel
 #' @param dtxsid.exclude dtxsids to exclude, default NULL
 #' @param do.load If TRUE, reload the FCMAT2 matrix, signature catalog and chemical dictionary, and store in globals
 #' @param do.cov If TRUE, calculate the covariance matrix and store in a global
@@ -68,7 +68,7 @@ cutoffCalcEmpirical = function(basedir="../input/fcdata/",
 #' Inner function for the cutoff calculation
 #'
 #' @param signature The name of the signature  for which the cutoff is to be calculated
-#' @param pval The p-value for the null distribution
+#' @param pval The p-value for the baseline distribution
 #' @param covmat THe covariance matrix
 #'
 #' @return vector containing the signature, cutoff, sd, bmed
