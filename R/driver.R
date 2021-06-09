@@ -46,7 +46,7 @@ library(reshape2)
 #' * DMEM_6hr_pilot_normal_pe_1 - MCF7 pilot
 #' @export
 #--------------------------------------------------------------------------------------
-driver <- function(dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
+driver <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
                    sigcatalog="signatureDB_master_catalog 2021-05-10",
                    sigset="screen_large",
                    nullset=NULL,
@@ -63,7 +63,7 @@ driver <- function(dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
                    celltype="HepaRG",
                    # do.build.random=T,
                    # do.run.random=T,
-                   do.calc.cutoff=F,
+                   do.calc.cutoff=T,
                    do.run.all=T,
                    do.scr.plots=T,
                    do.signature.pod=T,
