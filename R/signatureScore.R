@@ -138,7 +138,7 @@ signatureScore <- function(FCMAT2,
   }
   #call gsea scoring
   if(method=="gsea") {
-    signatureScoreCoregsea(sk.list,
+    signatureScoreCoreGSEA(sk.list,
                              method = "gsea",
                              normfactor=normfactor,
                              sigset=sigset,
@@ -152,7 +152,7 @@ signatureScore <- function(FCMAT2,
   }
   #call gsea scoring without ranks or normalization
   if(method=="gsea_norank") {
-    signatureScoreCoregsea(sk.list,
+    signatureScoreCoreGSEA(sk.list,
                              method = "gsea_norank",
                              sigset=sigset,
                              dataset=dataset,
