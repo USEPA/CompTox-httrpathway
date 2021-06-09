@@ -8,12 +8,12 @@
 #' @export
 #--------------------------------------------------------------------------------------
 exportSignatureCutoffs <- function(do.load=F,
-                                   dataset="mcf7_ph1_pe1_normal_block_123_excludePG",
+                                   dataset="heparg2d_toxcast_pfas_pe1_normal",
                                    sigset="screen_large",
                                    method="fc") {
   printCurrentFunction()
   if(do.load) {
-    file = paste0("../output/signature_conc_resp_summary/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_0.05_conthits.RData")
+    file = paste0("../output/signature_conc_resp_summary/old/SIGNATURE_CR_",sigset,"_",dataset,"_",method,"_0.05_conthits.RData")
     print(file)
     load(file=file)
     mat = SIGNATURE_CR
