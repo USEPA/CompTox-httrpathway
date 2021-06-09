@@ -2,26 +2,21 @@
 #'
 #' Driver for signature scoring and concentration response (CR).
 #'
-#' CR requires signature scores to have already been computed for a nullset.
-#' randomdata() can generate a nullset, and this function can compute signature
-#' scores for it by setting dataset = nullset and nullset = NULL. Pathway
-#' scores are written to disk in output/signature_score_summary/. CR results
-#' are written to disk in output/signature/conc_resp_summary/.
+#' Signature scores are written to disk in output/signature_score_summary/.
+#' Signature cutoffs are written to disk in output/signature_cutoff/.
+#' CR results are written to disk in output/signature_conc_resp_summary/.
 #'
-#' @param basedir Folder that stores FCMAT2 and CHEM_DICT files.
 #' @param dataset Name of data set.
 #' @param sigset Name of signature set.
+#' @param cutoff.dataset This is the data set name to sue when the cutoffs are taken from a different data set than
+#'   the one currently being analyzed. The reason for doing this is if the current data set is small
+#'   (small number of chemicals), and so not large enough to get a good estiamte of the underlying
+#'   noise distribution. All of the other parameters for both data sets have to be the same
 #' @param sigcatalog Name of the signature catalog
 #' @param method Pathway scoring method in c("fc", "gsva", "gsea")
 #' @param bmr_scale	bmr scaling factor. Default = 1.349
 #' @param normfactor Factor to scale the native units up by to get onto a reasonable plotting value (~ -1 to 1)
 #' @param minsigsize Minimum signature size.
-#' @param conthits conthits = T uses continous hitcall; conthits = F uses discrete
-#'   hitcalls.
-#' @param nullset Name of null dataset. Set nullset = NULL to skip CR.
-#' @param do.plot do.plot = T generates a CR plot for every sample/signature
-#'   combination.
-#' @param do.cr Run the concentration-response step (set to FALSE for the null set)
 #' @param pval P-value to use for noise estimation.
 #' @param nlowconc Only include the lowest nlowconc concentrations for each chemical
 #' @param mc.cores Vector with two values: number of cores to use for signature
@@ -35,25 +30,22 @@
 #'
 #' remove gnls from default set
 #' @export
-runAllSignatureCR = function(basedir="../input/fcdata/",
-                             dataset="DMEM_6hr_pilot_normal_pe_1",
+runAllSignatureCR = function(dataset,
                              sigset,
+                             cutoff.dataset,
                              sigcatalog,
-                             method = "gsea",
-                             bmr_scale=1.349,
-                             normfactor=7500,
+                             method,
+                             bmr_scale = 1.349,
+                             normfactor = 7500,
                              minsigsize = 10,
-                             conthits = T,
-                             nullset,
-                             do.plot = T,
-                             do.cr=T,
-                             pval = .05,
+                             pval = 0.05,
                              nlowconc = 2,
-                             mc.cores = c(1,1),
+                             mc.cores = 1,
                              fitmodels = c("cnst", "hill",  "poly1", "poly2",
                                            "pow", "exp2", "exp3", "exp4", "exp5")){
-  printCurrentFunction(paste(dataset,sigset,method,nullset))
+  printCurrentFunction(paste(dataset,sigset,method))
   # load fcmat, chemdict
+  basedir="../input/fcdata/"
   file <- paste0(basedir,"FCMAT2_",dataset,".RData")
   print(file)
   load(file)
@@ -65,20 +57,20 @@ runAllSignatureCR = function(basedir="../input/fcdata/",
   rownames(CHEM_DICT) <- CHEM_DICT[,"sample_key"]
 
   cat("runAllSignatureCR: Start signatureScore\n")
-  signatureScore(FCMAT2, CHEM_DICT,sigset,sigcatalog,dataset,method=method,
-                 normfactor=normfactor,
-                 mc.cores=mc.cores[1], minsigsize = minsigsize)
-  #if(is.null(nullset)) return()
+  signatureScore(FCMAT2, CHEM_DICT, dataset=dataset, sigset=sigset,sigcatalog=sigcatalog,
+                 method=method, normfactor=normfactor, mc.cores=mc.cores, minsigsize=minsigsize)
 
   cat("runAllSignatureCR: Start signatureScoreMerge\n")
-  signatureScoreMerge(sigset,sigcatalog,dataset,method,nullset)
+  signatureScoreMerge(dataset=dataset, sigset=sigset, sigcatalog=sigcatalog, method=method)
 
-  if(do.cr) {
-    cat("runAllSignatureCR: Start signatureConcResp\n")
-    signatureConcResp(sigset,sigcatalog,dataset,method=method, bmr_scale=bmr_scale, nullset = nullset, mc.cores=mc.cores[2], do.plot = do.plot,
-                      to.file=T, pval = pval, nlowconc= nlowconc, minsigsize = minsigsize, conthits = conthits,
-                      fitmodels = fitmodels)
-  }
+  cat("runAllSignatureCR: Start cutoffCalcEmpirical\n")
+  cutoffCalcEmpirical(dataset=dataset, sigset=sigset, method=method, pval=pval,
+                      nlowconc=nlowconc, mc.cores=mc.cores,do.load=T)
 
+  cat("runAllSignatureCR: Start signatureConcResp\n")
+  signatureConcResp(dataset=dataset, sigset=sigset, cutoff.dataset=cutoff.dataset, sigcatalog=sigcatalog,
+                    method=method, pval=pval, nlowconc=nlowconc, minsigsize=minsigsize,
+                    bmr_scale=bmr_scale, mc.cores=mc.cores, fitmodels=fitmodels)
 }
+
 
