@@ -6,7 +6,7 @@
 \usage{
 exportSignatureCutoffs(
   do.load = F,
-  dataset = "mcf7_ph1_pe1_normal_block_123_excludePG",
+  dataset = "heparg2d_toxcast_pfas_pe1_normal",
   sigset = "screen_large",
   method = "fc"
 )

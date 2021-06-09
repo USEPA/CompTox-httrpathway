@@ -7,7 +7,7 @@
 superTargetStats(
   do.load = F,
   dataset = "heparg2d_toxcast_pfas_pe1_normal_refchems",
-  sigset = "screen_large",
+  sigset = "pilot_tiny",
   method = "fc",
   celltype = "HepaRG",
   hccut = 0.95,

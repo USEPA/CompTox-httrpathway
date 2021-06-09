@@ -5,12 +5,10 @@
 \title{Gene Concentration Response}
 \usage{
 geneConcResp(
-  dataset = "heparg2d_toxcast_pfas_pe1_normal_refchems",
+  dataset,
   mc.cores = 20,
   to.file = T,
   pval = 0.05,
-  nametag = NULL,
-  conthits = T,
   aicc = F,
   fitmodels = c("cnst", "hill", "poly1", "poly2", "pow", "exp2", "exp3", "exp4",
     "exp5"),
@@ -27,12 +25,6 @@ are returned.}
 
 \item{pval}{P-value cutoff between 0 and 1.}
 
-\item{nametag}{Optional identifier attached to the output name that usually
-is used to signify that an unusual option was used.}
-
-\item{conthits}{If conthits = T, continuous hitcalls are calculated; otherwise
-discrete hitcalls are used.}
-
 \item{aicc}{If aicc = T, corrected AIC is used insstead of first order
 (regular) AIC.}
 
@@ -45,8 +37,7 @@ If to.file = F, data frame containing results; otherwise, nothing.
 Wrapper that performs concentration response modeling for gene or probe l2fc's
 }
 \details{
-If conthits = T and nametag is NULL, nametag will be set to "conthits". Loads
-an FCMAT2 and CHEM_DICT corresponding to given dataset. FCMAT should be
+Loads an FCMAT2 and CHEM_DICT corresponding to given dataset. FCMAT should be
 chem/conc by gene or chem/conc by probe. Uses two lowest concentration of each
 column to estimate noise cutoff (as opposed to signature CR). Also, doesn't
 currently contain a plotting option.

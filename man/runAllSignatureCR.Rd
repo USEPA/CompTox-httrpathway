@@ -5,30 +5,30 @@
 \title{Run All Pathway Concentration Response (P-Value)}
 \usage{
 runAllSignatureCR(
-  basedir = "../input/fcdata/",
-  dataset = "DMEM_6hr_pilot_normal_pe_1",
+  dataset,
   sigset,
+  cutoff.dataset,
   sigcatalog,
-  method = "gsea",
+  method,
   bmr_scale = 1.349,
   normfactor = 7500,
   minsigsize = 10,
-  conthits = T,
-  nullset,
-  do.plot = T,
-  do.cr = T,
   pval = 0.05,
-  mc.cores = c(1, 1),
+  nlowconc = 2,
+  mc.cores = 1,
   fitmodels = c("cnst", "hill", "poly1", "poly2", "pow", "exp2", "exp3", "exp4",
     "exp5")
 )
 }
 \arguments{
-\item{basedir}{Folder that stores FCMAT2 and CHEM_DICT files.}
-
 \item{dataset}{Name of data set.}
 
 \item{sigset}{Name of signature set.}
+
+\item{cutoff.dataset}{This is the data set name to sue when the cutoffs are taken from a different data set than
+the one currently being analyzed. The reason for doing this is if the current data set is small
+(small number of chemicals), and so not large enough to get a good estiamte of the underlying
+noise distribution. All of the other parameters for both data sets have to be the same}
 
 \item{sigcatalog}{Name of the signature catalog}
 
@@ -40,17 +40,9 @@ runAllSignatureCR(
 
 \item{minsigsize}{Minimum signature size.}
 
-\item{conthits}{conthits = T uses continous hitcall; conthits = F uses discrete
-hitcalls.}
-
-\item{nullset}{Name of null dataset. Set nullset = NULL to skip CR.}
-
-\item{do.plot}{do.plot = T generates a CR plot for every sample/signature
-combination.}
-
-\item{do.cr}{Run the concentration-response step (set to FALSE for the null set)}
-
 \item{pval}{P-value to use for noise estimation.}
+
+\item{nlowconc}{Only include the lowest nlowconc concentrations for each chemical}
 
 \item{mc.cores}{Vector with two values: number of cores to use for signature
 scoring and number of cores to use for CR. CR can usually handle the maximum
@@ -69,9 +61,7 @@ remove gnls from default set
 Driver for signature scoring and concentration response (CR).
 }
 \details{
-CR requires signature scores to have already been computed for a nullset.
-randomdata() can generate a nullset, and this function can compute signature
-scores for it by setting dataset = nullset and nullset = NULL. Pathway
-scores are written to disk in output/signature_score_summary/. CR results
-are written to disk in output/signature/conc_resp_summary/.
+Signature scores are written to disk in output/signature_score_summary/.
+Signature cutoffs are written to disk in output/signature_cutoff/.
+CR results are written to disk in output/signature_conc_resp_summary/.
 }

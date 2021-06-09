@@ -5,18 +5,15 @@
 \title{Pathway Concentration Response (P-value)}
 \usage{
 signatureConcResp(
-  sigset = "pilot_tiny",
-  sigcatalog = "signatureDB_master_catalog 2020-03-12",
-  dataset = "DMEM_6hr_screen_normal_pe_1_pgnorm",
-  method = "gsea",
+  dataset,
+  sigset,
+  cutoff.dataset,
+  sigcatalog,
+  method,
   bmr_scale = 1.349,
-  nullset,
   mc.cores = 1,
-  to.file = T,
-  do.plot = F,
   pval = 0.05,
-  nametag = NULL,
-  conthits = T,
+  nlowconc = 2,
   aicc = F,
   minsigsize = 10,
   fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3",
@@ -24,29 +21,24 @@ signatureConcResp(
 )
 }
 \arguments{
+\item{dataset}{Name of the data set.}
+
 \item{sigset}{Name of the signature set.}
 
-\item{dataset}{Name of the data set.}
+\item{cutoff.dataset}{This is the data set name to sue when the cutoffs are taken from a different data set than
+the one currently being analyzed. The reason for doing this is if the current data set is small
+(small number of chemicals), and so not large enough to get a good estiamte of the underlying
+noise distribution. All of the other parameters for both data sets have to be the same}
 
 \item{method}{Pathway scoring method in c("fc", "gsva", "gsea")}
 
 \item{bmr_scale}{bmr scaling factor. Default = 1.349}
 
-\item{nullset}{Name of the null data set.}
-
 \item{mc.cores}{Number of cores to parallelize with.}
-
-\item{to.file}{to.file = T saves the output to a file; otherwise it's returned.}
-
-\item{do.plot}{do.plot = T creates concentration-response plots for every
-sample/signature combination and saves to disk.}
 
 \item{pval}{Desired cutoff p-value.}
 
-\item{nametag}{Optional descriptor tag to attach to file outputs for
-experimental/non-default runs.}
-
-\item{conthits}{conthits = T uses continuous hitcalls, otherwise it's discrete.}
+\item{nlowconc}{Only include the lowest nlowconc concentrations for each chemical}
 
 \item{aicc}{aicc = T uses corrected AIC to choose winning method; otherwise
 regular AIC.}
@@ -64,10 +56,8 @@ If to.file = T, nothing. If to.file = F, dataframe with signature CR
 Performs signature concentration response using p-value based cutoffs.
 }
 \details{
-Null dataset and dataset should have already been scored using signatureScore
+dataset should have already been scored using signatureScore
 and the given sigset and method. This function prepares signatureScore output
 for CR processing, calls signatureConcRespCore_pval, formats the output,
-saves it to disk, then calls plotouter for CR plots, if desired. If
-conthits = T and nametag = NULL, the nametag "conthits" is automatically added
-to the output file.
+saves it to disk
 }

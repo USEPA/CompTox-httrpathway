@@ -5,12 +5,11 @@
 \title{Wrapper for all of the conc-response plotting o genes}
 \usage{
 geneConcRespPlotWrapper(
-  dataset = "heparg2d_toxcast_pfas_pe1_normal",
+  dataset,
   mc.cores = 20,
   do.load = T,
   to.file = F,
   pval = 0.05,
-  nametag = "_conthits",
   plotrange = c(1e-04, 100),
   onefile = T,
   chemfile = "../input/PFAS/Immuntox chemical evidence.xlsx"
@@ -26,9 +25,6 @@ geneConcRespPlotWrapper(
 \item{to.file}{to.file = T saves the output to a file; otherwise it's returned.}
 
 \item{pval}{Desired cutoff p-value.}
-
-\item{nametag}{Optional descriptor tag to attach to file outputs for
-experimental/non-default runs.}
 
 \item{plotrange}{The x-range of the plot as a vector of 2 elements, this can be changed for special cases, but defaults to 0.001 to 100}
 

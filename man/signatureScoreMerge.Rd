@@ -4,13 +4,7 @@
 \alias{signatureScoreMerge}
 \title{Merge the up and down halves of the pathway data}
 \usage{
-signatureScoreMerge(
-  sigset = "screen_large",
-  sigcatalog = "signatureDB_master_catalog 2020-04-04",
-  dataset = "DMEM_6hr_screen_normal_pe_1_RAND1000",
-  method = "gsea",
-  nullset = "DMEM_6hr_screen_normal_pe_1_RAND1000"
-)
+signatureScoreMerge(sigset, sigcatalog, dataset, method)
 }
 \arguments{
 \item{sigset}{Name of the signature set.}
@@ -19,9 +13,7 @@ signatureScoreMerge(
 
 \item{method}{Pathway scoring method in c("fc", "gsva", "gsea")}
 
-\item{nullset}{Name of the null data set.}
-
-\item{sigcatlog}{Nmae of the catalog file}
+\item{sigcatlog}{Name of the catalog file}
 }
 \value{
 nothing

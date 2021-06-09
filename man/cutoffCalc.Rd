@@ -2,18 +2,19 @@
 % Please edit documentation in R/cutoffCalc.R
 \name{cutoffCalc}
 \alias{cutoffCalc}
-\title{Calculate the signature-wise cutoffs based on the Setzer method
+\title{Calculate the signature-wise cutoffs based on the analytical method
 which does not break any correlations between genes}
 \usage{
 cutoffCalc(
   basedir = "../input/fcdata/",
-  dataset = "mcf7_ph1_pe1_normal_block_123_allPG",
+  dataset = "heparg2d_toxcast_pfas_pe1_normal_refchems",
   sigcatalog = "signatureDB_master_catalog 2021-05-10",
   sigset = "screen_large",
   method = "fc",
-  p = 0.05,
+  pval = 0.05,
   seed = 12345,
   nlowconc = 2,
+  mc.cores = 1,
   dtxsid.exclude = NULL,
   do.load = T,
   do.cov = T,
@@ -25,7 +26,7 @@ cutoffCalc(
 \arguments{
 \item{basedir}{Directory that holds FCMAT2 and CHEM_DICT files.}
 
-\item{dataset}{Name of actual dataset to base null data on.}
+\item{dataset}{Name of actual dataset to base cutoff on.}
 
 \item{sigcatalog}{The name of the signature catalog to use}
 
@@ -33,11 +34,13 @@ cutoffCalc(
 
 \item{method}{The scoring method, either fc or gsea}
 
-\item{p}{The p-value for the null distribution}
+\item{pval}{The p-value for the baseline distribution}
 
 \item{seed}{Random seed.}
 
-\item{nlowconc}{If not NULL, only include the lowest nlowconc concentrations for each chemical}
+\item{nlowconc}{Only include the lowest nlowconc concentrations for each chemical}
+
+\item{mc.cores}{NUmber of coresto use when running parallel}
 
 \item{dtxsid.exclude}{dtxsids to exclude, default NULL}
 
@@ -55,6 +58,6 @@ cutoffCalc(
 No output.
 }
 \description{
-Calculate the signature-wise cutoffs based on the Setzer method
+Calculate the signature-wise cutoffs based on the analytical method
 which does not break any correlations between genes
 }

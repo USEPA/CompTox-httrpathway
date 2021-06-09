@@ -5,15 +5,14 @@
 \title{Wrapper for all of the conc-response plotting}
 \usage{
 signatureConcRespPlotWrapper(
-  sigset = "screen_large",
-  dataset = "u2os_pilot_pe1_normal_null_pilot_lowconc",
-  sigcatalog = "signatureDB_master_catalog 2021-03-05",
-  method = "fc",
+  sigset,
+  dataset,
+  sigcatalog,
+  method,
   bmr_scale = 1.349,
   mc.cores = 20,
   do.load = T,
   pval = 0.05,
-  nametag = "_conthits",
   plotrange = c(1e-04, 100)
 )
 }
@@ -34,9 +33,6 @@ signatureConcRespPlotWrapper(
 to.file to.file = T saves the output to a file; otherwise it's returned.}
 
 \item{pval}{Desired cutoff p-value.}
-
-\item{nametag}{Optional descriptor tag to attach to file outputs for
-experimental/non-default runs.}
 
 \item{plotrange}{The x-range of the plot as a vector of 2 elements, this can be changed for special cases, but defaults to 0.001 to 100}
 }
