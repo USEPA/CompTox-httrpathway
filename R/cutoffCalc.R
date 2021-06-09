@@ -88,6 +88,7 @@ cutoffCalc = function(basedir="../input/fcdata/",
     cutoffs = do.call(rbind,res)
   }
   if(mc.cores > 1) stopCluster(cl)
+
   cat("finish calculating cutoffs\n")
   file = paste0("../output/signature_cutoff/signature_cutoff_",sigset,"_",dataset,"_",method,"_",pval,"_",nlowconc,"_with_gene_correlations.xlsx")
   write.xlsx(cutoffs,file)
