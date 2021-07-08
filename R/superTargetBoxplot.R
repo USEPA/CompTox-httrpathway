@@ -21,14 +21,14 @@
 #--------------------------------------------------------------------------------------
 superTargetBoxplot <- function(to.file=T,
                                do.load=T,
-                               dataset="mcf7_ph1_pe1_normal_block_123_allPG",
+                               dataset="u2os_toxcast_pfas_pe1_normal",
                                sigcatalog="signatureDB_master_catalog 2021-04-24",
                                sigset="screen_large",
-                               method="fc",
-                               celltype="MCF7",
-                               hccut=0.95,
-                               tccut=1.5,
-                               cutoff=5,
+                               method="gsea",
+                               celltype="U2OS",
+                               hccut=0.9,
+                               tccut=1,
+                               cutoff=3,
                                minconc=0.001,
                                maxconc=100) {
   printCurrentFunction(paste(dataset,sigset,method))

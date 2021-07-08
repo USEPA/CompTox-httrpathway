@@ -64,8 +64,9 @@ runAllSignatureCR = function(dataset,
   signatureScoreMerge(dataset=dataset, sigset=sigset, sigcatalog=sigcatalog, method=method)
 
   cat("runAllSignatureCR: Start cutoffCalcEmpirical\n")
-  cutoffCalcEmpirical(dataset=dataset, sigset=sigset, method=method, pval=pval,
-                      nlowconc=nlowconc, mc.cores=mc.cores,do.load=T)
+  if(is.null(cutoff.dataset))
+    cutoffCalcEmpirical(dataset=dataset, sigset=sigset, method=method, pval=pval,
+                        nlowconc=nlowconc, mc.cores=mc.cores,do.load=T)
 
   cat("runAllSignatureCR: Start signatureConcResp\n")
   signatureConcResp(dataset=dataset, sigset=sigset, cutoff.dataset=cutoff.dataset, sigcatalog=sigcatalog,

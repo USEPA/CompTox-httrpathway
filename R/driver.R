@@ -39,25 +39,26 @@ library(reshape2)
 #' * u2os_toxcast_pfas_pe1_normal
 #' * PFAS_HepaRG
 #' * PFAS_U2OS
+#' * u2os_pilot_pe1_normal_null_pilot
 #' * u2os_pilot_pe1_normal_null_pilot_lowconc
 #' * u2os_toxcast_pfas_pe1_normal_refchems
 #' * heparg2d_toxcast_pfas_pe1_normal_refchems
 #' * DMEM_6hr_pilot_normal_pe_1 - MCF7 pilot
 #' @export
 #--------------------------------------------------------------------------------------
-driver <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
+driver <- function(dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
                    sigcatalog="signatureDB_master_catalog 2021-05-10",
                    sigset="screen_large",
-                   cutoff.dataset=NULL,
+                   cutoff.dataset="heparg2d_toxcast_pfas_pe1_normal",
                    normfactor=7500,
-                   mc.cores=25,
+                   mc.cores=20,
                    bmr_scale=1.349,
                    pval=0.05,
                    nlowconc=2,
-                   hccut=0.95,
-                   tccut=1.5,
+                   hccut=0.9,
+                   tccut=1,
                    plotrange=c(0.0001,100),
-                   method="fc",
+                   method="gsea",
                    celltype="HepaRG",
                    do.conc.resp=T,
                    do.scr.plots=T,
@@ -113,7 +114,7 @@ driver <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
                        celltype=celltype,
                        hccut=hccut,
                        tccut=tccut,
-                       cutoff=5)
+                       cutoff=3)
 
     # superTargetPODplot(to.file=T,
     #                    dataset=dataset,
