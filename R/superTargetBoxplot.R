@@ -66,13 +66,14 @@ superTargetBoxplot <- function(to.file=T,
   }
   mat = MAT
 
+  #mat = mat[is.element(mat$dtxsid,c("DTXSID1032646","DTXSID1025857")),]
   dlist1 = unique(toxcast$dtxsid)
   dlist2 = unique(mat$dtxsid)
   cat("ToxCast chemicals:",length(dlist1),"\n")
   cat("HTTr chemicals:",length(dlist2),"\n")
 
-  mat[is.na(mat$bmd),"bmd"] = 1000
-  mat[is.na(mat$top_over_cutoff),"top_over_cutoff"] = 0
+  mat = mat[!is.na(mat$bmd),]
+  mat = mat[!is.na(mat$top_over_cutoff),]
   mat[mat$hitcall<hccut,"bmd"] = 1000
   mat[mat$hitcall<hccut,"hitcall"] = 0
   mat[mat$top_over_cutoff<tccut,"bmd"] = 1000
@@ -137,6 +138,7 @@ superTargetBoxplot <- function(to.file=T,
     # Loop over samples
     #################################################################################################
     for(sid in sid.list) {
+      make.plot = F
       temp = tempchem[is.element(tempchem$sample_id,sid),]
       suse = paste(chem_use,collapse="|")
       star = paste(chem_annotation,collapse="|")
@@ -192,7 +194,7 @@ superTargetBoxplot <- function(to.file=T,
 
         res0 = res1chem[res1chem$active==0,]
         res = res1chem[res1chem$active==1,]
-        cat("1",nrow(res),"\n")
+        #cat("1",nrow(res),"\n")
 
         res = res[order(res$bmd_median),]
         for(i in 1:nrow(res)) {
@@ -202,7 +204,7 @@ superTargetBoxplot <- function(to.file=T,
           if(i<10) si = paste0("00",i)
           res[i,"newname"] = paste(si, res[i,"super_target"])
         }
-        cat("2",nrow(res),"\n")
+        #cat("2",nrow(res),"\n")
 
         xnew = x
         for(i in 1:nrow(res)) {
@@ -220,7 +222,7 @@ superTargetBoxplot <- function(to.file=T,
         mask[] = 1
         exclude.list = res[res$count==1,"newname"]
         mask[is.element(xnew,exclude.list)] = 0
-        cat("3",nrow(res),length(xnew),length(y),"\n")
+        #cat("3",nrow(res),length(xnew),length(y),"\n")
 
         xnew = xnew[mask==1]
         y = y[mask==1]
@@ -233,18 +235,8 @@ superTargetBoxplot <- function(to.file=T,
         pod_sig = 1000
         nst = 0
         nsig = 0
-        targets = "-"
-        pod_target = "-"
-        if(nrow(res)>1) {
-          burst_pod_st = 10**(median(log10(res$bmd_median)))
-          pod_st = min(res$bmd_median)
-          pod_target = res[1,"super_target"]
-          rtemp = res[res$bmd_median<burst_pod_st/10,]
-          targets = "-"
-          if(nrow(rtemp)>0) targets = paste(rtemp$super_target,collapse="|")
-          nst = nrow(res)
-        }
-        cat("4",nrow(res),length(xnew),length(y),"\n")
+
+        #cat("4",nrow(res),length(xnew),length(y),"\n")
 
         if(nrow(temp)>2) {
           bmds = sort(temp$bmd)
@@ -254,7 +246,7 @@ superTargetBoxplot <- function(to.file=T,
           pod_sig = qb[2]
           nsig = nrow(temp)
         }
-        cat("5",nrow(res),length(xnew),length(y),"\n")
+        #cat("5",nrow(res),length(xnew),length(y),"\n")
 
         res$ntot = 0
         for(k in 1:nrow(res)) res[k,"ntot"] = sttot[res[k,"super_target"]]
@@ -275,7 +267,7 @@ superTargetBoxplot <- function(to.file=T,
               }
             }
           }
-          cat("6",nrow(res),length(xnew),length(y),"\n")
+          #cat("6",nrow(res),length(xnew),length(y),"\n")
           mask = xnew
           mask[] = 0
           res = res[res$useme==1,]
@@ -284,7 +276,7 @@ superTargetBoxplot <- function(to.file=T,
           y = y[mask==1]
         }
         else {
-          cat("6",nrow(res),length(xnew),length(y),"\n")
+          #cat("6",nrow(res),length(xnew),length(y),"\n")
           mask = xnew
           mask[] = 0
           res = res[res$useme==1,]
@@ -292,9 +284,21 @@ superTargetBoxplot <- function(to.file=T,
           xnew = xnew[mask==1]
           y = y[mask==1]
         }
-        cat("7",nrow(res),length(xnew),length(y),"\n")
+        #cat("7",nrow(res),length(xnew),length(y),"\n")
 
-#browser()
+        xres = res[res$useme>0,]
+        targets = "-"
+        pod_target = "-"
+        if(nrow(xres)>1) {
+          burst_pod_st = 10**(median(log10(xres$bmd_median)))
+          pod_st = min(xres$bmd_median)
+          pod_target = xres[1,"super_target"]
+          rtemp = xres[xres$bmd_median<burst_pod_st/10,]
+          targets = "-"
+          if(nrow(rtemp)>0) targets = paste(rtemp$super_target,collapse="|")
+          nst = nrow(xres)
+        }
+
         ##########################################################################
         # Set up the ToxCast data
         ##########################################################################
@@ -367,9 +371,11 @@ superTargetBoxplot <- function(to.file=T,
           }
         }
         ##########################################################################
-        # End ToxCast data setup
+        # End ToxCast data setup and start the plooting
         ##########################################################################
+
         if(length(y)>0 && nrow(res)>1) {
+          make.plot = T
           newnames = res$super_target
 
           cols = newnames
@@ -430,21 +436,20 @@ superTargetBoxplot <- function(to.file=T,
             newnames = c(newnames,"ToxCast Other")
             cols = c(cols,"white")
           }
-
+          chem_plus_suffix = chem
           if(is.element(dtxsid,synonyms$dtxsid)) {
             nn = synonyms[dtxsid,"nickname"]
-            chem = paste(nn,":",chem)
+            chem_plus_suffix = paste(nn,":",chem)
+            #cat(chem_plus_suffix,"\n")
           }
-      #browser()
-          main=paste(chem,"\n",celltype,":",dtxsid,"\n",sid,"\n",suse,"\n",star)
+          main=paste(chem_plus_suffix,"\n",celltype,":",dtxsid,"\n",sid,"\n",suse,"\n",star)
           boxplot(y~xnew,main=main,cex.main=0.8,
-                  ylim=c(minconc,100),log="x",xlab="BMD (uM)",ylab="",
+                  ylim=c(minconc,maxconc),log="x",xlab="BMD (uM)",ylab="",
                   horizontal=T,las=1,par(cex.lab=1,cex.axis=1.0),names=newnames,col=cols)
           for(bmd in c(100,10,1,0.1,0.01,0.001,0.0001,0.00001)) lines(c(bmd,bmd),c(0,1000000))
           lines(c(burst_pod_sig,burst_pod_sig),c(0,1000000),lwd=4,col="cyan")
           lines(c(median_sig_bmd,median_sig_bmd),c(0,1000000),lwd=4,col="gray")
           counter = counter+1
-          if(!to.file) browser()
         }
       }
 
@@ -466,7 +471,7 @@ superTargetBoxplot <- function(to.file=T,
       row[1,"specific_targets"] = targets
       row[1,"pod_target"] = pod_target
       summary = rbind(summary,row)
-
+      if(make.plot && !to.file) browser()
     }
   }
   if(to.file) dev.off()
