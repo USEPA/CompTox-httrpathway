@@ -33,10 +33,9 @@ library(reshape2)
 #'
 #'
 #' Available data sets
-#' * heparg2d_toxcast_pfas_pe1_normal
+#' * heparg2d_toxcast_pfas_pe1_normal_v2
 #' * mcf7_ph1_pe1_normal_block_123_allPG
-#' * mcf7_ph1_pe1_normal_block_123_excludePG
-#' * u2os_toxcast_pfas_pe1_normal
+#' * u2os_toxcast_pfas_pe1_normal_v2
 #' * PFAS_HepaRG
 #' * PFAS_U2OS
 #' * u2os_pilot_pe1_normal_null_pilot
@@ -44,12 +43,19 @@ library(reshape2)
 #' * u2os_toxcast_pfas_pe1_normal_refchems
 #' * heparg2d_toxcast_pfas_pe1_normal_refchems
 #' * DMEM_6hr_pilot_normal_pe_1 - MCF7 pilot
+#'
+#' * MCF7_pilot_DMEM_6hr_pilot_normal_pe_1
+#' * MCF7_pilot_DMEM_12hr_pilot_normal_pe_1
+#' * MCF7_pilot_DMEM_24hr_pilot_normal_pe_1
+#' * MCF7_pilot_PRF_6hr_pilot_normal_pe_1
+#' * MCF7_pilot_PRF_12hr_pilot_normal_pe_1
+#' * MCF7_pilot_PRF_24hr_pilot_normal_pe_1
 #' @export
 #--------------------------------------------------------------------------------------
-driver <- function(dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
+driver <- function(dataset="u2os_toxcast_pfas_pe1_normal_v2",
                    sigcatalog="signatureDB_master_catalog 2021-05-10",
                    sigset="screen_large",
-                   cutoff.dataset="heparg2d_toxcast_pfas_pe1_normal",
+                   cutoff.dataset=NULL,
                    normfactor=7500,
                    mc.cores=20,
                    bmr_scale=1.349,
@@ -59,7 +65,7 @@ driver <- function(dataset="heparg2d_toxcast_pfas_pe1_normal_refchems",
                    tccut=1,
                    plotrange=c(0.0001,100),
                    method="gsea",
-                   celltype="HepaRG",
+                   celltype="U2OS",
                    do.conc.resp=T,
                    do.scr.plots=T,
                    do.signature.pod=T,
