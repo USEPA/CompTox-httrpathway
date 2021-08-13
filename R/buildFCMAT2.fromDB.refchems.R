@@ -15,13 +15,13 @@
 #' (sample_id_conc_time) to the individual components
 #' @export
 #--------------------------------------------------------------------------------------
-buildFCMAT2.fromDB.refchems <- function(dataset="heparg2d_toxcast_pfas_pe1_normal",
+buildFCMAT2.fromDB.refchems <- function(dataset="heparg2d_toxcast_pfas_pe1_normal_v2",
                                         time=24,
                                         media="DMEM",
                                         dir="../input/fcdata/",
                                         method="gene",
                                         do.read=F,
-                                        do.prep=F) {
+                                        do.prep=T) {
   printCurrentFunction(dataset)
   cat("  load FCMAT1\n")
   flush.console()
