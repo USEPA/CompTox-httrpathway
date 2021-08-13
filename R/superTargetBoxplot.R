@@ -21,16 +21,17 @@
 #--------------------------------------------------------------------------------------
 superTargetBoxplot <- function(to.file=T,
                                do.load=T,
-                               dataset="u2os_toxcast_pfas_pe1_normal",
+                               dataset="heparg2d_toxcast_pfas_pe1_normal",
                                sigcatalog="signatureDB_master_catalog 2021-04-24",
                                sigset="screen_large",
                                method="gsea",
-                               celltype="U2OS",
+                               celltype="HepaRG",
                                hccut=0.9,
                                tccut=1,
                                cutoff=3,
                                minconc=0.001,
-                               maxconc=100) {
+                               maxconc=100,
+                               chemfile=NULL) {
   printCurrentFunction(paste(dataset,sigset,method))
 
   if(!exists("TOXCAST")) {
@@ -65,6 +66,12 @@ superTargetBoxplot <- function(to.file=T,
     MAT <<- mat
   }
   mat = MAT
+  if(!is.null(chemfile)) {
+    file = paste0("../input/chemicals/",chemfile,".xlsx")
+    chems = read.xlsx(file)
+    dlist = unique(chems$dtxsid)
+    mat = mat[is.element(mat$dtxsid,dlist),]
+  }
 
   #mat = mat[is.element(mat$dtxsid,c("DTXSID1032646","DTXSID1025857")),]
   dlist1 = unique(toxcast$dtxsid)
@@ -94,7 +101,8 @@ superTargetBoxplot <- function(to.file=T,
   file = "../input/chemicals/refchem_super_target_map.xlsx"
   stdb = read.xlsx(file)
   if(to.file) {
-    fname <- paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_",cutoff,".pdf")
+    if(is.null(chemfile)) fname <- paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_",cutoff,".pdf")
+    else fname <- paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_",cutoff,"_",chemfile,".pdf")
     pdf(file=fname,width=8,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
   }
   par(mfrow=c(1,1),mar=c(4,15,6,2))
@@ -475,9 +483,11 @@ superTargetBoxplot <- function(to.file=T,
     }
   }
   if(to.file) dev.off()
-  file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_",cutoff,"_summary.xlsx")
+  if(is.null(chemfile)) file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_",cutoff,"_summary.xlsx")
+  else file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_",cutoff,"_",chemfile,"_summary.xlsx")
   write.xlsx(summary,file)
-  file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_",cutoff,"_all.RData")
+  if(is.null(chemfile)) file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_",cutoff,"_all.RData")
+  else file = paste0("../output/super_target_boxplot/",celltype,"/super_target_boxplot_",celltype,"_",dataset,"_",sigset,"_",method,"_",hccut,"_",tccut,"_",cutoff,"_",chemfile,"_all.RData")
   save(res.all,file=file)
   cat(counter,nrow(summary),"\n")
 }
