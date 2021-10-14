@@ -39,9 +39,8 @@ library(reshape2)
 #' * PFAS_HepaRG
 #' * PFAS_U2OS
 #' * u2os_pilot_pe1_normal_null_pilot
-#' * u2os_pilot_pe1_normal_null_pilot_lowconc
-#' * u2os_toxcast_pfas_pe1_normal_refchems
-#' * heparg2d_toxcast_pfas_pe1_normal_refchems
+#' * u2os_toxcast_pfas_pe1_normal_v2_refchems
+#' * heparg2d_toxcast_pfas_pe1_normal_v2_refchems
 #' * DMEM_6hr_pilot_normal_pe_1 - MCF7 pilot
 #'
 #' * MCF7_pilot_DMEM_6hr_pilot_normal_pe_1
@@ -50,14 +49,19 @@ library(reshape2)
 #' * MCF7_pilot_PRF_6hr_pilot_normal_pe_1
 #' * MCF7_pilot_PRF_12hr_pilot_normal_pe_1
 #' * MCF7_pilot_PRF_24hr_pilot_normal_pe_1
+#'
+#' * tox21_cpp5_u2os_pe1_normal
+#' * tox21_cpp5_heparg_pe1_normal
+#'
+#'
 #' @export
 #--------------------------------------------------------------------------------------
-driver <- function(dataset="u2os_toxcast_pfas_pe1_normal_v2",
-                   sigcatalog="signatureDB_master_catalog 2021-05-10",
-                   sigset="screen_large",
+driver <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
+                   sigcatalog="signatureDB_master_catalog 2021-10-05 unidirectional",
+                   sigset="screen_large_unidirectional",
                    cutoff.dataset=NULL,
                    normfactor=7500,
-                   mc.cores=20,
+                   mc.cores=10,
                    bmr_scale=1.349,
                    pval=0.05,
                    nlowconc=2,
@@ -65,10 +69,10 @@ driver <- function(dataset="u2os_toxcast_pfas_pe1_normal_v2",
                    tccut=1,
                    plotrange=c(0.0001,100),
                    method="gsea",
-                   celltype="U2OS",
+                   celltype="MCF7",
                    do.conc.resp=T,
                    do.scr.plots=T,
-                   do.signature.pod=T,
+                   do.signature.pod=F,
                    do.supertarget.boxplot=T,
                    do.all=F) {
   printCurrentFunction(paste(dataset,":",sigset))
@@ -103,17 +107,17 @@ driver <- function(dataset="u2os_toxcast_pfas_pe1_normal_v2",
                                  pval=pval,
                                  plotrange=plotrange)
   }
-  if(do.signature.pod || do.all) {
-    signaturePOD(do.load=T,
-                 sigset=sigset,
-                 dataset=dataset,
-                 method=method,
-                 bmr_scale=bmr_scale,
-                 hccut=hccut)
-  }
+  # if(do.signature.pod || do.all) {
+  #   signaturePOD(do.load=T,
+  #                sigset=sigset,
+  #                dataset=dataset,
+  #                method=method,
+  #                bmr_scale=bmr_scale,
+  #                hccut=hccut)
+  # }
   if(do.supertarget.boxplot) {
     superTargetBoxplot(to.file=T,
-                       do.load=F,
+                       do.load=T,
                        dataset=dataset,
                        sigset=sigset,
                        method=method,

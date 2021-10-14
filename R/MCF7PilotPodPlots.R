@@ -10,6 +10,9 @@ MCF7PilotPodPlots <- function(to.file=F,
                               condition="all") {
   printCurrentFunction()
 
+  ######################################################################################################
+  # read the httrpathway data
+  ######################################################################################################
   nset = 6
   dataset.list = c(
     "MCF7_pilot_DMEM_6hr_pilot_normal_pe_1",
@@ -31,13 +34,79 @@ MCF7PilotPodPlots <- function(to.file=F,
     res = rbind(res,temp)
   }
   res$condition = paste(res$media,res$time)
+  nlist = names(res)
+  nlist[is.element(nlist,"signature_pod_95")] = "signature_pod_05"
+  nlist[is.element(nlist,"signature_pod_95.lci")] = "signature_pod_05.lci"
+  nlist[is.element(nlist,"signature_pod_95.uci")] = "signature_pod_05.uci"
+  nlist[is.element(nlist,"gene_pod_95")] = "gene_pod_05"
+  nlist[is.element(nlist,"gene_pod_95.lci")] = "gene_pod_05.lci"
+  names(res) = nlist
+
+  ######################################################################################################
+  # read the httrpathway / bmdexpress form data
+  ######################################################################################################
   dir = "../output/mcf7_pilot/"
 
+  # file = paste0(dir,"tcplfit2_per_chemical_BMDs_9_8_2021.rds")
+  if(!exists("BMDS2")) {
+    cat("read bmds2 data file\n")
+    file = paste0(dir,"tcplfit2_BMDs_9_7_2021.rds")
+    bmds2 = readRDS(file=file)
+    BMDS2 <<- bmds2
+  }
+  bmds2 = BMDS2
+  res$bmds2_gene_pod_min = 1000
+  res$bmds2_gene_pod_abs5 = 1000
+  res$bmds2_gene_pod_05 = 1000
+  for(i in 1:nrow(res)) {
+    dtxsid = res[i,"dtxsid"]
+    media = res[i,"media"]
+    time = res[i,"time"]
+    temp1 = bmds2[is.element(bmds2$chemical,dtxsid),]
+    condition = paste0("GENE_CR_MCF7_pilot_",media,"_",time,"hr_pilot_normal_pe_1_0")
+    temp2 = temp1[is.element(temp1$condition,condition),]
+    bmds = sort(as.numeric(temp2$bmd))
+    q = quantile(bmds,probs=seq(0,1,0.05))
+    res[i,"bmds2_gene_pod_min"] = bmds[1]
+    res[i,"bmds2_gene_pod_abs5"] = bmds[5]
+    res[i,"bmds2_gene_pod_05"] = q[2]
+  }
+  ######################################################################################################
+  # read the bmdExpress data
+  ######################################################################################################
+  file = paste0(dir,"bmdExpress_mcf7_pilot_full_summary.xlsx")
+  bmds = read.xlsx(file)
+  bmds[is.element(bmds$media,"PRFDMEM"),"media"] = "PRF"
+  res$bmds_gene_pod_min = 1000
+  res$bmds_gene_pod_median = 1000
+  res$bmds_gene_pod_05 = 1000
+
+  res$bmds_sig_pod_min = 1000
+  res$bmds_sig_pod_median = 1000
+  res$bmds_sig_pod_05 = 1000
+  for(i in 1:nrow(res)) {
+    dtxsid = res[i,"dtxsid"]
+    media = res[i,"media"]
+    time = res[i,"time"]
+    temp1 = bmds[is.element(bmds$dtxsid,dtxsid),]
+    temp2 = temp1[is.element(temp1$timeh,time),]
+    temp3 = temp2[is.element(temp2$media,media),]
+    res[i,"bmds_gene_pod_min"] = temp3[1,"min_gene_bmd"]
+    res[i,"bmds_gene_pod_median"] = temp3[1,"median_gene_bmd"]
+    res[i,"bmds_gene_pod_05"] = temp3[1,"q05_gene_bmd"]
+    res[i,"bmds_sig_pod_min"] = temp3[1,"min_sig_bmd"]
+    res[i,"bmds_sig_pod_median"] = temp3[1,"median_sig_bmd"]
+    res[i,"bmds_sig_pod_05"] = temp3[1,"q05_sig_bmd"]
+  }
+
+  ######################################################################################################
+  # read the plier data
+  ######################################################################################################
   file = paste0(dir,"plier_lv_pod.xlsx")
   plier = read.xlsx(file)
   res$plier_lv_pod_min = NA
   res$plier_lv_pod_abs5 = NA
-  res$plier_lv_pod_95 = NA
+  res$plier_lv_pod_05 = NA
   for(i in 1:nrow(res)) {
     dtxsid = res[i,"dtxsid"]
     condition = res[i,"condition"]
@@ -45,7 +114,7 @@ MCF7PilotPodPlots <- function(to.file=F,
     temp = temp[is.element(temp$condition,condition),]
     res[i,"plier_lv_pod_min"] = temp[1,"plier_lv_pod_min"]
     res[i,"plier_lv_pod_abs5"] = temp[1,"plier_lv_pod_abs5"]
-    res[i,"plier_lv_pod_95"] = temp[1,"plier_lv_pod_95"]
+    res[i,"plier_lv_pod_05"] = temp[1,"plier_lv_pod_95"]
   }
 
   if(to.file) {
@@ -54,25 +123,149 @@ MCF7PilotPodPlots <- function(to.file=F,
   }
   par(mfrow=c(1,1),mar=c(4,5,6,2))
 
-  tlist = c("gene_pod_min","gene_pod_95","gene_pod_abs5",
-            "signature_pod_min","signature_pod_95","signature_pod_abs5",
+  tlist = c("gene_pod_min",       "gene_pod_05",          "gene_pod_abs5",
+            "signature_pod_min",  "signature_pod_05",     "signature_pod_abs5",
             "super_target_pod",
-            "plier_lv_pod_min","plier_lv_pod_95","plier_lv_pod_abs5")
-  col.list = c("blue","blue","blue","green","green","green","red","gray","gray","gray")
+            "plier_lv_pod_min",   "plier_lv_pod_05",      "plier_lv_pod_abs5",
+            "bmds_gene_pod_min",  "bmds_gene_pod_median", "bmds_gene_pod_05",
+            "bmds_sig_pod_min",   "bmds_sig_pod_median",  "bmds_sig_pod_05",
+            "bmds2_gene_pod_min", "bmds2_gene_pod_abs5",  "bmds2_gene_pod_05"
+  )
+
+  col.list = c("blue","blue","blue","green","green","green","red","gray","gray","gray",
+               "orange","orange","orange",
+               "black","black","black",
+               "cyan","cyan","cyan")
   pch.list = c(25,21,22,
                25,21,22,
-               21,
-               25,21,22)
-  cex.list = c(0.0,1,0.0,
-               0.5,1,0.5,
+               25,
+               25,21,22,
+               25,23,21,
+               25,23,21,
+               25,22,21)
+  cex.list = c(1,1,1,
+               1,1,1,
                1,
-               0.5,1,0.5)
+               1,1,1,
+               1,1,1,
+               1,1,1,
+               1,1,1)
+
 
   ####################################################################################
-  # deltas - fix everything and look at metrix
+  # compare the PODs to the ER model values
+  ####################################################################################
+  file = paste0(dir,"ER_chems all mcf7_ph1_pe1_normal_block_123_allPG screen_large 0.9 10.xlsx")
+  ermodel = read.xlsx(file)
+  erchems = c(
+    "Fulvestrant",
+    "4-Hydroxytamoxifen",
+    "Clomiphene citrate (1:1)",
+    "Bisphenol A",
+    "4-Nonylphenol, branched",
+    "4-Cumylphenol"
+  )
+  ermodel = ermodel[is.element(ermodel$name,erchems),]
+  rownames(ermodel) = ermodel$name
+  ermodel = ermodel[erchems,]
+  rownames(ermodel) = ermodel$dtxsid
+  nchem = nrow(ermodel)
+  dlist = ermodel$dtxsid
+  par(mfrow=c(3,1),mar=c(4,5,5,2))
+
+  method = NULL
+  cdiff = NULL
+  for(k in 1:6) {
+    media = media.list[k]
+    time = time.list[k]
+    temp = res[is.element(res$media,media),]
+    temp = temp[temp$time==time,]
+    rownames(temp) = temp$dtxsid
+    plot(c(1,1),type="n",log="x",xlim=c(1e-6,1e2),ylim=c(0,nchem),xlab="pod (uM)",ylab="",main=paste("ER Actives\n",media," ",time,"hr"),cex.lab=1.2,cex.axis=1.2)
+    for(i in 1:nchem) {
+      y = i-0.5
+      dtxsid = dlist[i]
+      name = ermodel[dtxsid,"name"]
+      text(1e-3,y,name,pos=2,cex=1.5)
+      lines(c(1e-10,1e10),c(i,i))
+      pod0 = min(ermodel[dtxsid,"hts.pod.agonist"],ermodel[dtxsid,"hts.pod.antagonist"])
+      pod0 = 10**pod0
+      lines(c(pod0,pod0),c(i-1,i),col="red",lwd=2)
+      for(j in 1:length(tlist)) {
+        type = tlist[j]
+        pod = temp[dtxsid,type]
+        points(pod,y,pch=pch.list[j],bg=col.list[j],cex=cex.list[j]*2)
+        method = c(method,type)
+        delta = log10(pod) - log10(pod0)
+        cdiff = c(cdiff,delta)
+      }
+    }
+  }
+  if(!to.file) browser()
+  par(mfrow=c(1,1),mar=c(4,15,3,2))
+  boxplot(cdiff~method,horizontal=T,las=1,par(cex.lab=1,cex.axis=1.0),main="Prediction Ratio for ER",xlab="log POD ratio",ylab="",ylim=c(-5,5))
+  lines(c(0,0),c(0,100),col="red",lwd=2)
+  if(!to.file) browser()
+
+  ####################################################################################
+  # compare the PODs to the statin values
+  ####################################################################################
+  schems = c(
+    "Simvastatin",
+    "Lovastatin"
+  )
+  spods = c(11.2,8.4)
+  # references
+  # simvastatin https://onlinelibrary.wiley.com/doi/pdf/10.1002/clc.4960261507
+  # lovastatin https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1742-7843.2005.pto_134.x
+  nchem = nrow(schems)
+  statins = unique(res[is.element(res$name,schems),c("dtxsid","name")])
+  rownames(statins) = statins$dtxsid
+  statins$pod0 = NA
+  statins[is.element(statins$name,"Simvastatin"),"pod0"] = 11.2
+  statins[is.element(statins$name,"Lovastatin"),"pod0"] = 8.4
+  dlist = statins$dtxsid
+  nchem = length(dlist)
+  par(mfrow=c(3,1),mar=c(4,5,5,2))
+
+  method = NULL
+  cdiff = NULL
+  for(k in 1:6) {
+    media = media.list[k]
+    time = time.list[k]
+    temp = res[is.element(res$media,media),]
+    temp = temp[temp$time==time,]
+    rownames(temp) = temp$dtxsid
+    plot(c(1,1),type="n",log="x",xlim=c(1e-3,1e2),ylim=c(0,nchem),xlab="pod (uM)",ylab="",main=paste("HMGCR Actives\n",media," ",time,"hr"),cex.lab=1.2,cex.axis=1.2)
+    for(i in 1:nchem) {
+      y = i-0.5
+      dtxsid = dlist[i]
+      name = statins[dtxsid,"name"]
+      text(1e-2,y,name,pos=2,cex=1.5)
+      lines(c(1e-10,1e10),c(i,i))
+      pod0 = statins[dtxsid,"pod0"]
+      lines(c(pod0,pod0),c(i-1,i),col="red",lwd=2)
+      for(j in 1:length(tlist)) {
+        type = tlist[j]
+        pod = temp[dtxsid,type]
+        points(pod,y,pch=pch.list[j],bg=col.list[j],cex=cex.list[j]*2)
+        method = c(method,type)
+        delta = log10(pod) - log10(pod0)
+        cdiff = c(cdiff,delta)
+      }
+    }
+  }
+  if(!to.file) browser()
+  par(mfrow=c(1,1),mar=c(4,15,3,2))
+  boxplot(cdiff~method,horizontal=T,las=1,par(cex.lab=1,cex.axis=1.0),main="Prediction Ratio for HMGCR",xlab="log POD ratio",ylab="",ylim=c(-5,5))
+  lines(c(0,0),c(0,100),col="red",lwd=2)
+  if(!to.file) browser()
+
+  ####################################################################################
+  # deltas - fix everything and look at metrics
   ####################################################################################
   par(mfrow=c(5,2),mar=c(4,10,3,2))
-  type0 = "signature_pod_95"
+  type0 = "signature_pod_05"
   for(type in tlist) {
     x = NULL
     y = NULL
@@ -92,7 +285,7 @@ MCF7PilotPodPlots <- function(to.file=F,
         }
       }
     }
-    boxplot(y~x,horizontal=T,las=1,par(cex.lab=1,cex.axis=1.0),main=type,xlab="log POD ratio",ylab="",ylim=c(-2,2))
+    boxplot(y~x,horizontal=T,las=1,par(cex.lab=1,cex.axis=1.0),main=type,xlab="log POD ratio",ylab="",ylim=c(-3,3))
     lines(c(0,0),c(0,100),col="red")
   }
   if(!to.file) browser()
@@ -113,10 +306,10 @@ MCF7PilotPodPlots <- function(to.file=F,
         y = c(y,value)
       }
     }
-    boxplot(y~x,horizontal=T,las=1,par(cex.lab=1,cex.axis=1.0),main=type,xlab="log POD ratio",ylab="",ylim=c(-2,2))
+    boxplot(y~x,horizontal=T,las=1,par(cex.lab=1,cex.axis=1.0),main=type,xlab="log POD ratio",ylab="",ylim=c(-3,3))
     lines(c(0,0),c(0,100),col="red")
-    if(!to.file) browser()
   }
+  if(!to.file) browser()
   ####################################################################################
   # deltas - fix everything and look at time
   ####################################################################################
@@ -138,17 +331,18 @@ MCF7PilotPodPlots <- function(to.file=F,
         y = c(y,value)
       }
     }
-    boxplot(y~x,horizontal=T,las=1,par(cex.lab=1,cex.axis=1.0),main=type,xlab="log POD ratio",ylab="",ylim=c(-2,2))
+    boxplot(y~x,horizontal=T,las=1,par(cex.lab=1,cex.axis=1.0),main=type,xlab="log POD ratio",ylab="",ylim=c(-3,3))
     lines(c(0,0),c(0,100),col="red")
-    if(!to.file) browser()
   }
+  if(!to.file) browser()
+
   ####################################################################################
   # by condition
   ####################################################################################
   par(mfrow=c(1,1),mar=c(4,5,6,2))
   for(condition in unique(res$condition)) {
     temp = res[is.element(res$condition,condition),]
-    temp = temp[order(temp$signature_pod_95),]
+    temp = temp[order(temp$signature_pod_05),]
     ptemp = plier[is.element(plier$condition,condition),]
     rownames(ptemp) = ptemp$dtxsid
 
@@ -236,7 +430,7 @@ MCF7PilotPodPlots <- function(to.file=F,
     x = c(x,xx)
     y = c(y,yy)
   }
-  boxplot(y~x,horizontal=T,las=1,par(cex.lab=1,cex.axis=1.0),main="Range of PODs\nby Media and Time",xlab="log range",ylab="",ylim=c(0,4))
+  boxplot(y~x,horizontal=T,las=1,par(cex.lab=1,cex.axis=1.0),main="Range of PODs\nby Media and Time",xlab="log range",ylab="",ylim=c(0,6))
 
   x = NULL
   y = NULL
@@ -251,7 +445,7 @@ MCF7PilotPodPlots <- function(to.file=F,
       x = c(x,type)
     }
   }
-  boxplot(y~x,horizontal=T,las=1,par(cex.lab=1,cex.axis=1.0),main="Range of PODs\nby POD Type",xlab="log range",ylab="",ylim=c(0,4))
+  boxplot(y~x,horizontal=T,las=1,par(cex.lab=1,cex.axis=1.0),main="Range of PODs\nby POD Type",xlab="log range",ylab="",ylim=c(0,6))
 
 
   if(!to.file) browser()

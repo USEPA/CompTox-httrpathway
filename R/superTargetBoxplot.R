@@ -21,8 +21,8 @@
 #--------------------------------------------------------------------------------------
 superTargetBoxplot <- function(to.file=T,
                                do.load=T,
-                               dataset="heparg2d_toxcast_pfas_pe1_normal",
-                               sigcatalog="signatureDB_master_catalog 2021-04-24",
+                               dataset="tox21_cpp5_heparg_pe1_normal",
+                               sigcatalog="signatureDB_master_catalog 2021-09-29",
                                sigset="screen_large",
                                method="gsea",
                                celltype="HepaRG",
@@ -124,6 +124,7 @@ superTargetBoxplot <- function(to.file=T,
   # Loop over chemicals
   #################################################################################################
   for(chem in chem.list) {
+    #chem = "Fenpyroximate (Z,E)"
     tempchem = mat[is.element(mat$name,chem),]
     dtxsid = tempchem[1,"dtxsid"]
     name = tempchem[1,"name"]
@@ -189,14 +190,23 @@ superTargetBoxplot <- function(to.file=T,
           res1chem[is.element(res1chem$super_target,st),"bmd_median"] = median(tempst1$bmd)
         }
       }
-
       ######################################################################
       # deal with the hits
       ######################################################################
       #cat("hits\n")
       temp = temp1
       cat(chem,nrow(temp),"\n")
-      if(nrow(temp)>0 && nrow(res1chem[res1chem$active==1,])>1) {
+
+      if(nrow(temp)>1) {
+        bmds = sort(temp$bmd)
+        db = density(bmds)
+        burst_pod_sig = db$x[which.max(db$y)]
+        qb = quantile(bmds,probs=seq(0,1,0.05))
+        pod_sig = qb[2]
+        nsig = nrow(temp)
+      }
+
+      if(nrow(temp)>0 && nrow(res1chem[res1chem$active==1,])>0) {
         x = temp$super_target
         y = temp$bmd
 
@@ -239,21 +249,21 @@ superTargetBoxplot <- function(to.file=T,
         res = res[is.element(res$newname,xnew),]
         burst_pod_st = 1000
         pod_st = 1000
-        burst_pod_sig = 1000
-        pod_sig = 1000
         nst = 0
-        nsig = 0
+        # burst_pod_sig = 1000
+        # pod_sig = 1000
+        # nsig = 0
 
         #cat("4",nrow(res),length(xnew),length(y),"\n")
 
-        if(nrow(temp)>2) {
-          bmds = sort(temp$bmd)
-          db = density(bmds)
-          burst_pod_sig = db$x[which.max(db$y)]
-          qb = quantile(bmds,probs=seq(0,1,0.05))
-          pod_sig = qb[2]
-          nsig = nrow(temp)
-        }
+        # if(nrow(temp)>2) {
+        #   bmds = sort(temp$bmd)
+        #   db = density(bmds)
+        #   burst_pod_sig = db$x[which.max(db$y)]
+        #   qb = quantile(bmds,probs=seq(0,1,0.05))
+        #   pod_sig = qb[2]
+        #   nsig = nrow(temp)
+        # }
         #cat("5",nrow(res),length(xnew),length(y),"\n")
 
         res$ntot = 0
@@ -297,7 +307,7 @@ superTargetBoxplot <- function(to.file=T,
         xres = res[res$useme>0,]
         targets = "-"
         pod_target = "-"
-        if(nrow(xres)>1) {
+        if(nrow(xres)>0) {
           burst_pod_st = 10**(median(log10(xres$bmd_median)))
           pod_st = min(xres$bmd_median)
           pod_target = xres[1,"super_target"]
@@ -382,7 +392,7 @@ superTargetBoxplot <- function(to.file=T,
         # End ToxCast data setup and start the plooting
         ##########################################################################
 
-        if(length(y)>0 && nrow(res)>1) {
+        if(length(y)>0 && nrow(res)>0) {
           make.plot = T
           newnames = res$super_target
 
@@ -480,6 +490,7 @@ superTargetBoxplot <- function(to.file=T,
       row[1,"pod_target"] = pod_target
       summary = rbind(summary,row)
       if(make.plot && !to.file) browser()
+      #browser()
     }
   }
   if(to.file) dev.off()

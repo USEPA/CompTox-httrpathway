@@ -19,8 +19,12 @@
 #' superTargetStats
 #-------------------------------------------------------------------------------
 ERModelSignatures <- function(to.file=F,
+                              dataset="mcf7_ph1_pe1_normal_block_123_allPG",
                               sigcatalog="signatureDB_master_catalog ER",
-                              sigset="estrogen") {
+                              sigset="estrogen",
+                              method="gsea",
+                              hccut=0.9,
+                              minhit=10) {
   printCurrentFunction()
   if(to.file) {
     fname <- paste0("../ERModel/ERmodelSignatures.pdf")
@@ -28,6 +32,10 @@ ERModelSignatures <- function(to.file=F,
   }
   par(mfrow=c(3,1),mar=c(4,15,6,2))
 
+  file = paste0("../ERModel/ER_gene_diff ",dataset," ",sigset," ",hccut," ",minhit,".xlsx")
+  genediff = read.xlsx(file)
+  genediff = genediff[order(genediff$diff,decreasing=T),]
+  diffgenes = genediff[genediff$diff>=1,"gene"]
   ############################################################################################################
   # read the data
   ############################################################################################################
@@ -70,6 +78,27 @@ ERModelSignatures <- function(to.file=F,
             xlab="",
             ylab="",
             cexCol=0.1,
+            cexRow=0.5,
+            Rowv=T,
+            Colv=T,
+            trace="none",
+            hclustfun=function(x) hclust(d=dist(x),method="ward.D"),
+            key=T,
+            col=brewer.pal(3,"Reds"),
+            key.title="Key",
+            key.xlab="gene",
+            cex.main=1)
+
+  dg = diffgenes[is.element(diffgenes,names(res))]
+  res2 = res[,dg]
+  heatmap.2(as.matrix(res2),
+            margins=c(10,10),
+            dendrogram="both",
+            scale="none",
+            main="agonist up, diff genes",
+            xlab="",
+            ylab="",
+            cexCol=0.8,
             cexRow=0.5,
             Rowv=T,
             Colv=T,
@@ -123,6 +152,26 @@ ERModelSignatures <- function(to.file=F,
             key.title="Key",
             key.xlab="gene",
             cex.main=1)
+  dg = diffgenes[is.element(diffgenes,names(res))]
+  res2 = res[,dg]
+  heatmap.2(as.matrix(res2),
+            margins=c(10,10),
+            dendrogram="both",
+            scale="none",
+            main="agonist dn, diff genes",
+            xlab="",
+            ylab="",
+            cexCol=0.8,
+            cexRow=0.5,
+            Rowv=T,
+            Colv=T,
+            trace="none",
+            hclustfun=function(x) hclust(d=dist(x),method="ward.D"),
+            key=T,
+            col=brewer.pal(3,"Reds"),
+            key.title="Key",
+            key.xlab="gene",
+            cex.main=1)
   if(!to.file) browser()
   ############################################################################################################
   # antagonist_up
@@ -166,6 +215,26 @@ ERModelSignatures <- function(to.file=F,
             key.title="Key",
             key.xlab="gene",
             cex.main=1)
+  dg = diffgenes[is.element(diffgenes,names(res))]
+  res2 = res[,dg]
+  heatmap.2(as.matrix(res2),
+            margins=c(10,10),
+            dendrogram="both",
+            scale="none",
+            main="antagonist up, diff genes",
+            xlab="",
+            ylab="",
+            cexCol=0.8,
+            cexRow=0.5,
+            Rowv=T,
+            Colv=T,
+            trace="none",
+            hclustfun=function(x) hclust(d=dist(x),method="ward.D"),
+            key=T,
+            col=brewer.pal(3,"Reds"),
+            key.title="Key",
+            key.xlab="gene",
+            cex.main=1)
   if(!to.file) browser()
   ############################################################################################################
   # antagonist_dn
@@ -199,6 +268,26 @@ ERModelSignatures <- function(to.file=F,
             xlab="",
             ylab="",
             cexCol=0.1,
+            cexRow=0.5,
+            Rowv=T,
+            Colv=T,
+            trace="none",
+            hclustfun=function(x) hclust(d=dist(x),method="ward.D"),
+            key=T,
+            col=brewer.pal(3,"Reds"),
+            key.title="Key",
+            key.xlab="gene",
+            cex.main=1)
+  dg = diffgenes[is.element(diffgenes,names(res))]
+  res2 = res[,dg]
+  heatmap.2(as.matrix(res2),
+            margins=c(10,10),
+            dendrogram="both",
+            scale="none",
+            main="antagonist dn, diff genes",
+            xlab="",
+            ylab="",
+            cexCol=0.8,
             cexRow=0.5,
             Rowv=T,
             Colv=T,

@@ -15,7 +15,7 @@
 #'
 #' @export
 #--------------------------------------------------------------------------------------
-buildFCMAT2.fromDB <- function(dataset="u2os_toxcast_pfas_pe1_normal_v2",
+buildFCMAT2.fromDB <- function(dataset="tox21_cpp5_u2os_pe1_normal",
                                time=24,
                                media="DMEM",
                                dir="../input/fcdata/",

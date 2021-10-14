@@ -44,7 +44,7 @@ signatureConcRespPlotWrapper <- function(sigset,
   SIGNATURE_CR$proper_name = gsub("%","Percent",SIGNATURE_CR$proper_name)
 
   temp = SIGNATURE_CR[SIGNATURE_CR$hitcall>0.9,]
-  temp = temp[temp$top_over_cutoff>1.5,]
+  temp = temp[temp$top_over_cutoff>1,]
   if(nrow(temp)<10) temp <- SIGNATURE_CR[1:10,]
   SIGNATURE_CR <- temp
 

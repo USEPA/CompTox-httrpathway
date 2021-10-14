@@ -51,7 +51,6 @@ MCF7PilotPodAnalysis <- function(method="gsea",
     mat = rbind(mat,temp3)
   }
 
-
   for(i in 1:nset) {
     dataset = dataset.list[i]
     file = paste0("../output/gene_conc_resp_summary/GENE_CR_",dataset,"_", pval,"_conthits.RData")
@@ -83,6 +82,7 @@ MCF7PilotPodAnalysis <- function(method="gsea",
     mat = rbind(mat,temp)
 
   }
+  browser()
   file = paste0(dir,"mcf7_pilot_pod_",method,"_",hccut,"_",tccut,"_",cutoff,".xlsx")
   write.xlsx(mat,file)
 }

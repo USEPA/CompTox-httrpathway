@@ -16,19 +16,10 @@
 #'   (regular) AIC.
 #' @param fitmodels Vector of models names to be used. Default is all of them.
 #'
-#' @import data.table
-#' @import parallel
-#'
-#' @return If to.file = F, data frame containing results; otherwise, nothing.
-#'
-#' * MCF7_pilot_DMEM_6hr_pilot_normal_pe_1
-#' * MCF7_pilot_DMEM_12hr_pilot_normal_pe_1
-#' * MCF7_pilot_DMEM_24hr_pilot_normal_pe_1
-#' * MCF7_pilot_PRF_6hr_pilot_normal_pe_1
-#' * MCF7_pilot_PRF_12hr_pilot_normal_pe_1
+#' @import data.table#' * MCF7_pilot_PRF_12hr_pilot_normal_pe_1
 #' * MCF7_pilot_PRF_24hr_pilot_normal_pe_1
 #' @export
-geneConcResp <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
+geneConcResp <- function(dataset="tox21_cpp5_heparg_pe1_normal",
                          mc.cores=20,
                          to.file=T,
                          pval = .05,
@@ -38,6 +29,15 @@ geneConcResp <- function(dataset="mcf7_ph1_pe1_normal_block_123_allPG",
                          genefile=NULL) {
 
   printCurrentFunction(dataset)
+#' @import parallel
+#'
+#' @return If to.file = F, data frame containing results; otherwise, nothing.
+#'
+#' * MCF7_pilot_DMEM_6hr_pilot_normal_pe_1
+#' * MCF7_pilot_DMEM_12hr_pilot_normal_pe_1
+#' * MCF7_pilot_DMEM_24hr_pilot_normal_pe_1
+#' * MCF7_pilot_PRF_6hr_pilot_normal_pe_1
+
   starttime = proc.time()
 
   #get FCMAT and CHEM_DICT

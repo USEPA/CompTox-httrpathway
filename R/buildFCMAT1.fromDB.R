@@ -15,10 +15,10 @@ library(tidyverse)
 #'
 #' @export
 #--------------------------------------------------------------------------------------
-buildFCMAT1.fromDB <- function(dataset="mcf7_ph1_pe1_normal_block_123_excludePG",
+buildFCMAT1.fromDB <- function(dataset="tox21_cpp5_u2os_pe1_normal",
                                dir="../input/fcdata/new_versions/",
-                               infile="httr_mcf7_ph1_bl123_FCmat1_meanncnt0_5-plateteffect_1-shrinkage_normal.RData",
-                               pg.filter.file="httr_mcf7_ph1_flagged_pg_block_123_exclude.xlsx",
+                               infile="httr_tox21_cpp5_u2os_FCmat1-meanncnt0_5-plateteffect_1-shrinkage_normal.RData",
+                               pg.filter.file=NULL,
                                do.load=T){
   printCurrentFunction()
   if(do.load) {
@@ -52,7 +52,6 @@ buildFCMAT1.fromDB <- function(dataset="mcf7_ph1_pe1_normal_block_123_excludePG"
   name.list[is.element(name.list,"gene_symbol")] <- "gene"
   names(FCMAT1) <- name.list
   cat("final:",dataset,":",nrow(FCMAT1),"\n")
-  #browser()
   file <- paste0("../input/fcdata/FCMAT1_",dataset,".RData")
   cat("start saving\n")
   save(FCMAT1,file=file)

@@ -11,14 +11,14 @@
 #'
 #' @export
 #----------------------------------------------------------------------------------
-geneConcRespPlotWrapper <- function(dataset,
+geneConcRespPlotWrapper <- function(dataset="tox21_cpp5_heparg_pe1_normal",
                                     mc.cores=20,
                                     do.load=T,
                                     to.file=F,
                                     pval = .05,
                                     plotrange=c(0.0001,100),
                                     onefile=T,
-                                    chemfile="../input/PFAS/Immuntox chemical evidence.xlsx") {
+                                    chemfile=NULL) {
 
   printCurrentFunction(paste(dataset))
   if(do.load) {
@@ -29,12 +29,12 @@ geneConcRespPlotWrapper <- function(dataset,
     GENE_CR <<- GENE_CR
   }
 
+  #GENE_CR = GENE_CR[is.element(GENE_CR$gene,genes),]
   if(!is.null(chemfile)) {
     temp = read.xlsx(chemfile)
     dtxsid.list =temp$dtxsid
     GENE_CR = GENE_CR [is.element(GENE_CR$dtxsid,dtxsid.list),]
   }
-
   #fix chemical name so it can be part of a file name
   GENE_CR$proper_name = gsub("\\)","",GENE_CR$name)
   GENE_CR$proper_name = gsub("\\(","",GENE_CR$proper_name)

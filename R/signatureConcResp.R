@@ -69,7 +69,7 @@ signatureConcResp <- function(dataset,
   cat("> signatureConcResp 1\n")
   signaturescoremat$cutoff = pvalkey$cutoff[!is.na(pvalkey$pvalue)][match(signaturescoremat$signature, pvalkey$signature)]
   signaturescoremat$bmed = pvalkey$bmed[!is.na(pvalkey$pvalue)][match(signaturescoremat$signature, pvalkey$signature)]
-  signaturescoremat$onesd = pvalkey$cutoff[!is.na(pvalkey$numsd)][match(signaturescoremat$signature, pvalkey$signature)]
+  signaturescoremat$onesd = pvalkey$sd[!is.na(pvalkey$numsd)][match(signaturescoremat$signature, pvalkey$signature)]
   cat("> signatureConcResp 2\n")
 
   #aggregate signaturescoremat by unique sample/signature per row; data table is considerably faster than aggregate
