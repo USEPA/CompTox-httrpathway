@@ -21,11 +21,11 @@
 #--------------------------------------------------------------------------------------
 superTargetBoxplot <- function(to.file=T,
                                do.load=T,
-                               dataset="tox21_cpp5_heparg_pe1_normal",
+                               dataset="u2os_toxcast_pfas_pe1_normal_v2_refchems",
                                sigcatalog="signatureDB_master_catalog 2021-09-29",
                                sigset="screen_large",
                                method="gsea",
-                               celltype="HepaRG",
+                               celltype="U2OS",
                                hccut=0.9,
                                tccut=1,
                                cutoff=3,
