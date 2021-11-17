@@ -1,5 +1,6 @@
 #' Carry out analyses of different POD methods for the pilot study
-#' Do hte permutation analyses
+#' Do the permutation analyses to select subsets of signatures and see how
+#' stable the PODs are
 #'
 #'
 #' * MCF7_pilot_DMEM_6hr_pilot_normal_pe_1
