@@ -5,14 +5,14 @@
 \title{Wrapper for all of the conc-response plotting o genes}
 \usage{
 geneConcRespPlotWrapper(
-  dataset,
+  dataset = "tox21_cpp5_heparg_pe1_normal",
   mc.cores = 20,
   do.load = T,
   to.file = F,
   pval = 0.05,
   plotrange = c(1e-04, 100),
   onefile = T,
-  chemfile = "../input/PFAS/Immuntox chemical evidence.xlsx"
+  chemfile = NULL
 )
 }
 \arguments{

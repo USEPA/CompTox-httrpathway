@@ -6,9 +6,12 @@
 \usage{
 randomdata(
   basedir = "../input/fcdata/",
-  dataset = "DMEM_6hr_pilot_normal_pe_1",
-  nchem = 10,
-  seed = 12345
+  dataset = "u2os_pilot_pe1_normal_null_pilot_lowconc",
+  nchem = 1000,
+  seed = 12345,
+  maxconc = 1e+06,
+  nlowconc = 2,
+  dtxsid.exclude = NULL
 )
 }
 \arguments{
@@ -20,6 +23,13 @@ randomdata(
 eight times this value.}
 
 \item{seed}{Random seed.}
+
+\item{maxconc}{Only use concentrations less than maxconc, default 1000000}
+
+\item{nlowconc}{If not NULL, only include the loest nlowconc concentrations for eahc chemical}
+
+\item{dtxsid.exclude}{dtxsids to exclude, default NULL
+for U2OS pilot dtxsid.exclude=c('DTXSID9020031','DTXSID0040464','DTXSID5023582')}
 }
 \value{
 No output.

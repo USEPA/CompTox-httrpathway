@@ -5,7 +5,7 @@
 \title{Gene Concentration Response}
 \usage{
 geneConcResp(
-  dataset,
+  dataset = "tox21_cpp5_heparg_pe1_normal",
   mc.cores = 20,
   to.file = T,
   pval = 0.05,
@@ -32,6 +32,11 @@ are returned.}
 }
 \value{
 If to.file = F, data frame containing results; otherwise, nothing.
+
+* MCF7_pilot_DMEM_6hr_pilot_normal_pe_1
+* MCF7_pilot_DMEM_12hr_pilot_normal_pe_1
+* MCF7_pilot_DMEM_24hr_pilot_normal_pe_1
+* MCF7_pilot_PRF_6hr_pilot_normal_pe_1
 }
 \description{
 Wrapper that performs concentration response modeling for gene or probe l2fc's

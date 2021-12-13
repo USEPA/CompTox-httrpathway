@@ -7,10 +7,11 @@
 signaturePOD(
   do.load = F,
   sigset = "screen_large",
-  dataset = "PFAS_U2OS",
-  method = "fc",
-  bmr_scale = 1.349,
-  hccut = 0.95
+  dataset = "MCF7_pilot_DMEM_6hr_pilot_normal_pe_1",
+  method = "gsea",
+  hccut = 0.9,
+  cutoff = 3,
+  condition = "all"
 )
 }
 \arguments{
@@ -20,11 +21,11 @@ signaturePOD(
 
 \item{method}{Pathway scoring method in c("fc", "gsva", "gsea")}
 
-\item{bmr_scale}{bmr scaling factor. Default = 1.349}
-
 \item{hccut}{Remove rows with hitcall less than this value}
 
 \item{do.laod}{If TRUE, load the input data into memory}
+
+\item{bmr_scale}{bmr scaling factor. Default = 1.349}
 }
 \description{
 Calculate PODs at the signature level

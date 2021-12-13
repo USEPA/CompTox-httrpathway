@@ -7,13 +7,13 @@ gene x sample format.
 This is the method to use when there are conc-response profiles of refchems}
 \usage{
 buildFCMAT2.fromDB.refchems(
-  dataset = "heparg2d_toxcast_pfas_pe1_normal",
+  dataset = "heparg2d_toxcast_pfas_pe1_normal_v2",
   time = 24,
   media = "DMEM",
   dir = "../input/fcdata/",
   method = "gene",
   do.read = F,
-  do.prep = F
+  do.prep = T
 )
 }
 \arguments{

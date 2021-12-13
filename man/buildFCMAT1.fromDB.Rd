@@ -5,11 +5,11 @@
 \title{Build the FCMAT1 data set}
 \usage{
 buildFCMAT1.fromDB(
-  dataset = "mcf7_ph1_pe1_normal_block_123_excludePG",
+  dataset = "tox21_cpp5_u2os_pe1_normal",
   dir = "../input/fcdata/new_versions/",
  
-    infile = "httr_mcf7_ph1_bl123_FCmat1_meanncnt0_5-plateteffect_1-shrinkage_normal.RData",
-  pg.filter.file = "httr_mcf7_ph1_flagged_pg_block_123_exclude.xlsx",
+    infile = "httr_tox21_cpp5_u2os_FCmat1-meanncnt0_5-plateteffect_1-shrinkage_normal.RData",
+  pg.filter.file = NULL,
   do.load = T
 )
 }

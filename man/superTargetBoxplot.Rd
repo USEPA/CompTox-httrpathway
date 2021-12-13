@@ -7,16 +7,17 @@
 superTargetBoxplot(
   to.file = T,
   do.load = T,
-  dataset = "mcf7_ph1_pe1_normal_block_123_allPG",
-  sigcatalog = "signatureDB_master_catalog 2021-04-24",
+  dataset = "u2os_toxcast_pfas_pe1_normal_v2_refchems",
+  sigcatalog = "signatureDB_master_catalog 2021-09-29",
   sigset = "screen_large",
-  method = "fc",
-  celltype = "MCF7",
-  hccut = 0.95,
-  tccut = 1.5,
-  cutoff = 5,
+  method = "gsea",
+  celltype = "U2OS",
+  hccut = 0.9,
+  tccut = 1,
+  cutoff = 3,
   minconc = 0.001,
-  maxconc = 100
+  maxconc = 100,
+  chemfile = NULL
 )
 }
 \arguments{

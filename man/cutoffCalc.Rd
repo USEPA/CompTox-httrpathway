@@ -7,10 +7,10 @@ which does not break any correlations between genes}
 \usage{
 cutoffCalc(
   basedir = "../input/fcdata/",
-  dataset = "heparg2d_toxcast_pfas_pe1_normal_refchems",
-  sigcatalog = "signatureDB_master_catalog 2021-05-10",
-  sigset = "screen_large",
-  method = "fc",
+  dataset,
+  sigcatalog,
+  sigset,
+  method,
   pval = 0.05,
   seed = 12345,
   nlowconc = 2,

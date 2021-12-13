@@ -6,7 +6,7 @@
 gene x sample format.}
 \usage{
 buildFCMAT2.fromDB(
-  dataset = "mcf7_ph1_pe1_normal_block_123_excludePG",
+  dataset = "tox21_cpp5_u2os_pe1_normal",
   time = 24,
   media = "DMEM",
   dir = "../input/fcdata/",

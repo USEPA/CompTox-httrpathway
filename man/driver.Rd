@@ -5,23 +5,23 @@
 \title{Code to run all signature concentration-response calculations}
 \usage{
 driver(
-  dataset = "heparg2d_toxcast_pfas_pe1_normal",
-  sigcatalog = "signatureDB_master_catalog 2021-05-10",
-  sigset = "screen_large",
+  dataset = "mcf7_ph1_pe1_normal_block_123_allPG",
+  sigcatalog = "signatureDB_master_catalog 2021-10-05 unidirectional",
+  sigset = "screen_large_unidirectional",
   cutoff.dataset = NULL,
   normfactor = 7500,
-  mc.cores = 25,
+  mc.cores = 10,
   bmr_scale = 1.349,
   pval = 0.05,
   nlowconc = 2,
-  hccut = 0.95,
-  tccut = 1.5,
+  hccut = 0.9,
+  tccut = 1,
   plotrange = c(1e-04, 100),
-  method = "fc",
-  celltype = "HepaRG",
+  method = "gsea",
+  celltype = "MCF7",
   do.conc.resp = T,
   do.scr.plots = T,
-  do.signature.pod = T,
+  do.signature.pod = F,
   do.supertarget.boxplot = T,
   do.all = F
 )
@@ -70,16 +70,25 @@ noise distribution. All of the other parameters for both data sets have to be th
 
 
 Available data sets
-* heparg2d_toxcast_pfas_pe1_normal
+* heparg2d_toxcast_pfas_pe1_normal_v2
 * mcf7_ph1_pe1_normal_block_123_allPG
-* mcf7_ph1_pe1_normal_block_123_excludePG
-* u2os_toxcast_pfas_pe1_normal
+* u2os_toxcast_pfas_pe1_normal_v2
 * PFAS_HepaRG
 * PFAS_U2OS
-* u2os_pilot_pe1_normal_null_pilot_lowconc
-* u2os_toxcast_pfas_pe1_normal_refchems
-* heparg2d_toxcast_pfas_pe1_normal_refchems
-* DMEM_6hr_pilot_normal_pe_1 - MCF7 pilot}
+* u2os_pilot_pe1_normal_null_pilot
+* u2os_toxcast_pfas_pe1_normal_v2_refchems
+* heparg2d_toxcast_pfas_pe1_normal_v2_refchems
+* DMEM_6hr_pilot_normal_pe_1 - MCF7 pilot
+
+* MCF7_pilot_DMEM_6hr_pilot_normal_pe_1
+* MCF7_pilot_DMEM_12hr_pilot_normal_pe_1
+* MCF7_pilot_DMEM_24hr_pilot_normal_pe_1
+* MCF7_pilot_PRF_6hr_pilot_normal_pe_1
+* MCF7_pilot_PRF_12hr_pilot_normal_pe_1
+* MCF7_pilot_PRF_24hr_pilot_normal_pe_1
+
+* tox21_cpp5_u2os_pe1_normal
+* tox21_cpp5_heparg_pe1_normal}
 
 \item{do.signature.summary.plot}{if TRUE, generate the summary plots}
 
