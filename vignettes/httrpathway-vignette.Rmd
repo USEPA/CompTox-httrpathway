@@ -1,12 +1,12 @@
 ---
 title: "httrpathway-vignette"
-author: "Thomas Sheffield"
-date": "October 10, 2019"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{httrpathway-vignette}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+author: "Richard Judson"
+date": December 13, 2021
+output:
+  rmarkdown::html_vignette: default
+  rmarkdown::html_vignette(toc=true): default
+vignette: |
+  %\VignetteIndexEntry{httrpathway-vignette} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
@@ -17,81 +17,107 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(httrpathway)
+#library(httrpathway)
 ```
 
-# Introduction
+## Introduction
 
-"httrpathway" is a set of functions that convert sample-by-gene matrices of log2(fold change) (l2fc) transcriptomics data into sample by "signature" matrices of signature scores. A signature is just a list of genes which can be non-directional (a typical pathway) or directional (likely geenrated from transcriptomics data on a particular chemical perturbation). It also can generate null data in order to estimate noise for each signature, perform concentration-response curve fitting on the signature scores, and generate useful plots to analyze the output.
+"httrpathway" is a set of functions for calculating concentration-response data for high-throughput transcriptomics data (HTTr). To-date, this package has been used to process TempO-Seq data, but in principle, and RNASeq data that is properly preprocessed could be used. Input data is assume to have been created in the form of log2-fold change values (l2fc) for each probe (or gene) for each chemical sample x concentration pair. We currently use DESeq2 to convert normalized count data to this format. Concentration-response modeling is done in two ways. The first analyzes the data at the level of individual genes, and the second at the level of signatures (genesets or pathways). This package inputs and outputs large files containing the data, so assumes a somewhat complicated directory structure. This vignette describes the directory structure, the process need to create the input files, and the process of running and analyzing gene and signature-level concentration-response modeling.
 
-# Inputs
+## Directory Structure
 
-httrpathway assumes an existing file structure containing some key files in your working directory. There must be an input folder and an output folder. To perform signature scoring, there should exist an FCMAT2 file storing the l2fc's and a CHEM_DICT file that stores information about each sample. FCMAT2 files should be stored in the input/fcdata/ folder and be named "FCMAT2_dataset.RData" where "dataset"" is replaced by a user-defined dataset name. This file should contain a matrix (not dataframe!) named "FCMAT2" of l2fc values where the column names are genes (should be compatible with your signature definitions) and the rownames are sample identifiers (aka, the "sample_key"). The sample_key is typically formatted as "sampleid_concentration" where "sampleid" is replaced by an identifier that is unique for each concentration/response experiment and "concentration" is replaced by the concentration. These sample keys must be unique and match those in the CHEM_DICT file. There is a function called buildFCMAT2 to create the FCMAT2 files. Our in-house pipeline starts one step back, so creates FCMAT1 fiels htat are then formatted into FCMAT2. You should look at these functions (buildFCMAT1 and buildFCMAT2) to see how to convert raw l2fc data inot the proper format. 
+The package and all of the directories listed here are assumed to reside in a parent directory (called here "parent"). In parent are the following directories/ Some of these will have subdirectories for individual cell types or data sets. Before running the code, these main directories need to be created.
 
-CHEM_DICT files should also be stored in the input/fcdata/ folder and be named "CHEM_DICT_dataset.RData" where dataset is the user-defined dataset name. This file should contain a dataframe named "CHEM_DICT" with one row per sample_key. There should be seven columns: "sample_key", "sample_id", "conc" (concentration in regular, not log units), "time" (in hours, e.g. 6, 12, 24), "casrn", "name" (of the chemical), "dsstox_substance_id". Also, the rownames should be the same as the sample_key column. These files are also created by buildFCMAT2
+- parent/httrpathway - the R package
+- parent/input/signatures - contains the signature data
+- parent/input/fcdata - contains the input l2fc data
+- parent/output/gene_conc_resp_summary - concentration-response results at the gene level
+- parent/output/gene_conc_resp_plots - concentration-response plots at the gene level
+- parent/output/signature_cutoff - signature cutoffs (intermediate results)
+- parent/output/signature_conc_resp_summary - concentration-response results at the signature level
+- parent/output/signature_conc_resp_plots - concentration-response plots at the signature level. One folder per data set (auto-created)
+- parent/output/signature_score_summary - signature scores for each samples, conenttration, signature - intermediate results
+- parent/output/super_target_boxplot - super-target plots to summarize signature data at hte chemical level.
 
-The signatures are defined in 3 files in the input/signatures folder. The first is a large Excel file that defines all of the signatures (name, parent, number of genes, source, subsource, type (directional or nondirectional), a description a target class and a super_target). 
-THis is currently named "signatureDB_master_catalog 2020-01-31.xlsx". 
-An unannotated version of this is created by the function signature Builder, but the current master version has a significant amount of hand annotation, especially the target_class and sueper_target fields. These are used in the output to help the user group signatures together. The two other files exported by pathwayBuilder are signatureDB_genelists.RData and signatureDB.RData. The first of these is a list of lists where each element is the name of the signature and the gene list. Thsi file is used throughout the package. The second file is equivalent to teh Excel annotation file but also has the gene lists. It is not used in the package but might be useful in other contexts.
+## Signatures
 
-The total set of signatures is compiled from MSigDB (The Broad Institute), DiSgeNET (disease sigantures), a pair of estrogen receptor signatures from Ryan et al., Bioplanet signatures and a set of random signatures. Individual functions format upstream versions of these signature files into forms that can be used by signatureBuilder. 
+There are 3 main files in the parent/input/signatures directory
 
-A key feature the signature catalog file are columns defining signatre sets to be used in specific projects. The complete set contains ~38,000 signatures and is too large and complex for most calculations. For a given project, one adds a column with a signature set (sigset) name and sets a value of 1 for each of the signatures to be used.
+- signatureDB.RData - this is a data.frame with the key columns from signature catalog, plus a column gene.list where the gene symbols for the signature are given in pipe-delimited form (e.g. gene1|gene2|gene3)
+- signatureDB_genelists.RData - this is the signatures as a list of lists. Each element in the list is a named list (the signature names) followed by a list of the contained genes. To add signatures to either of these files, one need to write a special piece of code. Note that thes files names are required by the code and should not be changed.
+- signatureDB_master_catalog {date}.xlsx - This is a catalog of the signatures that provides a variety of annotation. The name of this file is user-defined, and is an input variable in certain functions. The catalog is described next.
 
-So the main inputs to a calcualtion are the dataset name, whcih points to the appropriate FCMAT2 file and the sigset name which points to the appropriate column in the master catalog file to select a subset of signatures. 
+Signature are lists of genes that come from in a variety of types. Some are genes perturbed by specific chemicals or other molecular perturbation, some are genes perturbed in certain disease or conditions and some are genes involved in specific molecular pathways. For some classes of signatures, there are separate sets of genes that are expected to increase in expression and others that are expected to decrease. Therefore signatures cna be either directional of non-directional. All signatures have a name, and a parent. For nondirectional signatures, these are the same, but for directional signatures, the individual signature names will be "parent_up" and "parent_dn". The final score for a directional signature pair is score(up)-score(dn), and this is assigned to the parent. Key fields in the catalog are:
 
+- signature - the name of the signature
+- parent - the name of the parent. In the outputs, this is the name used
+- source
+- subsource
+- type - directional or nondirectional
+- direction - up, dn or nondirectional
+- ngene - number of genes in the signature. Note that fewer than this number may be used becasue some of these genes may not occur in the input data set (expression was too low)
+- description - a description of the signature
+- super_target - a standard target annotation, often a gene, gene family, disease or biological process
+- effect_direction - expected direction, mainly useful in the case of signatures arising from agonists, antagonists, inhibitors, etc.
+- target_class - a high-level descriptive term for the target class (e.g. enzyme, transporter)
+- super_target_level - the level of biological organization of the super_target (chemical, gene, cell, tissue, organ)
+- include0 - a flag to set if the signature is not to be used (0 to exclude, 1 to include)
+- signature set names (pilot_small, screen_large, ...) - When running calculations, one rarely wants to use all available signatures, so a column is used that designates the signatures to be used (yes=1, no=0). The column name is then the variable _sigset_ (signature set) which is an input to several functions. Note that pairs of directional signatures need to be included or excluded together. 
 
-# signature Scoring & Conc/Response
+__Key note about signature sizes__: A data set (variable name _dataset_) will not contain all genes in the genome - only those with above a certain level of expression, maybe 5 counts per million in the majority of samples. When calculations are being run, the signature gene lists are subsetted to those in the data set. Calculations are then only run with signatures containing at least 10 genes after this subsetting. The code is not very smart, so these newly shrunk signatures need to be excluded and the code restarted. A warning message about these bad signatures is given and the code halts. Edit the signature catalog, excluding the signatures from the current _sigset_ and restart. This check happens early. If one of a directional pair is excluded, both need to be excluded. 
 
-Using a dataset containing 10 random chemicals called "10chems" and a pathset called "ENDOCRINE" we now demonstrate how to perform a full concentration response analysis. "FCMAT_10chems.RData" and "CHEM_DICT_10chems.RData" should be moved to the input/fcdata/ folder and "PATHWAY_LIST_ENDOCRINE.RData" and "ENDOCRINE_pathways.RData" should be present in the "input/processed_signature_data/" folder.Then we can generate a null dataset by calling:
+## Creating input l2fc files
+
+For each data set to be run (variable _dataset_), 2 input files are needed, the chemical dictionary and the l2fc matrix. A dataset comprises the data for a group of chemicals run in a particular cell type. These are named CHEM_DICT_{dataset}.RData and FCMAT2_{dataset}.RData. CHEM_DICT has one row per chemcial sample x concentration combination. Key variables are the chemical name, the DSSTox Substance_id (variable name _dtxsid_), the concentration, the concentraiton index and the sample_key (a concatenation of these other variables). FCMAT2 is a data.frame with one row per row in CHEM_DICT, with rownames being the sample key and columns being genes (or probes). In our implementation, we create these files from the DESeq2 output by running the following functions
 
 ```{r eval=FALSE}
-randomdata(dataset = "10chems", nchem = "5")
+buildFCMAT1.fromDB(dataset=dataset,dir={location of DESeq2 file},infile={name of DESEQ2 file}, do.load=T)
+buildFCMAT2.fromDB(dataset=dataset,time={incubation time in hours},media={cell media},method="gene",do.read=T) 
 ```
+  
+The resulting CHEM_DICT and FCMAT2 files will be placed in parent/input/fcdata. These functions currently produce a number of other files (for instance the standard error matrix in the same format as the l2fc matrix) that might prove useful.
 
-This creates an FCMAT2 and CHEM_DICT file for a null dataset called "10chems_RAND5". The naming convention for null datasets (or "nullsets") uses paste0("dataset",_RAND,"nchem"). Here, nchem was set to 5 for speed, though in practice you would want to use a much larger number. Each randomized chemical is associated with a random concentration pattern (chosen with replacement) from the data itself. This leads to a number of total samples approximately equal to eight times nchem for the pilot and phase 1 screens.
+## Running Concentration Response Modeling - Signatures
 
-Next, we would want to get signature scores for the null dataset, which will be used to determine the cutoff for the actual dataset. Since we are going to generate BMD accumulation plots, we will also want to run the nullset through concentration response (otherwise, this is not necessary). For convenience, we'll use the same nullset to determine cutoffs as we are using to run the concentration/response:
+To run the concentration response process, use the function _driver.R_, shown here with standard settings. The core methods for performing concentration-response modeling is the _tcplfit2_ package on [CRAN](https://cran.r-project.org/web/packages/tcplfit2/index.html), so one should be familiar with that to help understand the following. 
+
 
 ```{r eval=FALSE}
-runAllsignatureCR_pval(dataset = "10chems_RAND5",
-                     nullset = "10chems_RAND5", pathset = "ENDOCRINE",
-                     method = "fc", do.plot = F, mc.cores = c(3,3), 
-                     fitmodels = c("cnst", "hill"))
+driver(dataset=dataset,
+       sigcatalog={name of the signature catalog file, without the .xlsx extension},
+       sigset=sigset,
+       mc.cores={1 for a serial machine, or >=1 on a paralell system},
+       nlowconc=2,
+       hccut=0.9,
+       tccut=1,
+       plotrange=c(0.0001,100),
+       method="gsea",
+       celltype={name of the cell type},
+       do.conc.resp=T,
+       do.scr.plots=T,
+       do.supertarget.boxplot=T)
+
 ```
 
-This will load the FCMAT2 and CHEM_DICT files for 10chems_RAND5 dataset and run them through signatureScore(), then run signatureConcResp_pval() using the "fc" (fold change) method without plotting. Each function are run with 3 cores apiece, but feel free to use as many cores as you have available. The CR models are restricted here to only "cnst" and "hill" for speed, but the default is to run all ten available  models. Note that all signatures in ENDOCRINE meet the default minimum signature size of 10. Next, we'll want to run the actual data, and perhaps get some nice CR plots while we're at it:
+A few variables might be changed as follows
+
+- mc.cores - Several sections of the code will run on a parallel machine, so you can add the number of cores. We have run up to 40 cores
+- nlowconc - In doing concentration-response modeling, a key parameter is _cutoff_, which is the 95% confidence interval around the assumed background. For a signature-chemical combination to be called active, at least one point needs to be above this (or below _-cutoff_). The standard way to calculate this cutoff is to take (for each signature), the score for the lowest _nlowconc_ concentrations for all samples/chemicals in the data set and calculate the 95th percentile from this. This assumes that for most signatures and most chemicals, there is little bioactivity at the few lowest concentrations. We have looked at how few chemical one needs to get a reasonable cutoff and have found that for as few as 10, the cutoffs are close to what one gets from 1000 chemicals. For very small or very active data sets, some other way to determine cutoffs must be used. In that case, a cutoff file can be specified and this option is not used (see the full documentation for _driver.R_)
+- hccut - The output of the concentration-response process is a vector for each chemical sample / signature pair, including the variable _hitcall_, which is in the range of 0-1. A high value indicates high confidence that there is activity. For some downstream analyses, _hitcall_ is binarized with values _<hccut_ set to inactive. The value of 0.9 is our current default.
+- tccut - Another output variable from the fitting is _top_over_cutoff_, a kind of Z-score. In some cases, it may be useful to filter results where _hitcall_ ~1, but where _top_over_cutoff_ is above but close to 1. Currently we do not do this.
+- method - This variable is designates what signature scoring method to use and it is currently either gsea (Gene Set Enrichment Analysis) or fc (fold change).We currently use only gsea, but are evaluating other scoring functions to better distinguish signal from noise.
+- do.X - These flags let you run jsut specific parts of the code (calculate concentration-response, produce concentration-response plots or produce the super_target boxplots to summarize all the results in one plot per chemical sample)
+
+
+## Running Concentration Response Modeling - Genes
+
+To run concentration-response modeling at hte level of individual genes, use the following function
 
 ```{r eval=FALSE}
-runAllsignatureCR_pval(dataset = "10chems", 
-                     nullset = "10chems_RAND5", pathset = "ENDOCRINE",
-                     method = "fc", do.plot = T, mc.cores = c(3,3), 
-                     fitmodels = c("cnst", "hill"))
+geneConcResp(dataset=dataset,
+             mc.cores=1,
+             genefile=NULL) {
+
 ```
 
-This should create a file in "output/signature_Score_summary/" called "PATHSCOREMAT_ENDOCRINE_10chems_fc.RData" that holds the signature scores and was generated internally by signatureScore(). Another file should have been saved to "output/signature_conc_resp_summary/" called "signature_CR_ENDOCRINE_10chems_fc_0.05_conthits.RData". This file stores all of the concentration response output in a dataframe. Note that "conthits" was automatically appended to the file name because the conthits option was set to TRUE (by default). signatureConcResp_pval() has a nametag variable that is NULL by default, but automatically switches to "conthits" if conthits is used and no nametag is specified. This is done to prevent runs using discrete hitcalls from being overwritten by runs using continuous hitcalls and vice versa. In general, nametag can and should be used whenever a non-default option is selected in conc/response to ensure unique file names. As you can see, the pathset, dataset, method, and p-value are accounted for already and different choices of these parameters will not overwrite each other.
-
-Because we set do.plot = T, there should now be a folder called "output/signature_conc_resp_plots/ENDOCRINE_10chems_fc_0.05/" that contains one .pdf file for each chemical in the dataset. Each pdf has one plot for every signature in the pathset.
-
-# Plotting
-
-We can also run the estrogen reference plot, which computes ER (or AR) accuracy against some existing results. This function looks for files named "S2 ER SuperMatrix 2015-03-24.xlsx" (for ER) and "AR_supermatrix_Kleinstreuer_etal_2017.xlsx" in the working directory. The function assumes certain properties of these files, so changing them would require the code to be overhauled. We can generate a plot using:
-
-```{r eval=FALSE}
-referenceAC50(method = "fc", dataset = "10chems", pathset = "ENDOCRINE", nullset = "10chems_RAND5",oldpval = .05, nametag = "conthits", conthits= T, pathclass = "DUT", aucclass = "erac50")
-```
-
-This function uses some preset groups of paths for comparison, and it happens that the DUTERTRE_ESTRADIOL_RESPONSE_^HR_UP signature that is associated with the pathclass "DUT" is in the ENDOCRINE pathset. A plot should be saved to the file "output/refchems/refAC50_ENDOCRINE_10chems_fc_DUT_erac50_conthits.pdf". Note that the pathclass and aucclass are options that are part of the file name, while oldpval and newpvals are not. Note that most statistics in the top left are not calculated, because none of the chemicals in 10chems are considered ER "positives" according to this functions' criteria. One or more are considered ER "negative", however, which allows the TNR (true negative rate) to be calculated. RMSE and R2 are only calculated for true positives. The scatter plot plots both positives and "inconclusives", which are any chemicals that are not clearly either active or inactive. 
-
-The final plotting function plots the distribution of the actual and null data for some given signatures and then shows two kinds of cutoffs that were considered: p-value and FDR.
-
-```{r eval=FALSE}
-signatureDistributionPlot(pathset = "ENDOCRINE", dataset = "10chems",
-                        nullset = "10chems_RAND5", samplepaths = NULL)
-```
-
-The samplepaths options allows the user to choose specific individual signatures to display. 10 additional signatures are also randomly chosen (with replacement) and added to the plo. The output file should be named "output/distplots/DISTPLOT_ENDOCRINE_10chems_fc_Null.pdf".
-
-# Replication Study
-
-Some functions were used specifically to perform the pilot/phase 1 replication study and are included as well. FCMATrepchems() was used to build FCMAT2 and CHEM_DICT files based on deseq2 output. The bygene option was used to choose between outputting FCMAT's with gene columns (for signature scoring) and those with probe_id columns (for direct conc/response modeling). runAllRepChemCR() was used to run all signature scoring and conc/resp for the gene version, and runAllRepChemPidCR() was used to run conc/resp for the probe id version. This used a modified version of signatureConcResp_pval() called geneConcResp() that uses the lowest concentration to set its cutoff. Finally, the plotting functions repChemsignaturePlot() and repChemPidPlot() were used to generate the plots for that study.
+This is much simpler than the call (and code) for running signature concentration-response modeling. The only new variable is _genefile_. If one wants to only run the code for a subset of genes, provide an Excel file (with a relative path) containing the gene list, one gene per line.
