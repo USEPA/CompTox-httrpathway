@@ -5,34 +5,17 @@
 #' @param fp number of false positives
 #' @param fn number of false negatives
 #' @param tn number of true negatives
-#' @param do.p if TRUE, calcualte an exact p-value
-#' @param rowname if not NA, adda column to the output with this rowname
+#' @param do.p if TRUE, calculate an exact p-value
+#' @param rowname if not NA, add a column to the output with this rowname
+#' @importFrom stats fisher.test
 #'
-#' Returns:
-#'   a list of the results
-#'   a: TP
-#'   b: FP
-#'   c: FN
-#'   d: TN
-#'   sens: sensitivity
-#'   spec: specificity
-#'   ba: Balanced Accuracy
-#'   accuracy: Accuracy
-#'   relative.risk: Relative Risk
-#'   odds.ratio: Odds Ratio
-#'   or.ci.lwr: lower confidence interval of the Odds Ratio
-#'   or.ci.upr: upper confidence interval of the Odds Ratio
-#'   ppv: Positive Predictive Value
-#'   npv: Negative Predictive Value
-#'   p.value: Chi-squared p-value
-#'   F1: 2TP/(2TP+FP+FN)
-#'
-#'   sval: All of the results as a tab-delimited string
-#'   title: the title of the results as a tab-delimited string
-#'  mat: The results as a 1-row data frame
-#'  @export
+#' @returns Returns a list of the results with the following columns: TP (true positives), FP (false positives), FN (false negatives),
+#' TN (true negatives), Sens (sensitivity), Spec (specificity), BA (Balanced Accuracy), Acrcy (Accuracy), RelRsk Relative Risk,
+#' OR Odds Ratio, CI.OR.LWR (lower confidence interval of the Odds Ratio), CI.OR.UPR (upper confidence interval of the Odds Ratio),
+#' PPV (Positive Predictive Value), NPV (Negative Predictive Value), F1 (2TP/(2TP+FP+FN)), p.value (Chi-squared p-value)
+#' @export TxT
 #--------------------------------------------------------------------------------------
-TxT <<- function(tp,fp,fn,tn,do.p=TRUE,rowname=NA) {
+TxT <- function(tp,fp,fn,tn,do.p=TRUE,rowname=NA) {
   sens <- tp/(tp+fn)
   spec <- tn/(tn+fp)
   ppv  <- tp/(tp+fp)

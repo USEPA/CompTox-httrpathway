@@ -7,17 +7,19 @@
 signatureConcResp(
   dataset,
   sigset,
-  cutoff.dataset,
-  sigcatalog,
+  sigcatalog = "../inst/extdata/signatureDB_master_catalog_2022-05-16.xlsx",
   method,
   bmr_scale = 1.349,
   mc.cores = 1,
   pval = 0.05,
   nlowconc = 2,
   aicc = F,
+  dtxsid.exclude = NULL,
   minsigsize = 10,
-  fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3",
-    "exp4", "exp5")
+  fitmodels = c("cnst", "hill", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"),
+  signaturescoremat,
+  sigdbgenelist = "../inst/extdata/signatureDB_genelists.RDS",
+  CHEM_DICT
 )
 }
 \arguments{
@@ -25,10 +27,7 @@ signatureConcResp(
 
 \item{sigset}{Name of the signature set.}
 
-\item{cutoff.dataset}{This is the data set name to sue when the cutoffs are taken from a different data set than
-the one currently being analyzed. The reason for doing this is if the current data set is small
-(small number of chemicals), and so not large enough to get a good estiamte of the underlying
-noise distribution. All of the other parameters for both data sets have to be the same}
+\item{sigcatalog}{Name of the signature catalog file}
 
 \item{method}{Pathway scoring method in c("fc", "gsva", "gsea")}
 
@@ -40,24 +39,30 @@ noise distribution. All of the other parameters for both data sets have to be th
 
 \item{nlowconc}{Only include the lowest nlowconc concentrations for each chemical}
 
-\item{aicc}{aicc = T uses corrected AIC to choose winning method; otherwise
-regular AIC.}
+\item{aicc}{aicc = T uses corrected AIC to choose winning method; otherwise regular AIC}
+
+\item{dtxsid.exclude}{dtxsids to exclude, default NULL}
 
 \item{minsigsize}{Minimum allowed signature size. Sample/signature combinations
 with less than this number of non-missing l2fc's will be discarded.}
 
 \item{fitmodels}{Vector of model names to use. Probably should include "cnst".}
+
+\item{signaturescoremat}{dataframe returned by the upstream signatureScoreMerge function}
+
+\item{sigdbgenelist}{full path to signature DB gene list file; default is repo version}
+
+\item{CHEM_DICT}{Dataframe with one row per sample key and seven columns:
+sample_key, sample_id, conc, time, casrn, name, dtxsid.}
 }
 \value{
-If to.file = T, nothing. If to.file = F, dataframe with signature CR
-  output.
+dataframe with signature CR output.
 }
 \description{
 Performs signature concentration response using p-value based cutoffs.
 }
 \details{
-dataset should have already been scored using signatureScore
+dataset should have already been scored using signatureScore and signatureScoreMerge
 and the given sigset and method. This function prepares signatureScore output
-for CR processing, calls signatureConcRespCore_pval, formats the output,
-saves it to disk
+for CR processing, calls tcplfit2::concRespCore, and formats the output.
 }

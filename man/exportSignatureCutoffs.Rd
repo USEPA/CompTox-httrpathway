@@ -4,21 +4,10 @@
 \alias{exportSignatureCutoffs}
 \title{Export the signature-wise cutoffs}
 \usage{
-exportSignatureCutoffs(
-  do.load = F,
-  dataset = "heparg2d_toxcast_pfas_pe1_normal",
-  sigset = "screen_large",
-  method = "fc"
-)
+exportSignatureCutoffs(signature_cr)
 }
 \arguments{
-\item{do.load}{If TRUE, load hte large data file}
-
-\item{dataset}{The name of the HTTr data set to use}
-
-\item{sigset}{The name of the signature set to use}
-
-\item{method}{The scoring method to use}
+\item{signature_cr}{dataframe returned by the signatureConcResp function}
 }
 \description{
 Export the signature-wise cutoffs

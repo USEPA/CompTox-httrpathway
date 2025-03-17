@@ -8,7 +8,7 @@
 #' @param pred Vector of corresponding predicted values.
 #'
 #' @return Coefficient of determination.
-#' @export
+#' @export R2
 #'
 #' @examples
 #' R2(c(1:10), c(1:10*.8))
@@ -31,7 +31,7 @@ R2 = function(y,pred){
 #' @param w Vector of weights.
 #'
 #' @return Weighted RMSE.
-#' @export
+#' @export WRMSE
 #'
 #' @examples
 #' WRMSE(1:3, c(1,3,5), 1:3)
@@ -48,7 +48,7 @@ WRMSE = function(x,y,w){
 #' @param y Second vector.
 #'
 #' @return RMSE
-#' @export
+#' @export RMSE
 #'
 #' @examples
 #' RMSE(1:3, c(1,3,5))
@@ -68,7 +68,7 @@ RMSE = function(x,y){
 #' @param fpr Vector of false positive rates.
 #'
 #' @return AUC
-#' @export
+#' @export auc
 #'
 #' @examples
 #' auc(c(0,.5,1), c(0,.5,1))

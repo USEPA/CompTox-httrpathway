@@ -1,71 +1,62 @@
 #####################################################################################################
 #' Calculate the signature-wise cutoffs based on the analytical method
 #' which does not break any correlations between genes
+#' and compare with already defined signature_cr object (see exportSignatureCutoffs function)
 #'
-#' @param basedir Directory that holds FCMAT2 and CHEM_DICT files.
-#' @param dataset Name of actual dataset to base cutoff on.
 #' @param sigcatalog The name of the signature catalog to use
-#' @param sigset THe signature set
-#' @param method The scoring method, either fc or gsea
+#' @param sigset The signature set
 #' @param pval The p-value for the baseline distribution
-#' @param seed Random seed.
-#' @param nlowconc Only include the lowest nlowconc concentrations for each chemical
-#' @param mc.cores NUmber of coresto use when running parallel
+#' @param seed Random seed
+#' @param nlowconc Only include the nlowconc concentrations for each chemical when calcualting the cutoff
+#' @param mc.cores Number of cores to use when running parallel
 #' @param dtxsid.exclude dtxsids to exclude, default NULL
-#' @param do.load If TRUE, reload the FCMAT2 matrix, signature catalog and chemical dictionary, and store in globals
 #' @param do.cov If TRUE, calculate the covariance matrix and store in a global
 #' @param do.compare If TRUE, compare the cutoffs with those from the original method with no gene-gene correlation
 #' @param to.file If TRUE, and do.compare=TRUE, send a plot of the comparison to a file
-#' @param verbose If TRUE, write a line for each signature to show progress.
+#' @param sigdbgenelist full path to the signatureDB_genelist.RDS file
+#' @param FCMAT2 Sample by gene matrix of log2(fold change)'s. Rownames are
+#'   sample keys and colnames are genes.
+#' @param CHEM_DICT Dataframe with one row per sample key and seven columns:
+#'   sample_key, sample_id, conc, time, casrn, name, dtxsid.
+#' @importFrom parallel makePSOCKcluster clusterExport parLapply stopCluster
+#' @importFrom graphics par plot lines
+#' @importFrom grDevices pdf dev.off
+#' @importFrom openxlsx write.xlsx
+#' @importFrom stats cov
 #'
-#' @return No output.
-#' @export
+#' @return calculated cutoffs dataframe
+#' @export cutoffCalc
 #####################################################################################################
-cutoffCalc = function(basedir="../input/fcdata/",
-                      dataset,
-                      sigcatalog,
+cutoffCalc = function(sigcatalog,
                       sigset,
-                      method,
                       pval=0.05,
                       seed = 12345,
                       nlowconc=2,
                       mc.cores = 1,
                       dtxsid.exclude=NULL,
-                      do.load=T,
                       do.cov=T,
                       do.compare=F,
                       to.file=F,
-                      verbose=F){
+                      sigdbgenelist,
+                      FCMAT2,
+                      CHEM_DICT){
   printCurrentFunction()
   set.seed(seed)
 
-  if(do.load) {
-    #load chem_dict
-    file = paste0(basedir,"CHEM_DICT_",dataset,".RData")
-    load(file)
-    chem_dict_filter = CHEM_DICT[CHEM_DICT$conc_index<=nlowconc,]
-    if(!is.null(dtxsid.exclude)) chem_dict_filter = chem_dict_filter[!is.element(chem_dict_filter$dtxsid,dtxsid.exclude),]
+  chem_dict_filter = CHEM_DICT[CHEM_DICT$conc_index<=nlowconc,]
+  if(!is.null(dtxsid.exclude)) chem_dict_filter = chem_dict_filter[!is.element(chem_dict_filter$dtxsid,dtxsid.exclude),]
 
-    #load fcmat
-    file = paste0(basedir,"FCMAT2_",dataset,".RData")
-    cat("  file:",file,"\n")
-    load(file)
-    sk.list = chem_dict_filter$sample_key
-    FCMAT2[is.nan(FCMAT2)] = 0
-    FCMAT2[is.na(FCMAT2)] = 0
-    FCMAT2_lowconc <<- FCMAT2[sk.list,]
+  sk.list = chem_dict_filter$sample_key
+  FCMAT2[is.nan(FCMAT2)] = 0
+  FCMAT2[is.na(FCMAT2)] = 0
+  FCMAT2_lowconc <<- FCMAT2[sk.list,]
 
-    file = paste0("../input/signatures/",sigcatalog,".xlsx")
-    catalog = read.xlsx(file)
-    catalog = catalog[catalog[,sigset]==1,]
-    file = paste0("../input/signatures/signatureDB_genelists.RData")
-    print(file)
-    load(file=file)
-    CATALOG <<- catalog
-    GENELISTS <<- genelists
-  }
-  catalog = CATALOG
-  genelists = GENELISTS
+  file = paste0(sigcatalog)
+  catalog = read.xlsx(file)
+  catalog = catalog[catalog[,sigset]==1,]
+
+  GENELISTS <<- readRDS(sigdbgenelist)
+
   fcmat2 = FCMAT2_lowconc
   if(do.cov) {
     covmat = cov(fcmat2)
@@ -81,51 +72,76 @@ cutoffCalc = function(basedir="../input/fcdata/",
     cl = makePSOCKcluster(mc.cores)
     clusterExport(cl,c("GENELISTS","COVMAT","FCMAT2_lowconc","rowMean"))
     res = parLapply(cl = cl, X=siglist, fun=cutoffCalc.inner.fc, catalog=catalog,allgenes=allgenes,pval=pval)
-    cutoffs = do.call(rbind,res)
+    cutoffs = do.call(rbind.data.frame,res)
   }
   else {
     res = lapply(X=siglist,FUN=cutoffCalc.inner.fc,catalog,allgenes,pval)
-    cutoffs = do.call(rbind,res)
+    cutoffs = do.call(rbind.data.frame,res)
   }
   if(mc.cores > 1) stopCluster(cl)
 
   cat("finish calculating cutoffs\n")
-  file = paste0("../output/signature_cutoff/signature_cutoff_",sigset,"_",dataset,"_",method,"_",pval,"_",nlowconc,"_with_gene_correlations.xlsx")
-  write.xlsx(cutoffs,file)
 
   if(do.compare) {
-    if(to.file) {
-      file = paste0("../output/signature_cutoff/signature_cutoff_",sigset,"_",dataset,"_",method,"_",pval,"_",nlowconc,"_with_gene_correlations.pdf")
-      pdf(file=file,width=5,height=10,pointsize=12,bg="white",paper="letter",pagecentre=T)
-    }
-    par(mfrow=c(2,1),mar=c(5,6,6,3))
-
-    file = paste0("../output/signature_cutoff/signature_cutoff_",sigset,"_",dataset,"_",method,"_",pval,".xlsx")
-    print(file)
-    oldcuts = read.xlsx(file)
-    rownames(oldcuts) = oldcuts$signature
-    oldcuts = oldcuts[siglist[1:nsig],]
-    x = oldcuts$cutoff
-    y = cutoffs[1:nsig,"cutoff"]
-    plot(y~x,xlim=c(0,0.25),ylim=c(0,0.25),xlab="old method",ylab="new method",pch=".")
-    lines(c(0,0.25),c(0,0.25))
-
-    if(!to.file) browser()
-    else dev.off()
+    compareSignatureCutoffs(exportSignatureCutoffs(signature_cr) ,cutoffs)
   }
+
+  return(cutoffs)
 }
+
 #####################################################################################################
-#' Inner function for the cutoff calculation
+#'
+#' Generates a plot comparing two cutoff calculation methods
+#'
+#' @param empirical_cutoffs output from the exportSignatureCutoffs function
+#' @param cutoffs calculated cutoffs provided by cutoffCalc function
+#' @param nsig number of signatures to compare
+#' @importFrom ggplot2 ggplot
+#'
+#' @return ggplot object which is the scatterplot comparing the two methods
+#' @export compareSignatureCutoffs
+
+compareSignatureCutoffs = function(empirical_cutoffs, cutoffs, nsig=NULL){
+
+  #par(mfrow=c(2,1),mar=c(5,6,6,3))
+  oldcuts <- data.table(empirical_cutoffs)
+  cutoffs <- data.table(cutoffs)
+
+  #grab only signatues shared between methods
+  sigs <- intersect(cutoffs$signature, oldcuts$signature)
+
+  #sort
+  cutoffs <- cutoffs[signature %in% sigs,]
+  oldcuts <- oldcuts[signature %in% sigs,]
+
+  #order
+  cutoffs <- cutoffs[order(signature),]
+  oldcuts <- oldcuts[order(signature),]
+
+  dat <- data.table(empirical_method = oldcuts$cutoff, fc_method = cutoffs$cutoff)
+
+  p <- ggplot(data = dat, aes(x = empirical_method, y = fc_method)) +
+    geom_point() +
+    geom_abline(slope = 1, linetype = "dashed") +
+    stat_smooth(method = "lm")
+
+  return(p)
+}
+
+
+#####################################################################################################
+#' Inner function for the cutoff calculation based on the analytical method
 #'
 #' @param parent The name of the signature parent for which the cutoff is to be calculated
 #' @param catalog The signature catalog
-#' @param allgenes THe list of all the genes in the data set
+#' @param allgenes The list of all the genes in the data set
 #' @param pval The p-value for the baseline distribution
-#' @param covmat THe covariance matrix
+#' @importFrom stats qnorm
 #'
 #' @return vector containing the parent (signature), cutoff, sd, bmed
-#' @export
+#' @export cutoffCalc.inner.fc
 #####################################################################################################
+
 cutoffCalc.inner.fc = function(parent, catalog, allgenes, pval) {
   name.list = c("signature","sd","bmed","cutoff","pvalue","numsd")
   cutoffs = as.data.frame(matrix(nrow=1,ncol=length(name.list)))
@@ -212,6 +228,16 @@ cutoffCalc.inner.fc = function(parent, catalog, allgenes, pval) {
   }
   return(as.vector(cutoffs))
 }
+
+#####################################################################################################
+#' Utility function used by cutoffCalc.inner.fc
+#'
+#' @param x = matrix or data.frame
+#'
+#' @return vector of mean value of each row
+#' @export rowMean
+#####################################################################################################
+
 rowMean <- function(x) {
   ret <- apply(x,FUN=mean,MARGIN=1)
 }

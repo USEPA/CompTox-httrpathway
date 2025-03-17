@@ -7,7 +7,6 @@
 signatureScoreCoreGSVA(
   sk.list,
   sigset = "FILTERED",
-  dataset,
   fcmat,
   chem_dict,
   signature_data,
@@ -19,27 +18,25 @@ signatureScoreCoreGSVA(
 
 \item{sigset}{Name of signature set.}
 
-\item{dataset}{Name of data set.}
-
-\item{fcmat}{Sample by gene matrix of log2(fold change)'s. Rownames are
+\item{fcmat}{Expects FCMAT2. Sample by gene matrix of log2(fold change)'s. Rownames are
 sample keys and colnames are genes.}
 
-\item{chem_dict}{Dataframe with one row per sample key and seven columns:
+\item{chem_dict}{Expects CHEM_DICT object. Dataframe with one row per sample key and seven columns:
 sample_key, sample_id, conc, time, casrn, name, dtxsid.}
 
-\item{signature_data}{Named ist of gene name vectors. Each element is one
+\item{signature_data}{Named list of gene name vectors. Each element is one
 signature, defined by the genes it contains.}
 
 \item{mc.cores}{Number of cores to use. Parallelization is performed
 by gsva itself.}
 }
 \value{
-No output.
+Dataframe with one row per chemical/conc/signature combination. Columns
+  are: sample_id, dtxsid, casrn, name, time, conc, sigset, signature, size, signature_score
 }
 \description{
 Computes GSVA signature scores.
 }
 \details{
-This function is a wrapper for GSVA with Gaussian cdf kernels. signaturescoremat
-output is saved directly to disk.
+This function is a wrapper for GSVA with Gaussian cumulative distribution function (cdf) kernels.
 }

@@ -2,21 +2,24 @@
 % Please edit documentation in R/signatureCatalogLoader.R
 \name{signatureCatalogLoader}
 \alias{signatureCatalogLoader}
-\title{Merge the up and down halves of the pathway data}
+\title{Read in signature catalog}
 \usage{
 signatureCatalogLoader(
   sigset = "wgcna",
-  sigcatalog = "signatureDB_wgcna_mcf7_ph1_pe1_normal_good_pg_MCF7_12_10_catalog"
+  sigcatalog = "../inst/extdata/signatureDB_master_catalog_2022-05-16.xlsx",
+  sigdbgenelist = "../inst/extdata/signatureDB_genelists.RDS"
 )
 }
 \arguments{
-\item{sigset}{Name of the signature set.}
+\item{sigset}{Name of the signature set to use; derived from the sigcatalog}
 
-\item{sigcatlog}{Nmae of the catalog file}
+\item{sigcatalog}{full path to signature catalog xlsx file; default is repo version}
+
+\item{sigdbgenelist}{full path to signature DB gene list file; default is repo version}
 }
 \value{
 the trimmed signature table
 }
 \description{
-Merge the up and down halves of the pathway data
+Read in signature catalog
 }

@@ -2,22 +2,30 @@
 % Please edit documentation in R/signatureScoreMerge.R
 \name{signatureScoreMerge}
 \alias{signatureScoreMerge}
-\title{Merge the up and down halves of the pathway data}
+\title{Merge the up and down halves of the directional pathway data}
 \usage{
-signatureScoreMerge(sigset, sigcatalog, dataset, method)
+signatureScoreMerge(
+  sigset,
+  sigcatalog = "../inst/extdata/signatureDB_master_catalog_2022-05-16.xlsx",
+  method,
+  signaturescoremat,
+  sigdbgenelist = "../inst/extdata/signatureDB_genelists.RDS"
+)
 }
 \arguments{
 \item{sigset}{Name of the signature set.}
 
-\item{dataset}{Name of the data set.}
+\item{sigcatalog}{Name of the catalog file}
 
 \item{method}{Pathway scoring method in c("fc", "gsva", "gsea")}
 
-\item{sigcatlog}{Name of the catalog file}
+\item{signaturescoremat}{dataframe returned by the upstream signatureScore function}
+
+\item{sigdbgenelist}{full path to signature DB gene list file; default is repo version}
 }
 \value{
-nothing
+signaturescoremat dataframe
 }
 \description{
-Merge the up and down halves of the pathway data
+Merge the up and down halves of the directional pathway data
 }

@@ -8,12 +8,12 @@ signatureScore(
   FCMAT2,
   CHEM_DICT,
   sigset,
-  sigcatalog,
-  dataset,
+  sigcatalog = "../inst/extdata/signatureDB_master_catalog_2022-05-16.xlsx",
   method,
   normfactor = 7500,
   mc.cores = 1,
-  minsigsize = 10
+  minsigsize = 10,
+  sigdbgenelist = "../inst/extdata/signatureDB_genelists.RDS"
 )
 }
 \arguments{
@@ -25,33 +25,31 @@ sample_key, sample_id, conc, time, casrn, name, dtxsid.}
 
 \item{sigset}{Name of signature set.}
 
-\item{sigcatalog}{Name of the signature catalog file}
-
-\item{dataset}{Name of data set.}
+\item{sigcatalog}{full path to signature catalog xlsx file; default is repo version}
 
 \item{method}{Signature scoring method in c("fc", "gsva", "gsea")}
 
-\item{normfactor}{Value passed ot the plotting code to scale the y values}
+\item{normfactor}{Value passed to the plotting code to scale the y values}
 
 \item{mc.cores}{Number of cores to use.}
 
 \item{minsigsize}{Minimum allowed signature size BEFORE accounting for
 missing values.}
+
+\item{sigdbgenelist}{full path to signature DB gene list file; default is repo version}
 }
 \value{
-No output.
+Returns data frame of signature scores
 }
 \description{
 Computes and saves signature scores.
 }
 \details{
 signatureScore is a driver for various scoring methods. The three that are
-currently available are "gsva", "gsea", "fc", and "gsea_norank" (a version
-of gsea that uses fold changes instead of ranks as weights). Deprecated
-methods include the Fisher method and gsvae (gsva with empirical cdfs).
-Beware running out of memory on large runs with gsva, Linux, and many cores.
+currently available are "gsva", "gsea", "fc".
+Beware running out of memory on large runs with gsva, Linux, and many cores -- ensure your system has enough memory allocated depending on data size.
 Signature size is counted according to number of genes in the signature that are
 also in the column names of FCMAT2. However, each method performs a more
 rigorous size count internally that accounts for missing values and adds this
-to the output. This minsigsize is enforced when running signatureConcResp_pval.
+to the output.
 }

@@ -1,50 +1,43 @@
 #' Gene Concentration Response
 #'
-#' Wrapper that performs concentration response modeling for gene or probe l2fc's
+#' Wrapper that performs concentration response modeling for gene/probe log2 fold-change values
 #'
-#' Loads an FCMAT2 and CHEM_DICT corresponding to given dataset. FCMAT should be
-#' chem/conc by gene or chem/conc by probe. Uses two lowest concentration of each
-#' column to estimate noise cutoff (as opposed to signature CR). Also, doesn't
-#' currently contain a plotting option.
+#' Uses two lowest concentration of each
+#' column to estimate noise cutoff (as opposed to signature CR).
 #'
-#' @param dataset String that identifies data set.
 #' @param mc.cores Number of parallel cores to use.
-#' @param to.file If TRUE, results are written to an RData file, otherwise they
-#'   are returned.
+#' @param to.file.path when provided, path of RDS file where results are written to
 #' @param pval P-value cutoff between 0 and 1.
-#' @param aicc If aicc = T, corrected AIC is used insstead of first order
+#' @param aicc If aicc = T, corrected AIC is used instead of first order
 #'   (regular) AIC.
 #' @param fitmodels Vector of models names to be used. Default is all of them.
+#' @param genefile An optional file (.xlsx) that can be used to filter concentration-response modeling for a subset of genes of interest
+#' @param FCMAT2 chem/conc by gene or chem/conc by probe. Uses two lowest concentration of each
+#'   column to estimate noise cutoff (as opposed to signature CR).
+#' @param CHEM_DICT Dataframe with one row per sample key and seven columns:
+#'   sample_key, sample_id, conc, time, casrn, name, dtxsid.
 #'
-#' @import data.table#' * MCF7_pilot_PRF_12hr_pilot_normal_pe_1
-#' * MCF7_pilot_PRF_24hr_pilot_normal_pe_1
-#' @export
-geneConcResp <- function(dataset="tox21_cpp5_heparg_pe1_normal",
-                         mc.cores=20,
-                         to.file=T,
+#' @import data.table
+#' @importFrom parallel makePSOCKcluster clusterExport parLapply stopCluster
+#' @importFrom openxlsx read.xlsx
+#' @importFrom reshape2 melt
+#' @importFrom tcplfit2 concRespCore
+#' @importFrom stats sd
+#' @return dataframe of concentration response modeling results
+#' @export geneConcResp
+
+geneConcResp <- function(mc.cores=20,
+                         to.file.path=NULL,
                          pval = .05,
                          aicc = F,
                          fitmodels = c("cnst", "hill", "poly1", "poly2", "pow", "exp2", "exp3",
                                        "exp4", "exp5"),
-                         genefile=NULL) {
+                         genefile=NULL,
+                         FCMAT2,
+                         CHEM_DICT) {
 
-  printCurrentFunction(dataset)
-#' @import parallel
-#'
-#' @return If to.file = F, data frame containing results; otherwise, nothing.
-#'
-#' * MCF7_pilot_DMEM_6hr_pilot_normal_pe_1
-#' * MCF7_pilot_DMEM_12hr_pilot_normal_pe_1
-#' * MCF7_pilot_DMEM_24hr_pilot_normal_pe_1
-#' * MCF7_pilot_PRF_6hr_pilot_normal_pe_1
-
+  printCurrentFunction()
   starttime = proc.time()
-
-  #get FCMAT and CHEM_DICT
-  file <- paste0("../input/fcdata/FCMAT2_",dataset,".RData")
-  load(file)
-  file <- paste0("../input/fcdata/CHEM_DICT_",dataset,".RData")
-  load(file)
 
   if(!is.null(genefile)) {
     temp = read.xlsx(genefile)
@@ -71,7 +64,7 @@ geneConcResp <- function(dataset="tox21_cpp5_heparg_pe1_normal",
   print(dim(FCMAT2))
   #melt FCMAT to create one row per value data table
   cat("reshape\n")
-  genemat = reshape2::melt(FCMAT2, value.name = "l2fc",variable.factor = F)
+  genemat = melt(FCMAT2, value.name = "l2fc",variable.factor = F)
   genemat[,1] = as.character(genemat[,1])
   genemat[,2] = as.character(genemat[,2])
   colnames(genemat)[1:2] = c("sample_key", "gene")
@@ -117,14 +110,6 @@ geneConcResp <- function(dataset="tox21_cpp5_heparg_pe1_normal",
                           aicc = aicc, chunk.size = ceiling(length(genemat)/5/mc.cores) )
   } else {
     cat("start running single core\n")
-
-    # GENE_CR = NULL
-    # for(i in 1:length(genemat)) {
-    #   resp = concRespCore(genemat[[i]],fitmodels,force.fit=T,verbose=T,aicc=aicc)
-    #   GENE_CR = rbind(GENE_CR,resp)
-    #   browser()
-    # }
-
     GENE_CR = lapply(X=genemat, FUN = concRespCore, fitmodels = fitmodels, aicc = aicc)
   }
   cat("finish running\n")
@@ -133,13 +118,14 @@ geneConcResp <- function(dataset="tox21_cpp5_heparg_pe1_normal",
   GENE_CR = as.data.frame(rbindlist(GENE_CR))
   rm(genemat)
 
-  if(to.file){
-    file <- paste0("../output/gene_conc_resp_summary/GENE_CR_",dataset,"_", pval,"_conthits.RData")
-    save(GENE_CR,file=file)
-  } else return(GENE_CR)
+  if(!is.null(to.file.path)){
+    saveRDS(GENE_CR,to.file.path)
+  }
   cat("finish writing\n")
 
   if(mc.cores > 1) stopCluster(cl)
   print(proc.time() - starttime)
+
+  return(GENE_CR)
 
 }
