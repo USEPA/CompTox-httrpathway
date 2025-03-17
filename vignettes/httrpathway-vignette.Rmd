@@ -40,7 +40,7 @@ library(devtools)
 devtools::install_local(path = "path/to/httrpathway/") #if user cloned repo from Github
 
 #install direct from Github
-devtools::install_github(repo = "") #TBD
+devtools::install_github(repo = "https://github.com/USEPA/CompTox-httrpathway.git") 
 
 ```
 
