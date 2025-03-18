@@ -39,7 +39,7 @@ library(httrpathway)
 library(devtools)
 
 #install from Github
-devtools::install_github(repo = "https://github.com/USEPA/CompTox-httrpathway.git")
+devtools::install_github("USEPA/CompTox-httrpathway")
 ```
 
 Using httrpathway
