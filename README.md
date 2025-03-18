@@ -18,7 +18,7 @@ httrpathway is currently implemented as an in-development R package and can be i
 
 1. Clone or download the package from github (TBD):
 ```bash
-git clone (TBD)
+git clone https://github.com/USEPA/CompTox-httrpathway.git
 ```
 2. Install the package using *devtools* functions in R/Rstudio:
 ```r
