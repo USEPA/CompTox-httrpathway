@@ -3,39 +3,34 @@
 #' Computes signature scores for gsea.
 #'
 #' This function is a parallelized wrapper for gsea, which does the actual
-#' scoring. gsea method uses ranks and normalization, while gsea_norank
-#' method does not use ranks or normalization. Normalization divides final
+#' scoring. gsea method uses ranks and normalizationby default. Normalization divides final
 #' scores by difference between max and min score. Without normalization,
-#' scores from individual samples have no impact on each other. Final
-#' signaturescoremat is written to disk.
+#' scores from individual samples have no impact on each other.
 #'
 #' @param sk.list Sample keys to use; should correspond to fcmat rownames.
-#' @param method Method name to use in file output. "gsea" or "gsea_norank"
+#' @param normfactor = proceed on first 1/normfactor of GSEA data
 #' @param sigset Name of signature set.
-#' @param dataset Name of data set.
-#' @param fcmat Sample by gene matrix of log2(fold change)'s. Rownames are
+#' @param fcmat Expects FCMAT2. Sample by gene matrix of log2(fold change)'s. Rownames are
 #'   sample keys and colnames are genes.
-#' @param chem_dict Dataframe with one row per sample key and seven columns:
+#' @param chem_dict Expects CHEM_DICT object. Dataframe with one row per sample key and seven columns:
 #'   sample_key, sample_id, conc, time, casrn, name, dtxsid.
-#' @param signature_data Named ist of gene name vectors. Each element is one
+#' @param signature_data Named list of gene name vectors. Each element is one
 #'   signature, defined by the genes it contains.
-#' @param mc.cores Number of cores to use. Parallelization is performed
-#'   by gsva itself.
+#' @param mc.cores Number of cores to use.
 #' @param normalization normalization = T normalizes final scores.
 #' @param useranks useranks = T uses score ranks for weighting; otherwise,
 #'   fold changes are used for weights.
 #'
-#' @import openxlsx
 #' @import GSVA
-#' @import parallel
+#' @importFrom parallel makePSOCKcluster clusterExport clusterEvalQ parLapply stopCluster
+#' @importFrom reshape2 melt
 #'
-#' @return No output.
-#' @export
+#' @return Dataframe with one row per chemical/conc/signature combination. Columns
+#'   are: sample_id, dtxsid, casrn, name, time, conc, sigset, signature, size, signature_score
+#' @export signatureScoreCoreGSEA
 signatureScoreCoreGSEA <- function(sk.list,
-                                   method = "gsea",
                                    normfactor=7500,
                                    sigset,
-                                   dataset,
                                    fcmat,
                                    chem_dict,
                                    signature_data,
@@ -43,7 +38,7 @@ signatureScoreCoreGSEA <- function(sk.list,
                                    normalization = T,
                                    useranks = T) {
 
-  printCurrentFunction(paste(dataset,sigset,method))
+  printCurrentFunction(paste(sigset))
   #change NA to zero, although this is no longer necessary; gsea can handle NA now
   data <- fcmat[sk.list,]
   data[is.na(data)] <- 0
@@ -64,7 +59,7 @@ signatureScoreCoreGSEA <- function(sk.list,
       ends = (1:mc.cores*nrow(data))%/%mc.cores
       cat("   make datalist\n")
       datalist = lapply(1:length(starts), function(i){t(data)[,seq(starts[i], ends[i]), drop = F ] } )
-      # reslist = mclapply(datalist, GSEA, geneSets =signature_data, min.sz=10, max.sz=Inf, verbose=T, useranks = useranks,
+      # reslist = mclapply(datalist, GSEA, geneSets =signature_data, min.sz=1, max.sz=Inf, verbose=T, useranks = useranks,
       #                    mc.cores= mc.cores)
 
 
@@ -75,7 +70,12 @@ signatureScoreCoreGSEA <- function(sk.list,
       cat("   eval cluster\n")
       output = clusterEvalQ(cl, library(GSVA))
       cat("   make reslist\n")
-      reslist = parLapply(cl = cl, X=datalist,fun=GSEA,geneSets =signature_data, min.sz=10, max.sz=Inf, verbose=F, useranks = useranks)
+      # [LJE 5/13/24]
+      # Changed min.sz=1 (was 10) in the line below to match how GSEA function is invoked when calling with mc.cores = 1
+      # This was enforcing minimum signature size of at least 10 even when minsigsz was set to a lower number in the driver function
+      # Based on the documentation in GSEA.R that min.sz is a deprecated parameter, it probably should not be set here at all
+      # Filtering by signature size is now handled completely before this function is called.
+      reslist = parLapply(cl = cl, X=datalist,fun=GSEA,geneSets =signature_data, min.sz=1, max.sz=Inf, verbose=F, useranks = useranks)
       cat("   stop cluster\n")
       stopCluster(cl)
       cat("   reduce\n")
@@ -98,14 +98,14 @@ signatureScoreCoreGSEA <- function(sk.list,
   cat("   finish GSEA: ",dim(res),"\n")
 
   #melt output
-  res2 <- reshape2::melt(res,as.is=T)
+  res2 <- melt(res,as.is=T)
   names(res2) <- c("signature","sample_key","signature_score")
 
   #do actual signature sizes here
   notnamat = !is.na(fcmat)
   trimpdata = lapply(signature_data, function(x){x[x %in% colnames(fcmat)]})
   sizemat = sapply(trimpdata, function(x){rowSums(notnamat[,x, drop = F])})
-  sizemelt = reshape2::melt(sizemat, varnames = c("sample_key", "signature"), value.name = "size")
+  sizemelt = melt(sizemat, varnames = c("sample_key", "signature"), value.name = "size")
   res2$size = sizemelt$size[match(paste0(res2$sample_key, res2$signature),
                                   paste0(sizemelt$sample_key, sizemelt$signature))]
 
@@ -138,9 +138,7 @@ signatureScoreCoreGSEA <- function(sk.list,
   signaturescoremat <- signaturescoremat[,name.list]
   signature.list <- sort(unique(signaturescoremat[,"signature"]))
 
-  #write to disk
-  file <- paste("../output/signature_score_summary/signaturescoremat_",sigset,"_",dataset,"_",method,"_directional.RData",sep="")
-  cat("   savging file ... ",file,"\n")
-  save(signaturescoremat,file=file)
-  cat("   output written\n")
+  return(signaturescoremat)
+
+
 }

@@ -5,9 +5,8 @@
 \title{Signature Score Core - FC}
 \usage{
 signatureScoreCoreFC(
-  fcdata,
+  fcmat,
   sigset,
-  dataset,
   chem_dict,
   signature_data,
   ngenemax = NULL,
@@ -15,23 +14,21 @@ signatureScoreCoreFC(
 )
 }
 \arguments{
-\item{fcdata}{Sample by gene matrix of log2(fold change)'s. Rownames are
+\item{fcmat}{Expects FCMAT2. Sample by gene matrix of log2(fold change)'s. Rownames are
 sample keys and colnames are genes.}
 
 \item{sigset}{Name of signature set.}
 
-\item{dataset}{Name of data set.}
-
-\item{chem_dict}{Dataframe with one row per sample key and seven columns:
+\item{chem_dict}{Expects CHEM_DICT object. Dataframe with one row per sample key and seven columns:
 sample_key, sample_id, conc, time, casrn, name, dtxsid.}
 
-\item{signature_data}{Named ist of gene name vectors. Each element is one
+\item{signature_data}{Named list of gene name vectors. Each element is one
 signature, defined by the genes it contains.}
 
-\item{ngenemax}{If ngene is not NULL, then tonly the most extreme n genes of the
+\item{ngenemax}{If ngene is not NULL, then only the most extreme n genes of the
 signature will be used for the "in" set}
 
-\item{verbose}{If TRUE, weite extra diagnostic output}
+\item{verbose}{If TRUE, write extra diagnostic output}
 }
 \value{
 Dataframe with one row per chemical/conc/signature combination. Columns

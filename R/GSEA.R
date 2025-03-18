@@ -22,9 +22,10 @@
 #'   uses the bare fold changes instead.
 #'
 #' @importFrom GSVA filterGeneSets
+#' @importFrom stats na.omit
 #'
 #' @return Outputs signature by sample matrix of signature scores.
-#' @export
+#' @export GSEA
 #'
 #' @examples
 #' geneSets = list(signature1 = c("ABC", "DEF"), signature2 = c("ABC", "GHI"))
@@ -32,7 +33,7 @@
 #' colnames(X) = c("Sample1", "Sample2")
 #' rownames(X) = c("ABC", "DEF", "GHI")
 #' GSEA(X,geneSets)
-GSEA = function(X, geneSets, min.sz = 1, max.sz = Inf, alpha = .25, verbose = T, useranks = T) {
+GSEA <- function(X, geneSets, min.sz = 1, max.sz = Inf, alpha = .25, verbose = T, useranks = T) {
   if (nrow(X) < 2) stop("Less than two genes in the input expression data matrix\n")
   mapped.geneSets <- lapply(geneSets, function(x, y) na.omit(match(x, y)), rownames(X))
 
@@ -40,7 +41,8 @@ GSEA = function(X, geneSets, min.sz = 1, max.sz = Inf, alpha = .25, verbose = T,
     stop("No identifiers in the gene sets could be matched to the identifiers in the expression data.")
   }
 
-  geneSets <- filterGeneSets(mapped.geneSets, min.sz = max(1, min.sz), max.sz = max.sz)
+  geneSets <- filterGeneSets(mapped.geneSets, minSize = max(1, min.sz), maxSize = max.sz)
+
   if (length(geneSets) == 0) {
     stop("The gene set list is empty!  Filter may be too stringent.")
   }
@@ -62,7 +64,7 @@ GSEA = function(X, geneSets, min.sz = 1, max.sz = Inf, alpha = .25, verbose = T,
   #   return(output)
   # }
 
-  #does the summed KS staistic for each sample
+  #does the summed KS statistic for each sample
   es <- sapply(1:n, function(j, R, geneSets, alpha) {
     geneRanking <- order(R[, j], decreasing = TRUE, na.last = NA) #now removes NA's to ignore them in rndwalk
     es_sample <- NA
@@ -77,8 +79,15 @@ GSEA = function(X, geneSets, min.sz = 1, max.sz = Inf, alpha = .25, verbose = T,
   return(es)
 }
 
-#GSVA:::rndwalk but able to handle sum(Ralpha) = 0
-myrndwalk = function(gSetIdx, geneRanking, j, R, alpha) {
+#' GSVA:::rndwalk but able to handle sum(Ralpha) = 0
+#' @param gSetIdx gSetIdx
+#' @param geneRanking geneRanking
+#' @param j j
+#' @param R R
+#' @param alpha alpha
+#' @export myrndwalk
+
+myrndwalk <- function(gSetIdx, geneRanking, j, R, alpha) {
   indicatorFunInsideGeneSet <- match(geneRanking, gSetIdx)
   indicatorFunInsideGeneSet[!is.na(indicatorFunInsideGeneSet)] <- 1
   indicatorFunInsideGeneSet[is.na(indicatorFunInsideGeneSet)] <- 0

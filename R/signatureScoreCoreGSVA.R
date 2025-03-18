@@ -2,31 +2,28 @@
 #'
 #' Computes GSVA signature scores.
 #'
-#' This function is a wrapper for GSVA with Gaussian cdf kernels. signaturescoremat
-#' output is saved directly to disk.
+#' This function is a wrapper for GSVA with Gaussian cumulative distribution function (cdf) kernels.
 #'
 #'
 #' @param sk.list Sample keys to use; should correspond to fcmat rownames.
 #' @param sigset Name of signature set.
-#' @param dataset Name of data set.
-#' @param fcmat Sample by gene matrix of log2(fold change)'s. Rownames are
+#' @param fcmat Expects FCMAT2. Sample by gene matrix of log2(fold change)'s. Rownames are
 #'   sample keys and colnames are genes.
-#' @param chem_dict Dataframe with one row per sample key and seven columns:
+#' @param chem_dict Expects CHEM_DICT object. Dataframe with one row per sample key and seven columns:
 #'   sample_key, sample_id, conc, time, casrn, name, dtxsid.
-#' @param signature_data Named ist of gene name vectors. Each element is one
+#' @param signature_data Named list of gene name vectors. Each element is one
 #'   signature, defined by the genes it contains.
 #' @param mc.cores Number of cores to use. Parallelization is performed
 #'   by gsva itself.
 #'
-#' @import openxlsx
-#' @import GSVA
-#' @import parallel
+#' @importFrom GSVA gsva
+#' @importFrom reshape2 melt
 #'
-#' @return No output.
-#' @export
+#' @return Dataframe with one row per chemical/conc/signature combination. Columns
+#'   are: sample_id, dtxsid, casrn, name, time, conc, sigset, signature, size, signature_score
+#' @export signatureScoreCoreGSVA
 signatureScoreCoreGSVA <- function(sk.list,
                                    sigset="FILTERED",
-                                   dataset,
                                    fcmat,
                                    chem_dict,
                                    signature_data,
@@ -63,14 +60,14 @@ signatureScoreCoreGSVA <- function(sk.list,
   cat("   finish gsva: ",dim(res),"\n")
 
   #melt the gsva output
-  res2 <- reshape2::melt(res,as.is=T)
+  res2 <- melt(res,as.is=T)
   names(res2) <- c("signature","sample_key","signature_score")
 
   #do actual signature sizes here
   notnamat = !is.na(fcmat) #get nonmissings
   trimpdata = lapply(signature_data, function(x){x[x %in% colnames(fcmat)]}) #remove genes not in fcmat from signature_data
   sizemat = sapply(trimpdata, function(x){rowSums(notnamat[,x, drop = F])}) #count nonmissings and out skey x signature matrix
-  sizemelt = reshape2::melt(sizemat, varnames = c("sample_key", "signature"), value.name = "size") #melt it so we can do a match
+  sizemelt = melt(sizemat, varnames = c("sample_key", "signature"), value.name = "size") #melt it so we can do a match
   res2$size = sizemelt$size[match(paste0(res2$sample_key, res2$signature),
                                   paste0(sizemelt$sample_key, sizemelt$signature))] #match pasted samplekey and signature
 
@@ -99,9 +96,5 @@ signatureScoreCoreGSVA <- function(sk.list,
   signaturescoremat <- signaturescoremat[,name.list]
   signature.list <- sort(unique(signaturescoremat[,"signature"]))
 
-  #write output to disk
-  method <- "gsva"
-  file <- paste("../output/signature_score_summary/signaturescoremat_",sigset,"_",dataset,"_",method,"_directional.RData",sep="")
-  save(signaturescoremat,file=file)
-  cat("   output written\n")
+  return(signaturescoremat)
 }

@@ -1,6 +1,8 @@
 #--------------------------------------------------------------------------------------
 #' Print the name of the current function
-#' @param comment.string An optinal string to be printed
+#' @param comment.string An optional string to be printed
+#' @importFrom utils flush.console
+#' @return nothing
 #--------------------------------------------------------------------------------------
 printCurrentFunction <- function(comment.string=NA) {
   cat("=========================================\n")

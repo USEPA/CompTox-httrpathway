@@ -5,20 +5,18 @@
 \title{Randomized Null Data}
 \usage{
 randomdata(
-  basedir = "../input/fcdata/",
-  dataset = "u2os_pilot_pe1_normal_null_pilot_lowconc",
   nchem = 1000,
   seed = 12345,
   maxconc = 1e+06,
   nlowconc = 2,
-  dtxsid.exclude = NULL
+  dtxsid.exclude = NULL,
+  FCMAT2,
+  CHEM_DICT,
+  output_dir = "../data/",
+  writing_to_disk = FALSE
 )
 }
 \arguments{
-\item{basedir}{Directory that holds FCMAT2 and CHEM_DICT files.}
-
-\item{dataset}{Name of actual dataset to base null data on.}
-
 \item{nchem}{Number of null chemicals. Number of null samples is approximately
 eight times this value.}
 
@@ -26,21 +24,26 @@ eight times this value.}
 
 \item{maxconc}{Only use concentrations less than maxconc, default 1000000}
 
-\item{nlowconc}{If not NULL, only include the loest nlowconc concentrations for eahc chemical}
+\item{nlowconc}{If not NULL, only include the lowest nlowconc concentrations for each chemical}
 
-\item{dtxsid.exclude}{dtxsids to exclude, default NULL
-for U2OS pilot dtxsid.exclude=c('DTXSID9020031','DTXSID0040464','DTXSID5023582')}
+\item{dtxsid.exclude}{dtxsids to exclude, default NULL}
+
+\item{FCMAT2}{Sample by gene matrix of log2(fold change)'s. Rownames are sample keys and colnames are genes.}
+
+\item{CHEM_DICT}{Data frame with one row per sample key and seven columns:
+sample_key, sample_id, conc, time, casrn, name, dtxsid.}
+
+\item{output_dir}{full path to directory/file where the CHEM_DICT/FCMAT2 data frames should be saved}
+
+\item{writing_to_disk}{boolean, TRUE if the resulting CHEM_DICT/FCMAT2 data frames are to be saved to disk}
 }
 \value{
-No output.
+list of the randomized FCMAT2 and CHEM_DICT data frame
 }
 \description{
 Generate randomized null data based on actual data.
 }
 \details{
-New FCMAT2 and CHEM_DICT files corresponding to the null dataset are written
-to disk in the basedir folder. The nullset name is paste0(dataset, "_", nchem).
-Randomization is performed by sampling the quantile function for each gene in
-the actual data. The nullset will have roughly the same distribution of values
-for each gene in the actual data,
+Randomization is performed by sampling the quantile function for each gene in the actual data.
+The null set will have roughly the same distribution of values for each gene in the actual data.
 }

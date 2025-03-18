@@ -7,7 +7,10 @@
 printCurrentFunction(comment.string = NA)
 }
 \arguments{
-\item{comment.string}{An optinal string to be printed}
+\item{comment.string}{An optional string to be printed}
+}
+\value{
+nothing
 }
 \description{
 Print the name of the current function

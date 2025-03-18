@@ -2,7 +2,7 @@
 % Please edit documentation in R/cutoffCalc.R
 \name{cutoffCalc.inner.fc}
 \alias{cutoffCalc.inner.fc}
-\title{Inner function for the cutoff calculation}
+\title{Inner function for the cutoff calculation based on the analytical method}
 \usage{
 cutoffCalc.inner.fc(parent, catalog, allgenes, pval)
 }
@@ -11,15 +11,13 @@ cutoffCalc.inner.fc(parent, catalog, allgenes, pval)
 
 \item{catalog}{The signature catalog}
 
-\item{allgenes}{THe list of all the genes in the data set}
+\item{allgenes}{The list of all the genes in the data set}
 
 \item{pval}{The p-value for the baseline distribution}
-
-\item{covmat}{THe covariance matrix}
 }
 \value{
 vector containing the parent (signature), cutoff, sd, bmed
 }
 \description{
-Inner function for the cutoff calculation
+Inner function for the cutoff calculation based on the analytical method
 }

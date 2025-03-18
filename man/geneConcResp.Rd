@@ -5,45 +5,43 @@
 \title{Gene Concentration Response}
 \usage{
 geneConcResp(
-  dataset = "tox21_cpp5_heparg_pe1_normal",
   mc.cores = 20,
-  to.file = T,
+  to.file.path = NULL,
   pval = 0.05,
   aicc = F,
-  fitmodels = c("cnst", "hill", "poly1", "poly2", "pow", "exp2", "exp3", "exp4",
-    "exp5"),
-  genefile = NULL
+  fitmodels = c("cnst", "hill", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"),
+  genefile = NULL,
+  FCMAT2,
+  CHEM_DICT
 )
 }
 \arguments{
-\item{dataset}{String that identifies data set.}
-
 \item{mc.cores}{Number of parallel cores to use.}
 
-\item{to.file}{If TRUE, results are written to an RData file, otherwise they
-are returned.}
+\item{to.file.path}{when provided, path of RDS file where results are written to}
 
 \item{pval}{P-value cutoff between 0 and 1.}
 
-\item{aicc}{If aicc = T, corrected AIC is used insstead of first order
+\item{aicc}{If aicc = T, corrected AIC is used instead of first order
 (regular) AIC.}
 
 \item{fitmodels}{Vector of models names to be used. Default is all of them.}
+
+\item{genefile}{An optional file (.xlsx) that can be used to filter concentration-response modeling for a subset of genes of interest}
+
+\item{FCMAT2}{chem/conc by gene or chem/conc by probe. Uses two lowest concentration of each
+column to estimate noise cutoff (as opposed to signature CR).}
+
+\item{CHEM_DICT}{Dataframe with one row per sample key and seven columns:
+sample_key, sample_id, conc, time, casrn, name, dtxsid.}
 }
 \value{
-If to.file = F, data frame containing results; otherwise, nothing.
-
-* MCF7_pilot_DMEM_6hr_pilot_normal_pe_1
-* MCF7_pilot_DMEM_12hr_pilot_normal_pe_1
-* MCF7_pilot_DMEM_24hr_pilot_normal_pe_1
-* MCF7_pilot_PRF_6hr_pilot_normal_pe_1
+dataframe of concentration response modeling results
 }
 \description{
-Wrapper that performs concentration response modeling for gene or probe l2fc's
+Wrapper that performs concentration response modeling for gene/probe log2 fold-change values
 }
 \details{
-Loads an FCMAT2 and CHEM_DICT corresponding to given dataset. FCMAT should be
-chem/conc by gene or chem/conc by probe. Uses two lowest concentration of each
-column to estimate noise cutoff (as opposed to signature CR). Also, doesn't
-currently contain a plotting option.
+Uses two lowest concentration of each
+column to estimate noise cutoff (as opposed to signature CR).
 }

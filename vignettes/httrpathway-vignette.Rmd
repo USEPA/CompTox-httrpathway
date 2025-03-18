@@ -1,123 +1,237 @@
 ---
 title: "httrpathway-vignette"
-author: "Richard Judson"
-date": December 13, 2021
-output:
-  rmarkdown::html_vignette: default
-  rmarkdown::html_vignette(toc=true): default
-vignette: |
-  %\VignetteIndexEntry{httrpathway-vignette} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+author: "Derik Haggard"
+date: "1-21-2025"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{httrpathway (v0.1) vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
 ```
 
-```{r setup}
-#library(httrpathway)
-```
 
 ## Introduction
 
-"httrpathway" is a set of functions for calculating concentration-response data for high-throughput transcriptomics data (HTTr). To-date, this package has been used to process TempO-Seq data, but in principle, and RNASeq data that is properly preprocessed could be used. Input data is assume to have been created in the form of log2-fold change values (l2fc) for each probe (or gene) for each chemical sample x concentration pair. We currently use DESeq2 to convert normalized count data to this format. Concentration-response modeling is done in two ways. The first analyzes the data at the level of individual genes, and the second at the level of signatures (genesets or pathways). This package inputs and outputs large files containing the data, so assumes a somewhat complicated directory structure. This vignette describes the directory structure, the process need to create the input files, and the process of running and analyzing gene and signature-level concentration-response modeling.
+The `httrpathway` R package is a set of functions for calculating concentration-response data for high-throughput transcriptomics data (HTTr). To-date, this package has been used to process targeted RNA-Seq experiments that utilize the TempO-Seq platform, but in principle, could be used with other RNA-Seq data that has been properly pre-processed.
 
-## Directory Structure
+Input data should be in the form of log2-fold change values (l2fc) for each probe (or gene) for each chemical sample x concentration pair. We currently use *DESeq2* to convert normalized count data to this format as part of the *httrpl* pipeline software (https://github.com/USEPA/CompTox-httrpl).
 
-The package and all of the directories listed here are assumed to reside in a parent directory (called here "parent"). In parent are the following directories/ Some of these will have subdirectories for individual cell types or data sets. Before running the code, these main directories need to be created.
+Concentration-response modeling is done in two ways. The first analyzes the data at the level of individual genes/probes, and the second at the level of signatures (genesets or pathways). This vignette describes the input files needed, and the process of running and analyzing gene and signature-level concentration-response modeling.
 
-- parent/httrpathway - the R package
-- parent/input/signatures - contains the signature data
-- parent/input/fcdata - contains the input l2fc data
-- parent/output/gene_conc_resp_summary - concentration-response results at the gene level
-- parent/output/gene_conc_resp_plots - concentration-response plots at the gene level
-- parent/output/signature_cutoff - signature cutoffs (intermediate results)
-- parent/output/signature_conc_resp_summary - concentration-response results at the signature level
-- parent/output/signature_conc_resp_plots - concentration-response plots at the signature level. One folder per data set (auto-created)
-- parent/output/signature_score_summary - signature scores for each samples, conenttration, signature - intermediate results
-- parent/output/super_target_boxplot - super-target plots to summarize signature data at hte chemical level.
+
+## Installation
+
+The *httrpathway* R package is available on the US EPA Github (https://github.com/USEPA/CompTox-httrpathway). To install the R package, a user can clone down the current public release and run devtools::install_local(), or use devtools:install_github(). 
+
+```{r installation, eval=FALSE}
+install.packages("devtools")
+library(devtools)
+
+#if Github repo was cloned
+devtools::install_local(path = "path/to/httrpathway/") #if user cloned repo from Github
+
+#install direct from Github
+devtools::install_github("USEPA/CompTox-httrpathway")
+
+```
+
 
 ## Signatures
 
-There are 3 main files in the parent/input/signatures directory
+The *httrpathway* R pacakge provides several files that define the signatures (genesets or pathways) that are used in concentration-response modeling -- all of which are found in the `httrpathway/inst/extdata/` folder.
 
-- signatureDB.RData - this is a data.frame with the key columns from signature catalog, plus a column gene.list where the gene symbols for the signature are given in pipe-delimited form (e.g. gene1|gene2|gene3)
-- signatureDB_genelists.RData - this is the signatures as a list of lists. Each element in the list is a named list (the signature names) followed by a list of the contained genes. To add signatures to either of these files, one need to write a special piece of code. Note that thes files names are required by the code and should not be changed.
-- signatureDB_master_catalog {date}.xlsx - This is a catalog of the signatures that provides a variety of annotation. The name of this file is user-defined, and is an input variable in certain functions. The catalog is described next.
 
-Signature are lists of genes that come from in a variety of types. Some are genes perturbed by specific chemicals or other molecular perturbation, some are genes perturbed in certain disease or conditions and some are genes involved in specific molecular pathways. For some classes of signatures, there are separate sets of genes that are expected to increase in expression and others that are expected to decrease. Therefore signatures cna be either directional of non-directional. All signatures have a name, and a parent. For nondirectional signatures, these are the same, but for directional signatures, the individual signature names will be "parent_up" and "parent_dn". The final score for a directional signature pair is score(up)-score(dn), and this is assigned to the parent. Key fields in the catalog are:
++ `signatureDB_genelists.RDS` - formats the signatures as a list of lists. Each element in the list is a named list (the signature names) followed by a list of the contained genes. Custom code will be needed if users want to signatures to this file or create a file that contains custom signatures. 
++ `signatureDB_master_catalog_{date}.xlsx` - This is a catalog of the signatures that provides a variety of annotation. The httrpathway R package provides three iterations of this catalog.
 
-- signature - the name of the signature
-- parent - the name of the parent. In the outputs, this is the name used
-- source
-- subsource
-- type - directional or nondirectional
-- direction - up, dn or nondirectional
-- ngene - number of genes in the signature. Note that fewer than this number may be used becasue some of these genes may not occur in the input data set (expression was too low)
-- description - a description of the signature
-- super_target - a standard target annotation, often a gene, gene family, disease or biological process
-- effect_direction - expected direction, mainly useful in the case of signatures arising from agonists, antagonists, inhibitors, etc.
-- target_class - a high-level descriptive term for the target class (e.g. enzyme, transporter)
-- super_target_level - the level of biological organization of the super_target (chemical, gene, cell, tissue, organ)
-- include0 - a flag to set if the signature is not to be used (0 to exclude, 1 to include)
-- signature set names (pilot_small, screen_large, ...) - When running calculations, one rarely wants to use all available signatures, so a column is used that designates the signatures to be used (yes=1, no=0). The column name is then the variable _sigset_ (signature set) which is an input to several functions. Note that pairs of directional signatures need to be included or excluded together. 
+### Signature Catalog
 
-__Key note about signature sizes__: A data set (variable name _dataset_) will not contain all genes in the genome - only those with above a certain level of expression, maybe 5 counts per million in the majority of samples. When calculations are being run, the signature gene lists are subsetted to those in the data set. Calculations are then only run with signatures containing at least 10 genes after this subsetting. The code is not very smart, so these newly shrunk signatures need to be excluded and the code restarted. A warning message about these bad signatures is given and the code halts. Edit the signature catalog, excluding the signatures from the current _sigset_ and restart. This check happens early. If one of a directional pair is excluded, both need to be excluded. 
+Signatures are lists of genes that come from a variety of sources. Some are genes perturbed by specific chemicals or other molecular perturbation, some are genes perturbed in certain disease or conditions and some are genes involved in specific molecular pathways. For some classes of signatures, there are separate sets of genes that are expected to increase in expression and others that are expected to decrease. Therefore signatures can be either directional or non-directional. All signatures have a name, and a parent. For non-directional signatures, these are the same, but for directional signatures, the individual signature names will be "parent_up" and "parent_dn". The final score for a directional signature pair is score(up)-score(dn), and this is assigned to the parent. Key fields in the catalog are:
 
-## Creating input l2fc files
++ signature - the name of the signature
++ parent - the name of the parent. In the outputs, this is the name used
++ source
++ subsource
++ type - directional or non-directional
++ direction - up, dn or non-directional
++ ngene - number of genes in the signature. Note that fewer than this number may be used because some of these genes may not occur in the input data set (expression was too low)
++ description - a description of the signature
++ super_target - a standard target annotation, often a gene, gene family, disease or biological process
++ effect_direction - expected direction, mainly useful in the case of signatures arising from agonists, antagonists, inhibitors, etc.
++ target_class - a high-level descriptive term for the target class (e.g. enzyme, transporter)
++ super_target_level - the level of biological organization of the super_target (chemical, gene, cell, tissue, organ)
++ include0 - a flag to set if the signature is not to be used (0 to exclude, 1 to include)
++ sigset - signature set names (pilot_small, screen_large, ...) - When running calculations, one rarely wants to use all available signatures, so a column is used that designates the signatures to be used (yes=1, no=0). The column name is then the variable *sigset* (signature set) which is an input to several functions. Note that pairs of directional signatures need to be included or excluded together. 
 
-For each data set to be run (variable _dataset_), 2 input files are needed, the chemical dictionary and the l2fc matrix. A dataset comprises the data for a group of chemicals run in a particular cell type. These are named CHEM_DICT_{dataset}.RData and FCMAT2_{dataset}.RData. CHEM_DICT has one row per chemcial sample x concentration combination. Key variables are the chemical name, the DSSTox Substance_id (variable name _dtxsid_), the concentration, the concentraiton index and the sample_key (a concatenation of these other variables). FCMAT2 is a data.frame with one row per row in CHEM_DICT, with rownames being the sample key and columns being genes (or probes). In our implementation, we create these files from the DESeq2 output by running the following functions
 
-```{r eval=FALSE}
-buildFCMAT1.fromDB(dataset=dataset,dir={location of DESeq2 file},infile={name of DESEQ2 file}, do.load=T)
-buildFCMAT2.fromDB(dataset=dataset,time={incubation time in hours},media={cell media},method="gene",do.read=T) 
+## httrpathway Input Table
+
+One primary input table is needed to run the *httrpathway* R package, FCMAT1, which is a log2 fold-change matrix that also details the chemical treatment information. FCMAT1 is in long format with rows containing gene/probe level l2fc values for all chemical treatments. Key columns in FCMAT1 are the chemical name (*chem_name*), the DSSTox Substance_id (variable name *dtxsid*), the concentration (*conc*), concentration unit (*conc_unit*), the concentration index (*dose_level*), the sample key (a concatenation of these other variables; *sample_key*), the sample type (test sample or reference chemical; *stype*), and the log2 fold change values (*l2fc*). Additional columns are allowed, but are not used. 
+
+Below describes an example of what FCMAT1 should contain.
+
+**Notes:**
+
++ If you are also using the EPA *httrpl* software pipeline (https://github.com/USEPA/CompTox-httrpl), the supplemental R package, *httrlib*, includes the function `getFCMAT1()` which will query the appropriate MongoDB collection/s and reformat the output to be compatible with httrpathway.
++ Please see function documentation (e.g., `?httrpathway::buildFCMAT2`) for description of all function parameters, expected input and function output.
+
+```{r FCMAT1 example}
+
+library(httrpathway)
+library(tcplfit2)
+
+#load in example FCMAT1
+FCMAT1 <- readRDS(file = system.file("extdata", "example_FCMAT1.RDS", package = "httrpathway"))
+head(FCMAT1)
+
+#if using httrpl to load FCMAT1 from MongoDB (or JSON)
+#library(httrlib) #note: this is not run in case httrlib has not been installed from httrpl
+#FCMAT1 <- getFCMAT1(db_host = "host", db_name = "db_name")
+
 ```
-  
-The resulting CHEM_DICT and FCMAT2 files will be placed in parent/input/fcdata. These functions currently produce a number of other files (for instance the standard error matrix in the same format as the l2fc matrix) that might prove useful.
+
+Once properly formatted, the FCMAT1 object is then converted to wide format (FCMAT2) and a chemical dictionary (CHEM_DICT) is extracted. The *httrpathway* package provides options to either create these two outputs as a list object or will save to RDS files (preferred method).
+
+```{r FCMAT2 and CHEM_DICT generation}
+
+#create FCMAT2 and CHEM_DICT in one list:
+example_data <- buildFCMAT2(FCMAT1 = FCMAT1, time = 24, sample_type = "test sample", media = NA, output_dir = "", writing_to_disk = FALSE)
+FCMAT2 <- example_data[["FCMAT2"]]
+CHEM_DICT <- example_data[["CHEM_DICT"]]
+
+#look at list output
+str(example_data)
+head(CHEM_DICT)
+head(FCMAT2[, 1:25])
+
+#create FCMAT2 and CHEM_DICT and save to RDS files (preferred method) -- Note: not run in vignette
+# example_data <- buildFCMAT2(FCMAT1 = FCMAT1,time = 24, sample_type = "test sample", media = NA, output_dir = "/path/to/output/folder", writing_to_disk = TRUE)
+
+```
+
 
 ## Running Concentration Response Modeling - Signatures
 
-To run the concentration response process, use the function _driver.R_, shown here with standard settings. The core methods for performing concentration-response modeling is the _tcplfit2_ package on [CRAN](https://cran.r-project.org/web/packages/tcplfit2/index.html), so one should be familiar with that to help understand the following. 
+The core workflow for performing signature concentration-response analysis is as follows:
 
+1. Calculate signature scores for each chemical:concentration:probe (or gene) combination from the FCMAT2 and CHEM_DICT R objects
+2. Merge directional signature scores to the parent signature (The final score for a directional signature pair is score(up)-score(dn), and this is assigned to the parent).
+3. Perform concentration-response modeling of each chemical:probe (or gene) of the resulting merged signature scores using the `concRespCore` function from the *tcplfit2* R package.
 
-```{r eval=FALSE}
-driver(dataset=dataset,
-       sigcatalog={name of the signature catalog file, without the .xlsx extension},
-       sigset=sigset,
-       mc.cores={1 for a serial machine, or >=1 on a paralell system},
-       nlowconc=2,
-       hccut=0.9,
-       tccut=1,
-       plotrange=c(0.0001,100),
-       method="gsea",
-       celltype={name of the cell type},
-       do.conc.resp=T,
-       do.scr.plots=T,
-       do.supertarget.boxplot=T)
+An example is provided below:
 
-```
+```{r full analysis run, eval=FALSE}
 
-A few variables might be changed as follows
+#Step 1. Calculate signature scores using defined method (ssGSEA is default)
+gsea_sigScores <- signatureScore(FCMAT2 = FCMAT2, CHEM_DICT = CHEM_DICT, sigset = "pilot_small", method = "gsea", mc.cores = 4,
+                                 sigcatalog = system.file("extdata", "signatureDB_master_catalog_2022-05-16.xlsx", package = "httrpathway"),
+                                 sigdbgenelist = system.file("extdata", "signatureDB_genelists.RDS", package = "httrpathway"))
 
-- mc.cores - Several sections of the code will run on a parallel machine, so you can add the number of cores. We have run up to 40 cores
-- nlowconc - In doing concentration-response modeling, a key parameter is _cutoff_, which is the 95% confidence interval around the assumed background. For a signature-chemical combination to be called active, at least one point needs to be above this (or below _-cutoff_). The standard way to calculate this cutoff is to take (for each signature), the score for the lowest _nlowconc_ concentrations for all samples/chemicals in the data set and calculate the 95th percentile from this. This assumes that for most signatures and most chemicals, there is little bioactivity at the few lowest concentrations. We have looked at how few chemical one needs to get a reasonable cutoff and have found that for as few as 10, the cutoffs are close to what one gets from 1000 chemicals. For very small or very active data sets, some other way to determine cutoffs must be used. In that case, a cutoff file can be specified and this option is not used (see the full documentation for _driver.R_)
-- hccut - The output of the concentration-response process is a vector for each chemical sample / signature pair, including the variable _hitcall_, which is in the range of 0-1. A high value indicates high confidence that there is activity. For some downstream analyses, _hitcall_ is binarized with values _<hccut_ set to inactive. The value of 0.9 is our current default.
-- tccut - Another output variable from the fitting is _top_over_cutoff_, a kind of Z-score. In some cases, it may be useful to filter results where _hitcall_ ~1, but where _top_over_cutoff_ is above but close to 1. Currently we do not do this.
-- method - This variable is designates what signature scoring method to use and it is currently either gsea (Gene Set Enrichment Analysis) or fc (fold change).We currently use only gsea, but are evaluating other scoring functions to better distinguish signal from noise.
-- do.X - These flags let you run jsut specific parts of the code (calculate concentration-response, produce concentration-response plots or produce the super_target boxplots to summarize all the results in one plot per chemical sample)
+#Step 2. Perform merge to combine any directional signatures
+merged_signatures <- signatureScoreMerge(signaturescoremat = gsea_sigScores, sigset = "pilot_small",
+                                         sigcatalog = system.file("extdata", "signatureDB_master_catalog_2022-05-16.xlsx", package = "httrpathway"),
+                                         sigdbgenelist = system.file("extdata", "signatureDB_genelists.RDS", package = "httrpathway"),
+                                         method = "gsea")
 
+#Step 3. Perform concentration-response modeling of signature scores
+signatureCR <- signatureConcResp(dataset = "test", sigset = "pilot_small", method = "gsea",
+                                 sigcatalog = system.file("extdata", "signatureDB_master_catalog_2022-05-16.xlsx", package = "httrpathway"),
+                                 sigdbgenelist = system.file("extdata", "signatureDB_genelists.RDS", package = "httrpathway"),
+                                 signaturescoremat = merged_signatures, CHEM_DICT = CHEM_DICT, mc.cores = 8,
+                                 fitmodels = c("cnst", "hill",  "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"))
 
-## Running Concentration Response Modeling - Genes
-
-To run concentration-response modeling at hte level of individual genes, use the following function
-
-```{r eval=FALSE}
-geneConcResp(dataset=dataset,
-             mc.cores=1,
-             genefile=NULL) {
+#Step 4. Save output if desired
+saveRDS(signatureCR, file = "path/to/output/")
 
 ```
 
-This is much simpler than the call (and code) for running signature concentration-response modeling. The only new variable is _genefile_. If one wants to only run the code for a subset of genes, provide an Excel file (with a relative path) containing the gene list, one gene per line.
+Additionally, the *httrpathway* R package provides a nested function to run the full analysis:
+
+```{r neseted analysis, eval=FALSE}
+
+full_dat <- runAllSignatureCR(dataset = "test", sigset = "pilot_small", method = "gsea",
+                  sigcatalog = system.file("extdata", "signatureDB_master_catalog_2022-05-16.xlsx", package = "httrpathway"),
+                                 sigdbgenelist = system.file("extdata", "signatureDB_genelists.RDS", package = "httrpathway"),
+                  mc.cores = 4, FCMAT2 = FCMAT2, CHEM_DICT = CHEM_DICT)
+
+#Save output if desired
+saveRDS(full_dat, file = "path/to/output/")
+
+```
+
+
+## Running Concentration Response Modeling - Genes/Probes
+
+To run concentration-response modeling at the level of individual probes/genes, use the following function
+
+```{r gene conc-resp, eval=FALSE}
+
+#Read in FCMAT2 and CHEM_DICT from RDS files
+FCMAT2 <- readRDS("path/to/FCMAT2.RDS")
+CHEM_DICT <- readRDS("path/to/CHEM_DICT.RDS")
+
+#Run probe/gene-level analysis
+gene_cr <- geneConcResp(FCMAT2 = FCMAT2, CHEM_DICT = CHEM_DICT, mc.cores = 4)
+
+#Save output if desired
+saveRDS(gene_cr, file = "path/to/output/")
+
+```
+
+This is much simpler than the call (and code) for running signature concentration-response modeling. There is an optional function parameter, *genefile*, that can be supplied to the `geneConcResp` function, which enables the user to run concentration-response modeling on a subset of genes. *genefile* should be a path to a user-created `.xlsx` file containing the gene list, one gene per line.
+
+
+## Misc 
+
+**Notes:**
+
++ The core methods for performing concentration-response modeling come from the *tcplfit2* R package on [CRAN](https://cran.r-project.org/web/packages/tcplfit2/index.html), so one should be familiar with that to help understand the following.
++ Concentration-response modeling can be a time-intensive process. The *httrpathway* package offers parallel processing capabilities to speed up compute times. Functions that offer parallel processing have the *mc.cores* function parameter. 
+
+Notable function parameters throughout the *httrpathway* package:
+
++ mc.cores - Several sections of the code will run in parallel, so you can add the number of cores.
++ nlowconc - In doing concentration-response modeling, a key parameter is the *cutoff*, which is the 95% confidence interval around the assumed background. For a signature-chemical combination to be called active, at least one point needs to be above this (or below *cutoff*). The standard way to calculate *cutoff* is to take (for each signature), the score for the lowest *nlowconc* concentrations for all samples/chemicals in the data set and calculate the 95th percentile from this. This assumes that for most signatures and most chemicals, there is little bioactivity at the lowest concentrations. We have looked at how many chemicals are needed in a dataset to get a reasonable *cutoff* value and have found that as few as 10 chemicals provides a*cutoff* that is close to what one gets for 1000 chemicals.
++ hccut - The output of the concentration-response process is a vector for each chemical sample:signature pair, including the variable *hitcall*, which is in the range of 0-1. A high *hitcall* value indicates high confidence in the winning concentration-response model. For some downstream analyses, *hitcall* is binarized with values less than*hccut* set to inactive. The value of **0.9** is our current default.
++ tccut - Another output variable from the fitting is *top_over_cutoff*, a kind of Z-score. In some cases, it may be useful to filter results where *hitcall* ~1, but where *top_over_cutoff* is above but close to 1.
++ method - This variable designates what signature scoring method is used and it is currently either gsea (single-sample Gene Set Enrichment Analysis), fc (fold change), or gsva )gene set variation analysis).  **gsea** is the default *method*.
+
+
+## Data Visualization
+
+*httrpathway* does not have direct plotting functions (older, more exploratory functions have been deprecated). However, since the concentration-response modeling relies on the US EPA *tcplfit2* R package, output from *httrpathway* is compatible with the plotting functions from that package. 
+
+An example is provided below:
+
+```{r example plotting, fig.width=8, fig.height=6}
+library(tcplfit2)
+
+#Simulate a curve fit example from runAllSignatureCR()
+dat <- data.frame(sample_id = "chem1", dtxsid = "TBD", casrn = "TBD", name = "chemical 1", time = 24,
+                  signature = "CMAP genistein 1e-05 100 8335 100", signature_size = 70,
+                  n_gt_cutoff = 6, cutoff = 1.101966e-02, fit_method = "hill", top_over_cutoff = 25.740808, rmse = 0.01233023,
+                  a = NA, b = NA, tp = 0.28365487, p = 3.9524819, q = NA, ga = 0.5598058, la = NA, er = -4.585615, bmr = 7.584587e-03,
+                  bmdl = 1.947426e-01, bmdu = 2.502727e-01, caikwt = 5.177364e-10, mll = 23.583553, hitcall = 1, ac50 = 0.5598058,
+                  ac50_loss = NA, top = 0.28365487, ac5 = 0.265769793, ac10 = 0.32107666, ac20 = 0.39419661, acc = 2.485970e-01,
+                  ac1sd = 2.086419e-01, bmd = 2.254621e-01, conc = "0.001|0.093|0.865|100|11|26.1|3.73|53.5",
+                  resp = "0.00397562103767626|-0.00397562103767626|0.240636713298024|0.308455274431683|0.271588588359531|0.28152961998457|0.271303380809419|0.300053701872333",
+                  errfun = "dt4", target_class = "Nuclear Receptor", super_target = "Estrogen", sigset = "pilot_small",
+                  dataset = "example", method = "gsea", bmr_scale = 1.35)
+
+dat$assay <- "CMAP genistein 1e-05 100 8335 100" #add assay for tcplfit2
+
+#plot with tcplfit2::concRespPlot()
+tcplfit2::concRespPlot(dat, ymin = -0.1, ymax = 0.4)
+
+```
+
+

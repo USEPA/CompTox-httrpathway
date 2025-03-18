@@ -6,10 +6,8 @@
 \usage{
 signatureScoreCoreGSEA(
   sk.list,
-  method = "gsea",
   normfactor = 7500,
   sigset,
-  dataset,
   fcmat,
   chem_dict,
   signature_data,
@@ -21,23 +19,20 @@ signatureScoreCoreGSEA(
 \arguments{
 \item{sk.list}{Sample keys to use; should correspond to fcmat rownames.}
 
-\item{method}{Method name to use in file output. "gsea" or "gsea_norank"}
+\item{normfactor}{= proceed on first 1/normfactor of GSEA data}
 
 \item{sigset}{Name of signature set.}
 
-\item{dataset}{Name of data set.}
-
-\item{fcmat}{Sample by gene matrix of log2(fold change)'s. Rownames are
+\item{fcmat}{Expects FCMAT2. Sample by gene matrix of log2(fold change)'s. Rownames are
 sample keys and colnames are genes.}
 
-\item{chem_dict}{Dataframe with one row per sample key and seven columns:
+\item{chem_dict}{Expects CHEM_DICT object. Dataframe with one row per sample key and seven columns:
 sample_key, sample_id, conc, time, casrn, name, dtxsid.}
 
-\item{signature_data}{Named ist of gene name vectors. Each element is one
+\item{signature_data}{Named list of gene name vectors. Each element is one
 signature, defined by the genes it contains.}
 
-\item{mc.cores}{Number of cores to use. Parallelization is performed
-by gsva itself.}
+\item{mc.cores}{Number of cores to use.}
 
 \item{normalization}{normalization = T normalizes final scores.}
 
@@ -45,16 +40,15 @@ by gsva itself.}
 fold changes are used for weights.}
 }
 \value{
-No output.
+Dataframe with one row per chemical/conc/signature combination. Columns
+  are: sample_id, dtxsid, casrn, name, time, conc, sigset, signature, size, signature_score
 }
 \description{
 Computes signature scores for gsea.
 }
 \details{
 This function is a parallelized wrapper for gsea, which does the actual
-scoring. gsea method uses ranks and normalization, while gsea_norank
-method does not use ranks or normalization. Normalization divides final
+scoring. gsea method uses ranks and normalizationby default. Normalization divides final
 scores by difference between max and min score. Without normalization,
-scores from individual samples have no impact on each other. Final
-signaturescoremat is written to disk.
+scores from individual samples have no impact on each other.
 }

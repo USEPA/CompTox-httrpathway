@@ -2,37 +2,36 @@
 #'
 #' Generate randomized null data based on actual data.
 #'
-#' New FCMAT2 and CHEM_DICT files corresponding to the null dataset are written
-#' to disk in the basedir folder. The nullset name is paste0(dataset, "_", nchem).
-#' Randomization is performed by sampling the quantile function for each gene in
-#' the actual data. The nullset will have roughly the same distribution of values
-#' for each gene in the actual data,
+#' Randomization is performed by sampling the quantile function for each gene in the actual data.
+#' The null set will have roughly the same distribution of values for each gene in the actual data.
 #'
-#' @param basedir Directory that holds FCMAT2 and CHEM_DICT files.
-#' @param dataset Name of actual dataset to base null data on.
 #' @param nchem Number of null chemicals. Number of null samples is approximately
 #'   eight times this value.
 #' @param seed Random seed.
 #' @param maxconc Only use concentrations less than maxconc, default 1000000
-#' @param nlowconc If not NULL, only include the loest nlowconc concentrations for eahc chemical
+#' @param nlowconc If not NULL, only include the lowest nlowconc concentrations for each chemical
 #' @param dtxsid.exclude dtxsids to exclude, default NULL
-#' for U2OS pilot dtxsid.exclude=c('DTXSID9020031','DTXSID0040464','DTXSID5023582')
-#'
-#' @return No output.
-#' @export
-randomdata = function(basedir="../input/fcdata/",
-                      dataset="u2os_pilot_pe1_normal_null_pilot_lowconc",
-                      nchem = 1000,
+#' @param FCMAT2 Sample by gene matrix of log2(fold change)'s. Rownames are sample keys and colnames are genes.
+#' @param CHEM_DICT Data frame with one row per sample key and seven columns:
+#'   sample_key, sample_id, conc, time, casrn, name, dtxsid.
+#' @param output_dir full path to directory/file where the CHEM_DICT/FCMAT2 data frames should be saved
+#' @param writing_to_disk boolean, TRUE if the resulting CHEM_DICT/FCMAT2 data frames are to be saved to disk
+#' @importFrom stats quantile
+#' @importFrom stats runif
+#' @return list of the randomized FCMAT2 and CHEM_DICT data frame
+#' @export randomdata
+randomdata <- function(nchem = 1000,
                       seed = 12345,
                       maxconc=1000000,
                       nlowconc=2,
-                      dtxsid.exclude=NULL){
+                      dtxsid.exclude=NULL,
+                      FCMAT2,
+                      CHEM_DICT,
+                      output_dir="../data/",
+                      writing_to_disk=FALSE){
   printCurrentFunction()
   set.seed(seed)
 
-  #load chem_dict
-  file <- paste0(basedir,"CHEM_DICT_",dataset,".RData")
-  load(file)
   chem_dict_filter = CHEM_DICT
   if(!is.null(nlowconc)) {
     filter = vector(length=nrow(chem_dict_filter),mode="integer")
@@ -63,10 +62,6 @@ randomdata = function(basedir="../input/fcdata/",
   concs = unlist(concpats)
   clens = sapply(concpats[1:nchem],length)
   n = length(concs)
-  #load fcmat
-  file <- paste0(basedir,"FCMAT2_",dataset,".RData")
-  cat("  file:",file,"\n")
-  load(file)
   sk.list = chem_dict_filter$sample_key
   FCMAT2 = FCMAT2[sk.list,]
 
@@ -105,10 +100,14 @@ randomdata = function(basedir="../input/fcdata/",
                          dtxsid = rep(paste0("Randomdtx", 1:nchem), times = clens),
                          stringsAsFactors = F)
   CHEM_DICT$sample_key = paste(CHEM_DICT$sample_id, CHEM_DICT$conc, sep = "_")
-  save(CHEM_DICT, file = paste0(basedir,"CHEM_DICT_", dataset, "_RAND",nchem,".RData"))
+  if (writing_to_disk==TRUE){
+    saveRDS(CHEM_DICT, paste0(output_dir,"CHEM_DICT_RAND",nchem,".RDS"))
+  }
 
   #save fcmat to disk
   rownames(FCMAT2) = CHEM_DICT$sample_key
-  save(FCMAT2, file = paste0(basedir,"FCMAT2_", dataset, "_RAND",nchem,".RData"))
-  #browser()
+  if (writing_to_disk==TRUE){
+    saveRDS(FCMAT2, paste0(output_dir,"FCMAT2_RAND",nchem,".RDS"))
+  }
+  return(list(FCMAT2,CHEM_DICT))
 }

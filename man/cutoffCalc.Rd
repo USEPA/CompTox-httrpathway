@@ -3,48 +3,39 @@
 \name{cutoffCalc}
 \alias{cutoffCalc}
 \title{Calculate the signature-wise cutoffs based on the analytical method
-which does not break any correlations between genes}
+which does not break any correlations between genes
+and compare with already defined signature_cr object (see exportSignatureCutoffs function)}
 \usage{
 cutoffCalc(
-  basedir = "../input/fcdata/",
-  dataset,
   sigcatalog,
   sigset,
-  method,
   pval = 0.05,
   seed = 12345,
   nlowconc = 2,
   mc.cores = 1,
   dtxsid.exclude = NULL,
-  do.load = T,
   do.cov = T,
   do.compare = F,
   to.file = F,
-  verbose = F
+  sigdbgenelist,
+  FCMAT2,
+  CHEM_DICT
 )
 }
 \arguments{
-\item{basedir}{Directory that holds FCMAT2 and CHEM_DICT files.}
-
-\item{dataset}{Name of actual dataset to base cutoff on.}
-
 \item{sigcatalog}{The name of the signature catalog to use}
 
-\item{sigset}{THe signature set}
-
-\item{method}{The scoring method, either fc or gsea}
+\item{sigset}{The signature set}
 
 \item{pval}{The p-value for the baseline distribution}
 
-\item{seed}{Random seed.}
+\item{seed}{Random seed}
 
-\item{nlowconc}{Only include the lowest nlowconc concentrations for each chemical}
+\item{nlowconc}{Only include the nlowconc concentrations for each chemical when calcualting the cutoff}
 
-\item{mc.cores}{NUmber of coresto use when running parallel}
+\item{mc.cores}{Number of cores to use when running parallel}
 
 \item{dtxsid.exclude}{dtxsids to exclude, default NULL}
-
-\item{do.load}{If TRUE, reload the FCMAT2 matrix, signature catalog and chemical dictionary, and store in globals}
 
 \item{do.cov}{If TRUE, calculate the covariance matrix and store in a global}
 
@@ -52,12 +43,19 @@ cutoffCalc(
 
 \item{to.file}{If TRUE, and do.compare=TRUE, send a plot of the comparison to a file}
 
-\item{verbose}{If TRUE, write a line for each signature to show progress.}
+\item{sigdbgenelist}{full path to the signatureDB_genelist.RDS file}
+
+\item{FCMAT2}{Sample by gene matrix of log2(fold change)'s. Rownames are
+sample keys and colnames are genes.}
+
+\item{CHEM_DICT}{Dataframe with one row per sample key and seven columns:
+sample_key, sample_id, conc, time, casrn, name, dtxsid.}
 }
 \value{
-No output.
+calculated cutoffs dataframe
 }
 \description{
 Calculate the signature-wise cutoffs based on the analytical method
 which does not break any correlations between genes
+and compare with already defined signature_cr object (see exportSignatureCutoffs function)
 }
