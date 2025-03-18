@@ -31,7 +31,7 @@ devtools::install_local(path = "/path/to/httrpathway/", force = TRUE)
 library(httrpathway)
 ```
 
-**Using devtools::install_github():** *Note: This is still under development* 
+**Using devtools::install_github():**
 
 1. Run devtools function to install directly from Github
 ```r
