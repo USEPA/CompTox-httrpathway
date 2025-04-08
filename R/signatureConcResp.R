@@ -13,7 +13,7 @@
 #' @param bmr_scale	bmr scaling factor. Default = 1.349
 #' @param mc.cores Number of cores to parallelize with.
 #' @param pval Desired cutoff p-value.
-#' @param nlowconc Only include the lowest nlowconc concentrations for each chemical
+#' @param nlowconc Only include the lowest nlowconc concentrations for each chemical when estimating the noise band
 #' @param aicc aicc = T uses corrected AIC to choose winning method; otherwise regular AIC
 #' @param dtxsid.exclude dtxsids to exclude, default NULL
 #' @param minsigsize Minimum allowed signature size. Sample/signature combinations

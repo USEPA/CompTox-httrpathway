@@ -49,7 +49,11 @@ Please see the *httrpathway* vignette (`/httrpathway/vignettes/httrpathway-vigne
 
 ### Version History
 
-**v0.2 (2/6/2025)** -- in progress
+**v0.2.1 (4/8/2025)**
+
++ Fixed bug in how *geneConcResp* function estimates the baseline to use `conc_index <= 2` instead of `conc <= 0.1`
+
+**v0.2 (2/6/2025)**
 
 + Various code improvements
 + Improved roxygen2 documentation
